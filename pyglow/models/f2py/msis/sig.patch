@@ -1,0 +1,6 @@
+17,18c17,18
+<             real dimension(9) :: d
+<             real dimension(2) :: t
+---
+>             real dimension(9), intent(out) :: d
+>             real dimension(2), intent(out) :: t

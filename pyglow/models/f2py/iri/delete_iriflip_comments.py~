@@ -1,0 +1,6 @@
+import os
+
+cmd = "perl -pi -e 's/![\.|-].*$//g' iriflip.for"
+print cmd
+os.system(cmd)
+
