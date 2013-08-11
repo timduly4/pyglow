@@ -1,4 +1,4 @@
-![alt text](https://remote2.csl.illinois.edu/~duly/pyglow/logo.png "pyglow")
+![alt text](http://remote2.csl.illinois.edu/~duly/pyglow/logo.png "pyglow")
 
 1. Download the climatological models and wrap them with f2py
 
