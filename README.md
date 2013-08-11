@@ -1,4 +1,4 @@
-![alt text](http://remote2.csl.illinois.edu/~duly/pyglow/logo.png "pyglow")
+![alt text](https://raw.github.com/timduly4/pyglow/master/logo.png "pyglow")
 
 # Overview
 
