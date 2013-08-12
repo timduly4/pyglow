@@ -35,17 +35,67 @@ $ python ./setup.py install
 from pyglow.pyglow import Point
 from datetime import datetime
 
-dn = datetime(2010, 3, 23, 9, 30)
+dn = datetime(2011, 3, 23, 9, 30)
 lat = 0.
 lon = -80.
 alt = 250.
 
 pt = Point(dn, lat, lon, alt)
 
+print "Before running any models:"
+print pt
+
 pt.run_igrf()
 pt.run_hwm93()
 pt.run_msis()
 pt.run_iri()
 
+print "After running models:"
 print pt
+```
+
+* The output should be as follows:
+
+```
+Before running any models:
+               dn = 2011-03-23 09:30:00
+  (lat, lon, alt) = (0.00, -80.00, 250.00)
+
+Geophysical Indices:
+---------------------
+               kp = 2.70
+               ap = 12.00
+            f107a = 110.47
+
+From IGRF:
+-----------
+     (Bx, By, Bz) = ( nan,  nan,  nan)
+                B =  nan
+              dip =  nan
+
+From HWM:
+------------
+      hwm version = nan
+           (u, v) = ( nan,  nan)
+
+After running models:
+               dn = 2011-03-23 09:30:00
+  (lat, lon, alt) = (0.00, -80.00, 250.00)
+
+Geophysical Indices:
+---------------------
+               kp = 2.70
+               ap = 12.00
+            f107a = 110.47
+
+From IGRF:
+-----------
+     (Bx, By, Bz) = (2.448e-05, -6.449e-07, 9.932e-06)
+                B = 2.642e-05
+              dip = 22.08
+
+From HWM:
+------------
+      hwm version = 93
+           (u, v) = (14.07, 12.18)
 ```

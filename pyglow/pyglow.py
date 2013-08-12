@@ -66,15 +66,37 @@ class Point:
 
     def __repr__(self):
         out = ""
-        out += "dn     = " + self.dn.__str__() + '\n'
-        out += "lat    = %4.2f\n" % self.lat
-        out += "lon    = %4.2f\n" % self.lon
-        out += "alt    = %4.2f\n" % self.alt
-        out += "dip    = %4.2f\n" % self.dip
-        out += "kp     = %4.2f\n" % self.kp
-        out += "ap     = %4.2f\n" % self.ap
-        out += "f107a  = %4.2f\n" % self.f107a
-        out += "n      = %4.2e\n" % self.n
+        out += "%20s" % "dn = "\
+                + self.dn.__str__() + '\n'
+        out += "%20s" % "(lat, lon, alt) = "\
+                + "(%4.2f, %4.2f, %4.2f)\n" % (self.lat, self.lon, self.alt)
+
+        # Indices:
+        out += "\nGeophysical Indices:\n---------------------\n"
+        out += "%20s" % "kp = "\
+                + "%4.2f\n" % self.kp
+        out += "%20s" % "ap = "\
+                + "%4.2f\n" % self.ap
+        out += "%20s" % "f107a = "\
+                + "%4.2f\n" % self.f107a
+
+        # IGRF:
+        out += "\nFrom IGRF:\n-----------\n"
+        out += "%20s" % "(Bx, By, Bz) = "\
+                + "(%4.3e, %4.3e, %4.3e)\n" % (self.Bx, self.By, self.Bz)
+        out += "%20s" % "B = "\
+                + "%4.3e\n" % (self.B)
+        out += "%20s" % "dip = "\
+                + "%4.2f\n" % (self.dip)
+
+        # HWM:
+        out += "\nFrom HWM:\n------------\n"
+        out += "%20s" % "hwm version = "\
+                + "%s\n" % (self.hwm_version)
+        out += "%20s" % "(u, v) = "\
+                + "(%4.2f, %4.2f)\n" % (self.u, self.v)
+
+        #out += "%20s" % "n      = %4.2e\n" % self.n
 
         return out
 
