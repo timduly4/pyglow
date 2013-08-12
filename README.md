@@ -27,7 +27,7 @@ $ python ./setup.py install
 
 * If you are denied permission, I recommend adding `--user` flag in command
 
-4.  Test
+# Testing / Example
 
 * In Python, run:
 
