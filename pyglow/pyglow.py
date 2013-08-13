@@ -60,6 +60,7 @@ class Point:
         self.Bz  = nan
         self.B   = nan
         self.dip = nan
+        self.inc = nan
 
         # call the models:
         self.get_indices()
@@ -230,11 +231,14 @@ class Point:
 
         h = np.sqrt(x**2 + y**2)
         dip = 180./np.pi * np.arctan2(z,h)
+        inc = 180./np.pi * np.arctan2(y,x)
+
         self.Bx  = x/1e9
         self.By  = y/1e9
         self.Bz  = z/1e9
         self.B   = f/1e9
         self.dip = dip
+        self.inc = inc
  
 class Line(Point):
 
