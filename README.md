@@ -103,13 +103,11 @@ From HWM:
 1. Use tab completion in ipython to view the full set of member data and variables available in the Point class.
   * For example, in the test code, run `pt.<TAB><TAB>` and class information will be listed.
 
-## Updating the indices
-1. You'll need to download the geophysical indices as they become available.  The `update_kpap()` function is available in pyglow that let's you do this:
-```
-from pyglow.pyglow import update_kpap
-update_kpap([2012, 2013]) # grabs indices for 2012 and 2013
-update_kpap() # grabs all indices starting from 1932 to the current year
-```
+## Updating geophysical indices
+1. You'll need to download the geophysical indices as they become available.  The `update_kpap()` function is available in pyglow that enables you do this:
+    from pyglow.pyglow import update_kpap
+    update_kpap([2012, 2013]) # grabs indices for 2012 and 2013
+    update_kpap() # grabs all indices starting from 1932 to the current year
   * You'll only need to run this function when you would like to update the indices.
 
 
