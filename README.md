@@ -8,7 +8,7 @@ pyglow is a Python module that wraps several upper atmosphere climatoglogical mo
 # Installation
 
 1. Download `./dist/pyglow-X.X.tar.gz` and unpack it in your local directory
-  * Alternatively, you can run the following command to clone the repository:
+  * Alternatively, you can clone the repository:
 ```
     git clone git://github.com/timduly4/pyglow.git
 ```
