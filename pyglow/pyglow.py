@@ -243,7 +243,7 @@ class Point:
  
 # ---------
 
-def _igrf_tracefield(dn, lat, lon, alt, target_ht=90., step=15.):
+def _igrf_tracefield(dn, lat, lon, alt, target_ht, step):
     import numpy as np
 
     # Go North:
@@ -332,14 +332,18 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
 
     return lla_field
 
-def Line(dn, lat, lon, alt):
+def Line(dn, lat, lon, alt, target_ht=90., step=15.):
     '''
-    pts = Line(dn, lat, lon, alt):
+    pts = Line(dn, lat, lon, alt, target_ht=90., step=15.)
 
     Return a list of instances of Point by 
     tracing along the geomagnetic field line.
+
+    target_ht : altitude to quit tracing at
+                for N and S hemispheres [km]
+    step : approximate step to take between points [km]
     '''
-    llas = _igrf_tracefield(dn, lat, lon, alt)
+    llas = _igrf_tracefield(dn, lat, lon, alt, target_ht, step)
     pts = []
     for lla in llas:
         pts.append( Point(dn, lla[0], lla[1], lla[2]/1e3) )
