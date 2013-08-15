@@ -1,4 +1,5 @@
 ![alt text](https://raw.github.com/timduly4/pyglow/master/logo.png "pyglow")
+[_airglow viewed aboard the ISS_](http://en.wikipedia.org/wiki/File:Cupola_above_the_darkened_Earth.jpg)
 
 # Overview
 
@@ -95,7 +96,13 @@ From HWM:
            (u, v) = (14.07, 12.18)
 ```
 
+
+# Hints
+
+1. Use tab completion in ipython to view the full set of member data and variables available in the Point class.
+  * For example, in the test code, run `pt.<TAB><TAB>` and class information will be listed.
+
 # Uninstallation 
 
 1. The install directory for pyglow is outputted when you run the `python ./setup.py install` command.  For example, on a mac this is usually in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.
-2.  Simply remove the *.so climatological models in this directory, as well as the `pyglow` and `pyglow_trash` folders.
+2.  Simply remove the `*.so` climatological models in this directory, as well as the `pyglow` and `pyglow_trash` folders.
