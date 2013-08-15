@@ -20,15 +20,15 @@ pyglow is a Python module that wraps several upper atmosphere climatoglogical mo
 ```
   * If successful, there should be a `*.so` file in each of the `./models/dl_models/<model>/` directories:
 
-```
+    ```
     $ find . -name "*.so"
     ./dl_models/hwm07/hwm07py.so
     ./dl_models/hwm93/hwm93py.so
     ./dl_models/igrf/igrf11py.so
     ./dl_models/iri/iri12py.so
     ./dl_models/msis/msis00py.so
+    ```
 
-```
 3. Install the python package
 ```
     $ cd ../../   # get back to root directory
