@@ -99,3 +99,6 @@ From HWM:
       hwm version = 93
            (u, v) = (14.07, 12.18)
 ```
+
+# Uninstallation 
+
