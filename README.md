@@ -14,9 +14,7 @@ pyglow is a Python module that wraps several upper atmosphere climatoglogical mo
   * If successful, there should be a `*.so` file in each of the `./models/dl_models/<model>/` directories
 3. Install the python package
     $ python ./setup.py install 
-
   * On a mac, the folder `pyglow` and `*.so` files from `./models/dl_models/<model>/` should be in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
-
   * If you are denied permission, I recommend adding `--user` flag in command
 
 # Testing / Example
