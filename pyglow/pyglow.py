@@ -5,6 +5,7 @@
 def say_hello():
     print "hi from pyglow.py!"
 
+
 class Point:
     def __init__(self, dn, lat, lon, alt):
         import numpy as np
@@ -240,116 +241,145 @@ class Point:
         self.dip = dip
         self.inc = inc
  
-class Line(Point):
+# ---------
 
-    def __init__(self, dn, lat, lon, alt):
-        Point.__init__(self, dn, lat, lon, alt)
+def _igrf_tracefield(dn, lat, lon, alt, target_ht=90., step=15.):
+    import numpy as np
 
-        self.points = []
-        self.igrf_tracefield()
+    # Go North:
+    lla_north = _igrf_tracefield_hemis(dn, lat, lon, alt,\
+            target_ht, step)
 
-        self.lat = []
-        self.lon = []
-        self.alt = []
-        self.n = []
-        self.dn = dn
-        for p in self.points:
-            p.run_iri()
-            self.lat.append( p.lat )
-            self.lon.append( p.lon )
-            self.alt.append( p.alt )
-            self.n.append( p.n )
+    # Go South:
+    lla_south = _igrf_tracefield_hemis(dn, lat, lon, alt,\
+            target_ht, -step)
 
-    def igrf_tracefield(self, target_ht=90., step=15.):
-        import numpy as np
+    # Stack them together:
+    lla = np.vstack( [ np.flipud(lla_north)[:-1,:], lla_south ])
+    
+    return lla
 
-        # Go North:
-        lla_north = self._igrf_tracefield_hemis(target_ht, step)
 
-        # Go South:
-        lla_south = self._igrf_tracefield_hemis(target_ht, -step)
+def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
+    import numpy as np
+    import coord
+    from numpy import array as arr
+    
+    lat = float(lat)
+    lon = float(lon)
+    alt = float(alt)
+    target_ht = float(target_ht)
+    step = float(step)
 
-        # Stack them together:
-        lla = np.vstack( [ np.flipud(lla_north)[:-1,:], lla_south ])
+    target_ht = target_ht*1e3
+    step = step*1e3
+
+    lla = np.array([lat, lon, alt*1e3])
+
+    lla_field = lla
+  
+    """ Step 1: trace the field along a given direction """
+    TOLERANCE = 10 # [m]
+    i = 0
+    while (lla[2] > target_ht):
+        # convert to ECEF:
+        ecef = coord.lla2ecef(lla)
+
+        # Grab field line information:    
+        p = Point(dn, lla[0], lla[1], lla[2]/1e3)
+        p.run_igrf()
+
+        N = p.Bx # North
+        E = p.By # East
+        D = p.Bz # Down
+        A = p.B  # Total
+
+        # Step along the field line
+        ecef_new =  ecef + coord.ven2ecef(lla,[(-D/A*step), (E/A*step), (N/A*step)] )  
         
-        # for lat,lon,alt in lla.....
-        for kk in range(lla.shape[0]):
-            self.points.append(\
-                    Point(self.dn,lla[kk,0],lla[kk,1],lla[kk,2]/1e3))
-        return
+        # Convert to lla coordinates:
+        lla = coord.ecef2lla(ecef_new)
+
+        # add the field line to our collection:
+        lla_field = np.vstack( [lla_field, lla] )       
+        i = i + 1
+
+    """ Step 2: Make the last point close to target_ht """
+    while (abs(lla[2]-target_ht) > TOLERANCE):
+        my_error = lla[2]-target_ht
+        old_step = step
+        # find out how much we need to step by:
+        step = -np.sign(step)*abs(lla[2]-target_ht)
+
+        ecef = coord.lla2ecef(lla)
+
+        p = Point(dn, lla[0], lla[1], lla[2]/1e3)
+        p.run_igrf()
+
+        N = p.Bx # North
+        E = p.By # East
+        D = p.Bz # Down
+        A = p.B  # Total
+
+        # trace the field, but use the modified step:
+        ecef_new = ecef + coord.ven2ecef(lla,np.array([(-D/A), (E/A), N/A])*step/(-D/A) )  
+        # TODO : I changed this, is this correct?
+
+        lla = coord.ecef2lla(ecef_new)
+
+    # replace last entry with the point close to target_ht:
+    lla_field[-1,:] = lla
+
+    return lla_field
+
+def Line(dn, lat, lon, alt):
+    '''
+    pts = Line(dn, lat, lon, alt):
+
+    Return a list of instances of Point by 
+    tracing along the geomagnetic field line.
+    '''
+    llas = _igrf_tracefield(dn, lat, lon, alt)
+    pts = []
+    for lla in llas:
+        pts.append( Point(dn, lla[0], lla[1], lla[2]/1e3) )
+    return pts
 
 
-    def _igrf_tracefield_hemis(self, target_ht, step):
-        import numpy as np
-        import coord
-        from numpy import array as arr
-        
-        lat = float(self.lat)
-        lon = float(self.lon)
-        alt = float(self.alt)
-        target_ht = float(target_ht)
-        step = float(step)
-    
-        target_ht = target_ht*1e3
-        step = step*1e3
-    
-        lla = np.array([lat, lon, alt*1e3])
-    
-        lla_field = lla
-      
-        """ Step 1: trace the field along a given direction """
-        TOLERANCE = 10 # [m]
-        i = 0
-        while (lla[2] > target_ht):
-            # convert to ECEF:
-            ecef = coord.lla2ecef(lla)
-    
-            # Grab field line information:    
-            p = Point(self.dn, lla[0], lla[1], lla[2]/1e3)
-            p.run_igrf()
+def update_kpap(years=None):
+    '''
+    Update the geophysical indices used in pyglow.
+    The files will be downloaded from noaa to your pyglow 
+    installation directory.
 
-            N = p.Bx # North
-            E = p.By # East
-            D = p.Bz # Down
-            A = p.B  # Total
+    update_kpap(years=None)
 
-            # Step along the field line
-            ecef_new =  ecef + coord.ven2ecef(lla,[(-D/A*step), (E/A*step), (N/A*step)] )  
-            
-            # Convert to lla coordinates:
-            lla = coord.ecef2lla(ecef_new)
-    
-            # add the field line to our collection:
-            lla_field = np.vstack( [lla_field, lla] )       
-            i = i + 1
-    
-        """ Step 2: Make the last point close to target_ht """
-        while (abs(lla[2]-target_ht) > TOLERANCE):
-            my_error = lla[2]-target_ht
-            old_step = step
-            # find out how much we need to step by:
-            step = -np.sign(step)*abs(lla[2]-target_ht)
-    
-            ecef = coord.lla2ecef(lla)
+    Inputs:
+    ------
+    years : (optional) a list of years to download.
+            If this input is not provided, the full
+            range of years starting from 1932 to the 
+            current year will be downloaded.
+    '''
+    from datetime import date
+    import urllib
+    import pyglow
 
-            p = Point(self.dn, lla[0], lla[1], lla[2]/1e3)
-            p.run_igrf()
+    if years is None: years=range(1932, date.today().year+1)
 
-            N = p.Bx # North
-            E = p.By # East
-            D = p.Bz # Down
-            A = p.B  # Total
+    pyglow_dir =\
+            '/'.join(pyglow.__file__.split("/")[:-1]) + "/kpap/"
 
-            # trace the field, but use the modified step:
-            ecef_new = ecef + coord.ven2ecef(lla,np.array([(-D/A), (E/A), N/A])*step/(-D/A) )  
-            # TODO : I changed this, is this correct?
-    
-            lla = coord.ecef2lla(ecef_new)
-    
-        # replace last entry with the point close to target_ht:
-        lla_field[-1,:] = lla
-    
-        return lla_field
+    for year in years:
+        src = 'ftp://ftp.ngdc.noaa.gov/'\
+                + 'STP/GEOMAGNETIC_DATA/INDICES/KP_AP/%4i'\
+                % (year,)
+        des = pyglow_dir + "%4i" % (year,)
+        print "\nDownloading"
+        print src
+        print "to"
+        print des
+        urllib.urlretrieve(src,des)
 
 if __name__=="__main__":
     from datetime import datetime, timedelta
