@@ -10,12 +10,10 @@ pyglow is a Python module that wraps several upper atmosphere climatoglogical mo
 
 2. Download the climatological models and wrap them with f2py:
 
-    ```
     $ cd ./pyglow/models/
     $ make all
-    ```
     
-    * If successful, there should be a `*.so` file in each of the `./models/dl_models/<model>/` directories
+* If successful, there should be a `*.so` file in each of the `./models/dl_models/<model>/` directories
 
 3. Install the python package
 
