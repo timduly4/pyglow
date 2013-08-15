@@ -105,6 +105,7 @@ From HWM:
 
 ## Updating geophysical indices
 1. You'll need to download the geophysical indices as they become available.  The `update_kpap()` function is available in pyglow that enables you do this:
+
 ```
 from pyglow.pyglow import update_kpap
 update_kpap([2012, 2013]) # grabs indices for 2012 and 2013
