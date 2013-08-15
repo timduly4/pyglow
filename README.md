@@ -97,3 +97,5 @@ From HWM:
 
 # Uninstallation 
 
+1. The install directory for pyglow is outputted when you run the `python ./setup.py install` command.  For example, on a mac this is usually in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.
+2.  Simply remove the *.so climatological models in this directory, as well as the `pyglow` and `pyglow_trash` folders.
