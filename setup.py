@@ -4,8 +4,8 @@ from numpy.distutils.core import setup
 #from setuptools import setup
 
 setup(name='pyglow',\
-        version='0.1',\
-        url='tbd',\
+        version='0.2',\
+        url='github.com/timduly4/pyglow',\
         author='Timothy M. Duly',\
         author_email='duly2@illinois.edu',\
         packages=[
