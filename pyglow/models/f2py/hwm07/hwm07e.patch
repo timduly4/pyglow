@@ -4,14 +4,14 @@
 <       w = qw + dw
 <     else
 ---
->     !if (ap(2) .ge. 0.0) then
->     !  call dwm07b_hwm_interface(iyd,sec,alt,glat,glon,ap,dw)
->     !  w = qw + dw
->     !else
+> !    if (ap(2) .ge. 0.0) then
+> !      call dwm07b_hwm_interface(iyd,sec,alt,glat,glon,ap,dw)
+> !      w = qw + dw
+> !    else
 65c65
 <     endif
 ---
->     !endif
+> !    endif
 159c159
 <     
 ---
