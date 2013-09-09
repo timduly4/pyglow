@@ -63,6 +63,9 @@ class Point:
         self.dip = nan
         self.inc = nan
 
+        # for run_airglow:
+        self.ag6300 = nan
+
         # call the models:
         self.get_indices()
 
@@ -262,6 +265,61 @@ class Point:
         self.B   = f/1e9
         self.dip = dip
         self.inc = inc
+
+    def run_airglow(self):
+        '''
+        Computes airglow intensities
+
+
+        After running, self.ag6300 has the
+        630.0-nm volume emission rate (ph/cm^3/s)
+
+
+        History
+        ------
+        9/9/13 -- implemented into pyglow
+                  based on Jonathan J. Makela's MATLAB
+                  and subsequent python code
+        '''
+        import numpy as np
+
+        # let's see if IRI and MSIS have been executed
+        # if not, run the appropriate models:
+        if np.isnan(self.ne):
+            self.run_iri()
+        if np.isnan(self.nn['O2']):
+            self.run_msis()
+
+        # Perform 630.0-nm calcualtion
+        Ne = self.ne;       # electron density [cm^-3]
+        Tn = self.Tn_msis;  # neutral temperature [K]
+        Ti = self.Ti;       # ion temperature [K]
+        Te = self.Te;       # electron temperature [K]
+        O2 = self.nn['O2']; # O2 density [cm^-3]
+        N2 = self.nn['N2']; # N2 density [cm^-3]
+        
+        te = Te/300;
+        ti = Ti/300;
+        
+        # These coefs are from Link and Cogger, JGR 93(A9), 988309892, 1988
+        K1_6300 = 3.23e-12*np.exp(3.72/ti - 1.87/ti**2);
+        K2_6300 = 2.78e-13*np.exp(2.07/ti - 0.61/ti**2);
+        K3_6300 = 2.0e-11*np.exp(111.8/Tn);
+        K4_6300 = 2.9e-11*np.exp(67.5/Tn);
+        K5_6300 = 1.6e-12*Te**0.91;
+        b6300 = 1.1;
+        a1D = 7.45e-3;   # Corrected value form Link and Cogger, JGR, 94(A2), 1989
+        a6300 = 5.63e-3; # Corrected value form Link and Cogger, JGR, 94(A2), 1989
+             
+        # Calculate O+ assuming mixture of ions (also from Link and Cogger, 1988)
+        a1 = 1.95e-7*te**-0.7;
+        a2 = 4.00e-7*te**-0.9;
+        Oplus = Ne/(1.+K2_6300*N2/a2/Ne + K1_6300*O2/a1/Ne);
+        
+        AGNumerator = a6300/a1D*b6300*K1_6300*Oplus*O2;
+        AGDenominator = 1.+(K3_6300*N2+K4_6300*O2+K5_6300*Ne)/a1D;
+        self.ag6300 = AGNumerator / AGDenominator;
+    
  
 # ---------
 
