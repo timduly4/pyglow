@@ -1,9 +1,6 @@
 
 # TODO
-# [ ] see what's in the neutral output
-
-def say_hello():
-    print "hi from pyglow.py!"
+# [X] see what's in the neutral output
 
 
 class Point:
@@ -36,7 +33,7 @@ class Point:
         self.ap_daily = nan
 
         # for iri:
-        self.n = nan
+        self.ne = nan
         ions = ['O+', 'H+', 'HE+', 'O2+', 'NO+']
         self.ni={}
         for ion in ions:
@@ -48,7 +45,10 @@ class Point:
 
         # for msis:
         self.Tn_msis = nan
-        self.nn = nan
+        self.nn = {}
+        for neutral in ['HE','O','N2','O2','AR','H','N','O_anomalous']:
+            self.nn[neutral] = nan
+        self.rho = nan
 
         # for hwm 93/07:
         self.u = nan
@@ -146,13 +146,22 @@ class Point:
         self.Te        = outf[3,0] # electron temperature from IRI (K)
         self.Ti        = outf[2,0] # ion temperature from IRI (K)
         self.Tn_iri    = outf[1,0] # neutral temperature from IRI (K)
-        self.n         = outf[0,0] # electron density (m^-3)
+
+        self.ne        = outf[0,0] # electron density (m^-3)
         self.ni['O+']  = outf[4,0] # O+ Density (%, or m^-3 with JF(22) = 0)
         self.ni['H+']  = outf[5,0] # H+ Density (%, or m^-3 with JF(22) = 0)
         self.ni['HE+'] = outf[6,0] # HE+ Density (%, or m^-3 with JF(22) = 0)
         self.ni['O2+'] = outf[7,0] # O2+ Density (%, or m^-3 with JF(22) = 0)
         self.ni['NO+'] = outf[8,0] # NO+ Density (%, or m^-3 with JF(22) = 0)
-        
+
+        # densities are now in cm^-3:
+        self.ne        = self.ne        / 100.**3 # [items/cm^3]
+        self.ni['O+']  = self.ni['O+']  / 100.**3 # [items/cm^3]
+        self.ni['H+']  = self.ni['H+']  / 100.**3 # [items/cm^3]
+        self.ni['HE+'] = self.ni['HE+'] / 100.**3 # [items/cm^3]
+        self.ni['O2+'] = self.ni['O2+'] / 100.**3 # [items/cm^3]
+        self.ni['NO+'] = self.ni['NO+'] / 100.**3 # [items/cm^3]
+
         return
     
     def run_msis(self):
@@ -172,7 +181,20 @@ class Point:
                 apmsis,\
                 48)
         self.Tn_msis = t[1] # neutral temperature from MSIS (K)
-        self.nn = d
+
+        self.nn = {}
+        self.nn['HE'] = d[0] # [items/cm^3]
+        self.nn['O']  = d[1] # [items/cm^3]
+        self.nn['N2'] = d[2] # [items/cm^3]
+        self.nn['O2'] = d[3] # [items/cm^3]
+        self.nn['AR'] = d[4] # [items/cm^3]
+        # [5] is below
+        self.nn['H']  = d[6] # [items/cm^3]
+        self.nn['N']  = d[7] # [items/cm^3]
+        self.nn['O_anomalous'] = d[8] # [items/cm^3]
+
+        self.rho = d[5] # total mass density [grams/cm^3]
+
 
     def run_hwm93(self):
         from hwm93py import gws5 as hwm93
