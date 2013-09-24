@@ -170,6 +170,7 @@ setup(name='pyglow',\
             'pyglow/kpap/2010',\
             'pyglow/kpap/2011',\
             'pyglow/kpap/2012',\
+            'pyglow/kpap/2013',\
             ]),\
             ],\
         )

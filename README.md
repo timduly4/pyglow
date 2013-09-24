@@ -15,7 +15,7 @@ Copy and paste this for a one-liner installation.  Or, follow the steps below wi
     git clone git://github.com/timduly4/pyglow.git; cd pyglow/; cd ./pyglow/models/; make all; cd ../../; python ./setup.py install;
 ```
 
-### Installatino steps
+### Installation steps
 
 1. Download the package:
 ```
