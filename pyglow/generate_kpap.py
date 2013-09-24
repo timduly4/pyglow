@@ -59,8 +59,7 @@ History:
 # [ ] fix path issue... how to make it callable anywhere?
 
 
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta, date
 import numpy as np
 import os
 from scipy.stats import nanmean
@@ -70,7 +69,8 @@ import pyglow
 
 """ Part 1: Parsing the raw data files """
 
-end_year = 2013 # TODO (current_year) + 1, This needs to be updated every year!
+#end_year = 2013 # TODO (current_year) + 1, This needs to be updated every year!
+end_year = date.today().year + 1
 
 # Create empty dictionaries:
 ap = {}    
