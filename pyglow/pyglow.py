@@ -211,7 +211,7 @@ class Point:
                 self.slt_hour,\
                 self.f107a,\
                 self.f107,\
-                self.ap)
+                self.ap_daily)
         self.v = w[0]
         self.u = w[1]
         self.hwm_version = '93'
