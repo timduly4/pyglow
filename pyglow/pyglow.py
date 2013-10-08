@@ -4,8 +4,9 @@
 
 
 class Point:
-    def __init__(self, dn, lat, lon, alt):
+    def __init__(self, dn, lat, lon, alt, user_ind=False):
         import numpy as np
+        from get_apmsis import get_apmsis
 
         nan = float('nan')
         
@@ -31,6 +32,7 @@ class Point:
         self.f107a    = nan
         self.kp_daily = nan
         self.ap_daily = nan
+        self.apmsis   = [nan,]*7
 
         # for iri:
         self.ne = nan
@@ -66,8 +68,10 @@ class Point:
         # for run_airglow:
         self.ag6300 = nan
 
-        # call the models:
-        self.get_indices()
+        if not user_ind: 
+            # call the indice models:
+            self.get_indices()
+            self.apmsis = get_apmsis(self.dn)
 
     def __repr__(self):
         out = ""
@@ -107,7 +111,7 @@ class Point:
 
     def get_indices(self):
         import sys
-        sys.path.append("../indices/")
+        #sys.path.append("../indices/")
         from get_kpap import get_kpap
         self.kp, self.ap, self.f107, self.f107a, \
                 self.kp_daily, self.ap_daily  = get_kpap(self.dn)
@@ -169,10 +173,8 @@ class Point:
     
     def run_msis(self):
         from msis00py import gtd7 as msis
-        from get_apmsis import get_apmsis
         import numpy as np 
 
-        apmsis = get_apmsis(self.dn)
         [d,t] = msis(self.doy,\
                 self.utc_sec,\
                 self.alt,\
@@ -181,7 +183,7 @@ class Point:
                 self.slt_hour,\
                 self.f107a,\
                 self.f107,\
-                apmsis,\
+                self.apmsis,\
                 48)
         self.Tn_msis = t[1] # neutral temperature from MSIS (K)
 
