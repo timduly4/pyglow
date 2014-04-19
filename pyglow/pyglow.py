@@ -1,8 +1,3 @@
-
-# TODO
-# [X] see what's in the neutral output
-
-
 class Point:
     def __init__(self, dn, lat, lon, alt, user_ind=False):
         import numpy as np
