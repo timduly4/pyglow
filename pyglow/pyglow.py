@@ -127,7 +127,9 @@ class Point:
         jf[28] = 0 # 29 (29,30) => NeQuick
         jf[29] = 0 # 30  
         jf[33] = 0 # 34 messages [on|off]
-        
+        jf[32] = 0 #  33    Auroral boundary model on/off
+                   # Brian found a case that stalled IRI
+
         my_pwd = os.getcwd()
 
         iri_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + "/iri_data/"
