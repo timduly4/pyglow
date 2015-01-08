@@ -51,6 +51,8 @@ for y in range(1932,end_year):
 History:
 --------
     7/21/12 : Created, Timothy Duly (duly2@illinois.edu)
+    1/07/15 : Changed end_year so that it doesn't crash during 
+              January. Brian Harding (bhardin2@illinois.edu)
 """
 
 # TODO
@@ -68,8 +70,9 @@ import pyglow
 
 
 """ Part 1: Parsing the raw data files """
-
-end_year = date.today().year + 1
+# Load all the data up until 32 days ago, to allow
+# for the delay by the providers of the geophysical data.
+end_year = (date.today()-timedelta(days=32)).year + 1
 
 # Create empty dictionaries:
 ap = {}    
