@@ -172,6 +172,11 @@ setup(name='pyglow',\
             'pyglow/kpap/2012',\
             'pyglow/kpap/2013',\
             ]),\
+        ('pyglow/dst/', [
+            'pyglow/dst/1957_1969',\
+            'pyglow/dst/1970_1989',\
+            'pyglow/dst/1990_2004',\
+            ]),\
             ],\
         )
 

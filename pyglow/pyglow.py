@@ -28,6 +28,7 @@ class Point:
         self.kp_daily = nan
         self.ap_daily = nan
         self.apmsis   = [nan,]*7
+        self.dst      = nan
 
         # for iri:
         self.ne = nan
@@ -109,7 +110,7 @@ class Point:
         #sys.path.append("../indices/")
         from get_kpap import get_kpap
         self.kp, self.ap, self.f107, self.f107a, \
-                self.kp_daily, self.ap_daily  = get_kpap(self.dn)
+                self.kp_daily, self.ap_daily, self.dst  = get_kpap(self.dn)
 
     def run_iri(self):
         from iri12py import iri_sub as iri
@@ -431,7 +432,7 @@ def Line(dn, lat, lon, alt, target_ht=90., step=15.):
 
 def update_kpap(years=None):
     '''
-    Update the geophysical indices used in pyglow.
+    Update the Kp and Ap indices used in pyglow.
     The files will be downloaded from noaa to your pyglow 
     installation directory.
 
@@ -464,6 +465,73 @@ def update_kpap(years=None):
         print "to"
         print des
         urllib.urlretrieve(src,des)
+        
+        
+def update_dst(start_year=2005):
+    '''
+    Update the Dst index files used in pyglow.
+    The files will be downloaded from WDC Kyoto
+    to your pyglow installation directory.
+    '''
+    from datetime import date, timedelta
+    import urllib2
+    import pyglow
+
+    def download_dst(year, month, des):
+        '''
+        Helper function to earch for the appropriate location 
+        and download the DST index file from WDC Kyoto for the 
+        given month and year. Save it to the specified file "des".
+        Return True if successful, False if not.
+        '''
+        # There are three possible sources of data. Search for
+        # them in the following order:
+        # 1) Final
+        # 2) Provisional
+        # 3) Realtime
+        year_month = '%i%02i' % (year, month)
+        wgdc_fn = 'dst%s%02i.for.request' % (str(year)[2:],month)
+        src_final       = 'http://wdc.kugi.kyoto-u.ac.jp/dst_final/%s/%s' % (year_month, wgdc_fn)
+        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/dst_provisional/%s/%s' % (year_month, wgdc_fn)
+        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/dst_realtime/%s/%s' % (year_month, wgdc_fn)
+
+        success = False
+        for src in [src_final, src_provisional, src_realtime]:
+            try:
+                response = urllib2.urlopen(src)
+                contents = response.read()
+                # If that succeeded, then the file exists
+                print "\nDownloading"
+                print src
+                print "to"
+                print des
+                with open(des,'w') as f:
+                    f.write(contents)
+                success = True
+                break
+            except urllib2.HTTPError:
+                pass
+        return success
+
+    # Read files from 2005 until today. Pre-2005
+    # files are shipped with pyglow.
+    pyglow_dir =\
+            '/'.join(pyglow.__file__.split("/")[:-1]) + "/dst/"
+    end_year = date.today().year
+    for year in range(start_year,end_year+1):
+        for month in range(1,12):
+            des = '%s%i%02i' % (pyglow_dir,year,month)
+            download_dst(year, month, des) 
+
+    
+def update_indices():
+    '''
+    Update all geophysical indices (e.g., kp, dst) by 
+    calling the appropriate functions.
+    '''
+    update_kpap()
+    update_dst()
+    
 
 if __name__=="__main__":
     from datetime import datetime, timedelta

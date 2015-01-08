@@ -4,9 +4,8 @@
 Description:
 ------------
 This script parses the geophysical indices from the yearly files located in
-./kpap/ .  The files are obtained from
- ftp://ftp.ngdc.noaa.gov/STP/GEOMAGNETIC_DATA/INDICES/KP_AP/
-
+./kpap/ and ./dst/ .  The files are obtained by running pyglow.update_indices()
+ 
 After parsing the files, a variable is created, "geophysical_indices", whose 
 dimensions are 20 x (number of days), with
 
@@ -33,6 +32,11 @@ dimensions are 20 x (number of days), with
 
     geophysical_indices[18,:] = daily_kp value
     geophysical_indices[19,:] = daily_ap value
+    
+    geophysical_indices[20,:] = dst value from 00:00 - 01:00 UTC
+    geophysical_indices[21,:] = dst value from 01:00 - 02:00
+    ...
+    geophysical_indices[43,:] = dst value from 23:00 - 24:00
 
 This script is meant to be run in conjunction with "get_kpap.py" to grab the
 geophysical indices from a specific datetime object.
@@ -53,6 +57,7 @@ History:
     7/21/12 : Created, Timothy Duly (duly2@illinois.edu)
     1/07/15 : Changed end_year so that it doesn't crash during 
               January. Brian Harding (bhardin2@illinois.edu)
+    1/08/15 : Added DST index. Brian Harding (bhardin2@illinois.edu)
 """
 
 # TODO
@@ -67,6 +72,7 @@ import os
 from scipy.stats import nanmean
 import sys
 import pyglow
+import glob
 
 
 """ Part 1: Parsing the raw data files """
@@ -81,6 +87,7 @@ f107 = {}
 daily_kp = {}
 daily_ap = {}
 f107a = {}
+dst = {}
 
 for y in range(1932,end_year):
     #f = open(os.getcwd() + "/kpap/%4i" % y)
@@ -129,6 +136,8 @@ for y in range(1932,end_year):
             temp = float('NaN')
 
         f107[ datetime(year,month,day) ]  = temp
+        
+
     f.close()
 
 # Caculate f107a:
@@ -141,40 +150,83 @@ for dn, value in f107.items():
         except:
             f107_81values.append(float('NaN'))
     f107a[dn] = nanmean(f107_81values)
+    
+# Read in DST values.
+# (1) Read old files that were shipped with pyglow.
+# (2) Search the dst/ folder for all new files, and read them.
+oldies = ['1957_1969','1970_1989','1990_2004']
+pyglow_path = '/'.join(pyglow.__file__.split("/")[:-1])
+dst_path = '%s/dst/' % pyglow_path
+files = glob.glob('%s??????' % dst_path) # files like 201407 
+old_files = ['%s%s' % (dst_path, old) for old in oldies] # older files listed above
+files.extend(old_files) # a list of every dst file
+for fn in files:
+    with open(fn,'r') as f:
+        s = f.readlines()
+    for x in s:
+        if len(x) <= 1:
+            break # reached last line. Done with this file.
+        yr23 = x[3:5] # 3rd and 4th digits of year
+        month = int(x[5:7])
+        day   = int(x[8:10])
+        yr12  = x[14:16] # 1st and 2nd digits of year
+        base  = int(x[16:20]) # "Base value, unit 100 nT"
+        year = int('%02s%02s' % (yr12,yr23))
+        dst_per_hour = np.zeros(24)
+        for i in range(24):
+            dsthr = base + int(x[20+4*i:24+4*i])
+            if dsthr==9999:
+                dsthr = np.nan
+            dst_per_hour[i] = dsthr
+        dst[datetime(year,month,day)] = dst_per_hour
+
         
 """ Part 2: placing indices in 'geophysical_indices' array """
 
-# time to put the values into an numpy array:
-geophysical_indices = np.zeros((20,len(f107)))*float('nan')
+# time to put the values into a numpy array, geophysical_indices
+epoch = datetime(1932,1,1)
+end_day = datetime.today()
+total_days = (end_day-epoch).days+1
+geophysical_indices = np.zeros((44,total_days))*float('nan')
 
 i = 0
-epoch = datetime(1932,1,1)
-while i < len(f107): # assume that len(f107) = number of days parsed
+while i < total_days: # Try every day. Some will be nan.
     dn = epoch + timedelta(i) # increment a day
     
-    geophysical_indices[0,i]  = kp[ datetime(dn.year, dn.month, dn.day, 0)]
-    geophysical_indices[1,i]  = kp[ datetime(dn.year, dn.month, dn.day, 3)]
-    geophysical_indices[2,i]  = kp[ datetime(dn.year, dn.month, dn.day, 6)]
-    geophysical_indices[3,i]  = kp[ datetime(dn.year, dn.month, dn.day, 9)]
-    geophysical_indices[4,i]  = kp[ datetime(dn.year, dn.month, dn.day, 12)]
-    geophysical_indices[5,i]  = kp[ datetime(dn.year, dn.month, dn.day, 15)]
-    geophysical_indices[6,i]  = kp[ datetime(dn.year, dn.month, dn.day, 18)]
-    geophysical_indices[7,i]  = kp[ datetime(dn.year, dn.month, dn.day, 21)]
+    try: # This will fail if kp/ap data doesn't exist on this day
+        geophysical_indices[0,i]  = kp[ datetime(dn.year, dn.month, dn.day, 0)]
+        geophysical_indices[1,i]  = kp[ datetime(dn.year, dn.month, dn.day, 3)]
+        geophysical_indices[2,i]  = kp[ datetime(dn.year, dn.month, dn.day, 6)]
+        geophysical_indices[3,i]  = kp[ datetime(dn.year, dn.month, dn.day, 9)]
+        geophysical_indices[4,i]  = kp[ datetime(dn.year, dn.month, dn.day, 12)]
+        geophysical_indices[5,i]  = kp[ datetime(dn.year, dn.month, dn.day, 15)]
+        geophysical_indices[6,i]  = kp[ datetime(dn.year, dn.month, dn.day, 18)]
+        geophysical_indices[7,i]  = kp[ datetime(dn.year, dn.month, dn.day, 21)]
 
-    geophysical_indices[8,i]  = ap[ datetime(dn.year, dn.month, dn.day, 0)]
-    geophysical_indices[9,i]  = ap[ datetime(dn.year, dn.month, dn.day, 3)]
-    geophysical_indices[10,i] = ap[ datetime(dn.year, dn.month, dn.day, 6)]
-    geophysical_indices[11,i] = ap[ datetime(dn.year, dn.month, dn.day, 9)]
-    geophysical_indices[12,i] = ap[ datetime(dn.year, dn.month, dn.day, 12)]
-    geophysical_indices[13,i] = ap[ datetime(dn.year, dn.month, dn.day, 15)]
-    geophysical_indices[14,i] = ap[ datetime(dn.year, dn.month, dn.day, 18)]
-    geophysical_indices[15,i] = ap[ datetime(dn.year, dn.month, dn.day, 21)]
+        geophysical_indices[8,i]  = ap[ datetime(dn.year, dn.month, dn.day, 0)]
+        geophysical_indices[9,i]  = ap[ datetime(dn.year, dn.month, dn.day, 3)]
+        geophysical_indices[10,i] = ap[ datetime(dn.year, dn.month, dn.day, 6)]
+        geophysical_indices[11,i] = ap[ datetime(dn.year, dn.month, dn.day, 9)]
+        geophysical_indices[12,i] = ap[ datetime(dn.year, dn.month, dn.day, 12)]
+        geophysical_indices[13,i] = ap[ datetime(dn.year, dn.month, dn.day, 15)]
+        geophysical_indices[14,i] = ap[ datetime(dn.year, dn.month, dn.day, 18)]
+        geophysical_indices[15,i] = ap[ datetime(dn.year, dn.month, dn.day, 21)]
 
-    geophysical_indices[16,i] = f107[ datetime(dn.year, dn.month, dn.day)]
-    geophysical_indices[17,i] = f107a[ datetime(dn.year, dn.month, dn.day)]
-
-    geophysical_indices[18,i] = daily_kp[ datetime(dn.year, dn.month, dn.day)]
-    geophysical_indices[19,i] = daily_ap[ datetime(dn.year, dn.month, dn.day)]
+        geophysical_indices[18,i] = daily_kp[ datetime(dn.year, dn.month, dn.day)]
+        geophysical_indices[19,i] = daily_ap[ datetime(dn.year, dn.month, dn.day)]
+    except KeyError:
+        pass
+        
+    try: # This will fail if no f10.7 data are available on this day
+        geophysical_indices[16,i] = f107[ datetime(dn.year, dn.month, dn.day)]
+        geophysical_indices[17,i] = f107a[ datetime(dn.year, dn.month, dn.day)]
+    except KeyError:
+        pass
+        
+    try: # This will fail if no dst data are available on this day
+        geophysical_indices[20:44,i] = dst[dn]
+    except KeyError:
+        pass
 
     i = i + 1
 
