@@ -444,11 +444,12 @@ def update_kpap(years=None):
             range of years starting from 1932 to the 
             current year will be downloaded.
     '''
-    from datetime import date
+    from datetime import date,timedelta
     import urllib
     import pyglow
 
-    if years is None: years=range(1932, date.today().year+1)
+    # Load all data up until 32 days ago.
+    if years is None: years=range(1932, (date.today()-timedelta(days=32)).year + 1)
 
     pyglow_dir =\
             '/'.join(pyglow.__file__.split("/")[:-1]) + "/kpap/"
