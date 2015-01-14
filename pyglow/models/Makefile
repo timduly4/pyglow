@@ -19,6 +19,8 @@ all:
 
 	cp ./f2py/hwm07/* ./dl_models/hwm07/
 	cd ./dl_models/hwm07/; make compile;
+	
+	cd ./dl_models/hwm14/; make compile;
 
 clean:
 	rm -rf *~

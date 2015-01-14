@@ -242,6 +242,34 @@ class Point:
         self.v = w[0]
         self.u = w[1]
         self.hwm_version = '07'
+        
+    def run_hwm14(self):
+        from hwm14py import hwm14
+        import pyglow
+        import os
+        import numpy as np
+
+        my_pwd = os.getcwd()
+        
+        hwm14_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + "/hwm14_data/"
+
+        os.chdir(hwm14_data_path)
+        
+        (v,u) = hwm14(\
+                self.iyd,\
+                self.utc_sec,\
+                self.alt,\
+                self.lat,\
+                np.mod(self.lon,360),\
+                np.nan,\
+                np.nan,\
+                np.nan,\
+                [np.nan,self.ap],\
+                )
+        os.chdir("%s" % my_pwd)
+        self.v = v
+        self.u = u
+        self.hwm_version = '14'
 
     def run_igrf(self):
         from igrf11py import igrf11syn as igrf

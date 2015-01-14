@@ -19,6 +19,7 @@ setup(name='pyglow',\
         ('pyglow_trash',['pyglow/models/dl_models/igrf/dummy.txt']),
         ('pyglow_trash',['pyglow/models/dl_models/iri/dummy.txt']),
         ('pyglow_trash',['pyglow/models/dl_models/msis/dummy.txt']),
+        ('pyglow_trash',['pyglow/models/dl_models/hwm14/Makefile']),
         ('pyglow_trash',['pyglow/models/f2py/hwm07/hwm07e.patch']),
         ('pyglow_trash',['pyglow/models/f2py/hwm07/Makefile']),
         ('pyglow_trash',['pyglow/models/f2py/hwm93/hwm93.patch']),
@@ -37,11 +38,18 @@ setup(name='pyglow',\
         ('',['pyglow/models/dl_models/hwm93/hwm93py.so']),
         ('',['pyglow/models/dl_models/msis/msis00py.so']),
         ('',['pyglow/models/dl_models/hwm07/hwm07py.so']),
+        ('',['pyglow/models/dl_models/hwm14/hwm14py.so']),
         ('',['pyglow/models/dl_models/iri/iri12py.so']),
         ('pyglow/hwm07_data/',[
             'pyglow/models/dl_models/hwm07/apexgrid.dat',
             'pyglow/models/dl_models/hwm07/dwm07b_104i.dat',
             'pyglow/models/dl_models/hwm07/hwm071308e.dat',
+            ]),
+        ('pyglow/hwm14_data/',[
+            'pyglow/models/dl_models/hwm14/gd2qd.dat',
+            'pyglow/models/dl_models/hwm14/dwm07b_104i.dat',
+            'pyglow/models/dl_models/hwm14/hwm14-beta.bin',
+            'pyglow/models/dl_models/hwm14/hwm14.f90',
             ]),
         ('pyglow/iri_data/',[
             'pyglow/models/dl_models/iri/apf107.dat',
