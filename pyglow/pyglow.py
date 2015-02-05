@@ -477,8 +477,8 @@ def update_kpap(years=None):
     import urllib
     import pyglow
 
-    # Load all data up until 32 days ago.
-    if years is None: years=range(1932, (date.today()-timedelta(days=32)).year + 1)
+    # Load all data up until today
+    if years is None: years=range(1932, date.today().year + 1)
 
     pyglow_dir =\
             '/'.join(pyglow.__file__.split("/")[:-1]) + "/kpap/"
@@ -492,8 +492,11 @@ def update_kpap(years=None):
         print src
         print "to"
         print des
-        urllib.urlretrieve(src,des)
-        
+        try:
+            urllib.urlretrieve(src,des)
+        except IOError as e:
+            print 'Failed downloading data for year %i. File does not exist' % year
+
         
 def update_dst(start_year=2005):
     '''

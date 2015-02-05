@@ -76,9 +76,8 @@ import glob
 
 
 """ Part 1: Parsing the raw data files """
-# Load all the data up until 32 days ago, to allow
-# for the delay by the providers of the geophysical data.
-end_year = (date.today()-timedelta(days=32)).year + 1
+# Load all data up to and including this year, if it exists
+end_year = date.today().year + 1
 
 # Create empty dictionaries:
 ap = {}    
@@ -93,52 +92,54 @@ for y in range(1932,end_year):
     #f = open(os.getcwd() + "/kpap/%4i" % y)
     #f = open('/Users/duly/Dropbox/research/f2py/model_atmosphere/kpap/%4i' % y)
     pyglow_path = '/'.join(pyglow.__file__.split("/")[:-1])
-    f = open(pyglow_path + "/kpap/%4i" % y)
-    for x in f.readlines():
-        year = int(x[0:2]) # parse the line for the year, only last 2 digits
-    
-        if year < 30: # need to change this is 2030....
-            year = year + 2000
-        else:
-            year = year + 1900
-
-        month = int(x[2:4]) # parse the line for month
-        day = int(x[4:6])   # ... and the days
-
-        # parse the values for kp, ap, daily_kp, and daily_ap:
-        kp[ datetime(year,month,day,0)  ] = int(x[12:14])/10.
-        kp[ datetime(year,month,day,3)  ] = int(x[14:16])/10.
-        kp[ datetime(year,month,day,6)  ] = int(x[16:18])/10.
-        kp[ datetime(year,month,day,9)  ] = int(x[18:20])/10.
-        kp[ datetime(year,month,day,12) ] = int(x[20:22])/10.
-        kp[ datetime(year,month,day,15) ] = int(x[22:24])/10.
-        kp[ datetime(year,month,day,18) ] = int(x[24:26])/10.
-        kp[ datetime(year,month,day,21) ] = int(x[26:28])/10.
-
-        ap[ datetime(year,month,day,0)  ] = int(x[31:34])
-        ap[ datetime(year,month,day,3)  ] = int(x[34:37])
-        ap[ datetime(year,month,day,6)  ] = int(x[37:40])
-        ap[ datetime(year,month,day,9)  ] = int(x[40:43])
-        ap[ datetime(year,month,day,12) ] = int(x[43:46])
-        ap[ datetime(year,month,day,15) ] = int(x[46:49])
-        ap[ datetime(year,month,day,18) ] = int(x[49:52])
-        ap[ datetime(year,month,day,21) ] = int(x[52:55])
-
-        daily_kp[ datetime(year,month,day) ] = int(x[28:31])
-        daily_ap[ datetime(year,month,day) ] = int(x[55:58])
-
-        try:
-            temp = float(x[65:70]) # f107
-        except:
-            temp = float('NaN') # if the string is empty, just use NaN
-
-        if temp == 0.: # replace 0's of f107 with NaN
-            temp = float('NaN')
-
-        f107[ datetime(year,month,day) ]  = temp
+    fn = pyglow_path + "/kpap/%4i" % y
+    if os.path.isfile(fn): # If the file has been downloaded
+        f = open(fn)
+        for x in f.readlines():
+            year = int(x[0:2]) # parse the line for the year, only last 2 digits
         
+            if year < 30: # need to change this is 2030....
+                year = year + 2000
+            else:
+                year = year + 1900
 
-    f.close()
+            month = int(x[2:4]) # parse the line for month
+            day = int(x[4:6])   # ... and the days
+
+            # parse the values for kp, ap, daily_kp, and daily_ap:
+            kp[ datetime(year,month,day,0)  ] = int(x[12:14])/10.
+            kp[ datetime(year,month,day,3)  ] = int(x[14:16])/10.
+            kp[ datetime(year,month,day,6)  ] = int(x[16:18])/10.
+            kp[ datetime(year,month,day,9)  ] = int(x[18:20])/10.
+            kp[ datetime(year,month,day,12) ] = int(x[20:22])/10.
+            kp[ datetime(year,month,day,15) ] = int(x[22:24])/10.
+            kp[ datetime(year,month,day,18) ] = int(x[24:26])/10.
+            kp[ datetime(year,month,day,21) ] = int(x[26:28])/10.
+
+            ap[ datetime(year,month,day,0)  ] = int(x[31:34])
+            ap[ datetime(year,month,day,3)  ] = int(x[34:37])
+            ap[ datetime(year,month,day,6)  ] = int(x[37:40])
+            ap[ datetime(year,month,day,9)  ] = int(x[40:43])
+            ap[ datetime(year,month,day,12) ] = int(x[43:46])
+            ap[ datetime(year,month,day,15) ] = int(x[46:49])
+            ap[ datetime(year,month,day,18) ] = int(x[49:52])
+            ap[ datetime(year,month,day,21) ] = int(x[52:55])
+
+            daily_kp[ datetime(year,month,day) ] = int(x[28:31])
+            daily_ap[ datetime(year,month,day) ] = int(x[55:58])
+
+            try:
+                temp = float(x[65:70]) # f107
+            except:
+                temp = float('NaN') # if the string is empty, just use NaN
+
+            if temp == 0.: # replace 0's of f107 with NaN
+                temp = float('NaN')
+
+            f107[ datetime(year,month,day) ]  = temp
+            
+
+        f.close()
 
 # Caculate f107a:
 for dn, value in f107.items():
