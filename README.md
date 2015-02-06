@@ -5,6 +5,22 @@
 
 pyglow is a Python module that wraps several upper atmosphere climatoglogical models written in FORTRAN.
 
+It includes the following upper atmospheric models:
+  * IRI
+  * IGRF
+  * MSIS
+  * HWM93
+  * HWM07
+  * HWM14
+
+pyglow also provides access to the the following geophysical indices:
+  * AP
+  * Kp
+  * F10.7
+  * DST
+
+pyglow offers access to these models & indices in a convenient, high-level object-oriented interface within Python.
+
 # Installation
 
 ### I'm Feeling Lucky
@@ -17,13 +33,13 @@ Copy and paste this for a one-liner installation.  Or, follow the steps below wi
 
 ### Installation steps
 
-1. Download the package:
+(1) Download the package:
 ```
     $ git clone git://github.com/timduly4/pyglow.git
     $ cd pyglow/
 ```
 
-2. Download the climatological models and wrap them with f2py:
+(2) Download the climatological models and wrap them with f2py:
 ```
     $ cd ./pyglow/models/
     $ make all
@@ -39,7 +55,7 @@ Copy and paste this for a one-liner installation.  Or, follow the steps below wi
     ./dl_models/msis/msis00py.so
     ```
 
-3. Install the python package
+(3) Install the python package
 ```
     $ cd ../../   # get back to root directory
     $ python ./setup.py install 
@@ -127,7 +143,7 @@ From HWM:
 1. Use tab completion in ipython to view the full set of member data and variables available in the Point class.
   * For example, in the test code, run `pt.<TAB><TAB>` and class information will be listed.
 
-### Updating geophysical indices
+### Updating geophysical indices with `update_kpap()` and `update_dst()`
 1. You'll need to download the geophysical indices as they become available.  The `update_kpap()` function is available in pyglow that enables you do this:
 
 ```
@@ -135,8 +151,8 @@ from pyglow.pyglow import update_kpap
 update_kpap([2012, 2013]) # grabs indices for 2012 and 2013
 update_kpap() # grabs all indices starting from 1932 to the current year
 ```
+  * Also note that `update_dst()` function is available to update the DST indices, analgous to the `update_kpap()` function.
   * Only need to run this function when you would like to update the indices.
-test
 
 
 # Uninstallation 
