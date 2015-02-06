@@ -84,6 +84,8 @@ class Point:
                 + "%4.2f\n" % self.ap
         out += "%20s" % "f107a = "\
                 + "%4.2f\n" % self.f107a
+        out += "%20s" % "dst = "\
+                + "%i\n" % self.dst
 
         # IGRF:
         out += "\nFrom IGRF:\n-----------\n"
@@ -498,11 +500,22 @@ def update_kpap(years=None):
             print 'Failed downloading data for year %i. File does not exist' % year
 
         
-def update_dst(start_year=2005):
+def update_dst(years=None):
     '''
     Update the Dst index files used in pyglow.
     The files will be downloaded from WDC Kyoto
     to your pyglow installation directory.
+    
+    update_dst(years=None)
+
+    Inputs:
+    ------
+    
+    years : (optional) a list of years to download.
+            If this input is not provided, the full
+            range of years starting from 2005 to the 
+            current year will be downloaded. Pre-2005
+            files are shipped with pyglow.
     '''
     from datetime import date, timedelta
     import urllib2
@@ -546,22 +559,32 @@ def update_dst(start_year=2005):
 
     # Read files from 2005 until today. Pre-2005
     # files are shipped with pyglow.
+    if years is None:
+        years = range(2005,date.today().year + 1)
     pyglow_dir =\
             '/'.join(pyglow.__file__.split("/")[:-1]) + "/dst/"
-    end_year = date.today().year
-    for year in range(start_year,end_year+1):
-        for month in range(1,12):
+
+    for year in years:
+        for month in range(1,13):
             des = '%s%i%02i' % (pyglow_dir,year,month)
             download_dst(year, month, des) 
 
     
-def update_indices():
+def update_indices(years = None):
     '''
-    Update all geophysical indices (e.g., kp, dst) by 
-    calling the appropriate functions.
+    Update all geophysical indices (e.g., kp, dst).
+    
+    update_indices(years=None)
+
+    Inputs:
+    ------
+    
+    years : (optional) a list of years to download.
+            If this input is not provided, default
+            values will be used.
     '''
-    update_kpap()
-    update_dst()
+    update_kpap(years=years)
+    update_dst(years=years)
     
 
 if __name__=="__main__":
