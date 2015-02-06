@@ -17,13 +17,13 @@ Copy and paste this for a one-liner installation.  Or, follow the steps below wi
 
 ### Installation steps
 
-1. Download the package:
+\1. Download the package:
 ```
     $ git clone git://github.com/timduly4/pyglow.git
     $ cd pyglow/
 ```
 
-2. Download the climatological models and wrap them with f2py:
+\2. Download the climatological models and wrap them with f2py:
 ```
     $ cd ./pyglow/models/
     $ make all
@@ -39,7 +39,7 @@ Copy and paste this for a one-liner installation.  Or, follow the steps below wi
     ./dl_models/msis/msis00py.so
     ```
 
-3. Install the python package
+\3. Install the python package
 ```
     $ cd ../../   # get back to root directory
     $ python ./setup.py install 
