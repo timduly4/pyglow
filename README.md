@@ -136,7 +136,6 @@ update_kpap([2012, 2013]) # grabs indices for 2012 and 2013
 update_kpap() # grabs all indices starting from 1932 to the current year
 ```
   * Only need to run this function when you would like to update the indices.
-test
 
 
 # Uninstallation 
