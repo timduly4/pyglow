@@ -188,3 +188,10 @@ setup(name='pyglow',\
             ],\
         )
 
+
+
+
+print "Let's try to update the indices..."
+from pyglow.pyglow import update_indices
+update_indices()
+print "... all done!"
