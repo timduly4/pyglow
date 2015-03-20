@@ -85,7 +85,7 @@ class Point:
         out += "%20s" % "f107a = "\
                 + "%4.2f\n" % self.f107a
         out += "%20s" % "dst = "\
-                + "%i\n" % self.dst
+                + "%3.2f\n" % self.dst
 
         # IGRF:
         out += "\nFrom IGRF:\n-----------\n"
