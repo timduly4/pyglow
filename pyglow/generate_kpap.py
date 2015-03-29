@@ -5,8 +5,8 @@ Description:
 ------------
 This script parses the geophysical indices from the yearly files located in
 ./kpap/ and ./dst/ .  The files are obtained by running pyglow.update_indices()
- 
-After parsing the files, a variable is created, "geophysical_indices", whose 
+
+After parsing the files, a variable is created, "geophysical_indices", whose
 dimensions are 20 x (number of days), with
 
     geophysical_indices[0,:] = kp value from 00:00 - 03:00 UTC
@@ -32,7 +32,7 @@ dimensions are 20 x (number of days), with
 
     geophysical_indices[18,:] = daily_kp value
     geophysical_indices[19,:] = daily_ap value
-    
+
     geophysical_indices[20,:] = dst value from 00:00 - 01:00 UTC
     geophysical_indices[21,:] = dst value from 01:00 - 02:00
     ...
@@ -55,7 +55,7 @@ for y in range(1932,end_year):
 History:
 --------
     7/21/12 : Created, Timothy Duly (duly2@illinois.edu)
-    1/07/15 : Changed end_year so that it doesn't crash during 
+    1/07/15 : Changed end_year so that it doesn't crash during
               January. Brian Harding (bhardin2@illinois.edu)
     1/08/15 : Added DST index. Brian Harding (bhardin2@illinois.edu)
 """
@@ -65,13 +65,13 @@ History:
 # [ ] daily kp -- should it be the average of sum? right now it's the sum...
 # [ ] fix path issue... how to make it callable anywhere?
 
-
+from __future__ import absolute_import
 from datetime import datetime, timedelta, date
 import numpy as np
 import os
 from scipy.stats import nanmean
 import sys
-import pyglow
+from . import pyglow
 import glob
 
 
@@ -80,7 +80,7 @@ import glob
 end_year = date.today().year + 1
 
 # Create empty dictionaries:
-ap = {}    
+ap = {}
 kp = {}
 f107 = {}
 daily_kp = {}
@@ -97,7 +97,7 @@ for y in range(1932,end_year):
         f = open(fn)
         for x in f.readlines():
             year = int(x[0:2]) # parse the line for the year, only last 2 digits
-        
+
             if year < 30: # need to change this is 2030....
                 year = year + 2000
             else:
@@ -137,7 +137,7 @@ for y in range(1932,end_year):
                 temp = float('NaN')
 
             f107[ datetime(year,month,day) ]  = temp
-            
+
 
         f.close()
 
@@ -151,14 +151,14 @@ for dn, value in f107.items():
         except:
             f107_81values.append(float('NaN'))
     f107a[dn] = nanmean(f107_81values)
-    
+
 # Read in DST values.
 # (1) Read old files that were shipped with pyglow.
 # (2) Search the dst/ folder for all new files, and read them.
 oldies = ['1957_1969','1970_1989','1990_2004']
 pyglow_path = '/'.join(pyglow.__file__.split("/")[:-1])
 dst_path = '%s/dst/' % pyglow_path
-files = glob.glob('%s??????' % dst_path) # files like 201407 
+files = glob.glob('%s??????' % dst_path) # files like 201407
 old_files = ['%s%s' % (dst_path, old) for old in oldies] # older files listed above
 files.extend(old_files) # a list of every dst file
 for fn in files:
@@ -181,7 +181,7 @@ for fn in files:
             dst_per_hour[i] = dsthr
         dst[datetime(year,month,day)] = dst_per_hour
 
-        
+
 """ Part 2: placing indices in 'geophysical_indices' array """
 
 # time to put the values into a numpy array, geophysical_indices
@@ -193,7 +193,7 @@ geophysical_indices = np.zeros((44,total_days))*float('nan')
 i = 0
 while i < total_days: # Try every day. Some will be nan.
     dn = epoch + timedelta(i) # increment a day
-    
+
     try: # This will fail if kp/ap data doesn't exist on this day
         geophysical_indices[0,i]  = kp[ datetime(dn.year, dn.month, dn.day, 0)]
         geophysical_indices[1,i]  = kp[ datetime(dn.year, dn.month, dn.day, 3)]
@@ -217,13 +217,13 @@ while i < total_days: # Try every day. Some will be nan.
         geophysical_indices[19,i] = daily_ap[ datetime(dn.year, dn.month, dn.day)]
     except KeyError:
         pass
-        
+
     try: # This will fail if no f10.7 data are available on this day
         geophysical_indices[16,i] = f107[ datetime(dn.year, dn.month, dn.day)]
         geophysical_indices[17,i] = f107a[ datetime(dn.year, dn.month, dn.day)]
     except KeyError:
         pass
-        
+
     try: # This will fail if no dst data are available on this day
         geophysical_indices[20:44,i] = dst[dn]
     except KeyError:

@@ -1,9 +1,9 @@
-
+from __future__ import absolute_import
 import numpy as np
 from datetime import datetime
 from datetime import timedelta
 from scipy.stats import nanmean
-from get_kpap import get_kpap
+from .get_kpap import get_kpap
 
 def get_apmsis(dn):
     """
@@ -11,8 +11,8 @@ def get_apmsis(dn):
     ---------------------
     returns an array of calculated ap indices suitable for MSIS.
     MSIS requires an array of ap values, described in nrlmsise00.f.
-    This Python function formulates the various ap values for MSIS. From the 
-    fortran subroutine, we see that 
+    This Python function formulates the various ap values for MSIS. From the
+    fortran subroutine, we see that
 
         AP - MAGNETIC INDEX(DAILY) OR WHEN SW(9)=-1. :
            - ARRAY CONTAINING:
@@ -56,7 +56,7 @@ def get_apmsis(dn):
     tmp1, ap, tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-6))
     out[3] = ap
 
-    # (5) 3 HR AP INDEX FOR 9 HRS BEFORE CURRENT TIME 
+    # (5) 3 HR AP INDEX FOR 9 HRS BEFORE CURRENT TIME
     tmp1, ap, tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-9))
     out[4] = ap
 
@@ -95,11 +95,11 @@ def get_apmsis(dn):
     return out
 
 
-    
+
 
 def test_get_apmsis():
     out = get_apmsis(datetime(2000,3,23,0))
-    print "ap indices for msis are:\n",out
+    print("ap indices for msis are:\n",out)
 
 if __name__ == '__main__':
     test_get_apmsis()
