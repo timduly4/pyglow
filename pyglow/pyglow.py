@@ -276,6 +276,7 @@ class Point:
     def run_igrf(self):
         from igrf11py import igrf11syn as igrf
         import numpy as np
+        import warnings
 
         x, y, z, f = igrf(0,\
                 self.dn.year,\
@@ -289,10 +290,22 @@ class Point:
         dip = 180./np.pi * np.arctan2(z,h)
         dec = 180./np.pi * np.arctan2(y,x)
 
-        self.Bx  = x/1e9
-        self.By  = y/1e9
-        self.Bz  = z/1e9
-        self.B   = f/1e9
+        # Note that the changes here match 
+        # coordinate convention with other models
+        # (i.e., HWM), that is:
+        # (x -> east, y -> north, z -> up)
+        #
+        # IGRF gives (x -> north, y -> east, z -> down)
+        warnings.warn("Caution: IGRF coordinates have been recently changed to\n" +\
+                " Bx -> positive eastward\n" +\
+                " By -> positive northward\n" +\
+                " Bz -> positive upward\n" +\
+                '')
+        self.Bx  =  y/1e9 # [T] (positive eastward) (note x/y switch here)
+        self.By  =  x/1e9 # [T] (positive northward) (note x/y switch here)
+        self.Bz  = -z/1e9 # [T] (positive upward) (note negation here) 
+        self.B   =  f/1e9 # [T]
+
         self.dip = dip
         self.dec = dec
 
@@ -399,9 +412,12 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
         p = Point(dn, lla[0], lla[1], lla[2]/1e3)
         p.run_igrf()
 
-        N = p.Bx # North
-        E = p.By # East
-        D = p.Bz # Down
+        # coordinates follow pyglow's convention:
+        # (x -> east, y -> north, z -> up)
+
+        N = p.By # North
+        E = p.Bx # East
+        D = -p.Bz # Down
         A = p.B  # Total
 
         # Step along the field line
