@@ -28,7 +28,7 @@ pyglow offers access to these models & indices in a convenient, high-level objec
 Copy and paste this for a one-liner installation.  Or, follow the steps below with explanation for the individual steps.
 
 ```
-    git clone git://github.com/timduly4/pyglow.git; cd pyglow/; cd ./pyglow/models/; make all; cd ../../; python ./setup.py install;
+    git clone git://github.com/timduly4/pyglow.git; cd pyglow/; cd ./pyglow/models/; make all; cd ../../; python ./setup.py install --user;
 ```
 
 ### Installation steps
@@ -58,7 +58,7 @@ Copy and paste this for a one-liner installation.  Or, follow the steps below wi
 (3) Install the python package
 ```
     $ cd ../../   # get back to root directory
-    $ python ./setup.py install 
+    $ python ./setup.py install --user
 ```
   * On a mac, the folder `pyglow` and `*.so` files from `./models/dl_models/<model>/` should be in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
   * If you are denied permission, I recommend adding `--user` flag in command
@@ -159,3 +159,4 @@ update_indices() # grabs all indices starting from 1932 to the current year
 
 1. The install directory for pyglow is outputted when you run the `python ./setup.py install` command.  For example, on a mac this is usually in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.
 2.  Simply remove the `*.so` climatological models in this directory, as well as the `pyglow` and `pyglow_trash` folders.
+
