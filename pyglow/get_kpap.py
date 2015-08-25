@@ -1,5 +1,6 @@
-from generate_kpap import geophysical_indices, epoch
-from datetime import timedelta
+from __future__ import absolute_import
+from .generate_kpap import geophysical_indices, epoch
+#from datetime import timedelta
 from datetime import datetime
 import numpy as np
 
@@ -28,10 +29,10 @@ def get_kpap(dn):
     ap = geophysical_indices[hour_index+8, day_index]
     f107  = geophysical_indices[16, day_index]
     f107a = geophysical_indices[17, day_index]
-    
+
     daily_kp = geophysical_indices[18, day_index]
     daily_ap = geophysical_indices[19, day_index]
-    
+
     dst = geophysical_indices[20+dn.hour, day_index]
 
     return kp, ap, f107, f107a, daily_kp, daily_ap, dst
@@ -40,18 +41,18 @@ def get_kpap(dn):
 
 def test_get_kpap():
     # Test it out:
-    print "getting first set:" 
+    print("getting first set:")
     dn = datetime(2008,2,3,15,4)
     kp, ap, f107, f107a, daily_kp, daily_ap, dst = get_kpap(dn)
-    print kp, ap, f107, f107a, daily_kp, daily_ap, dst
+    print(kp, ap, f107, f107a, daily_kp, daily_ap, dst)
 
-    print "getting second set:"
+    print("getting second set:")
     kp, ap, f107, f107a, daily_kp, daily_ap, dst = get_kpap(datetime(1932,1,1))
-    print kp, ap, f107, f107a, daily_kp, daily_ap, dst
+    print(kp, ap, f107, f107a, daily_kp, daily_ap, dst)
 
 if __name__ == '__main__':
     test_get_kpap()
 
-      
-    
-    
+
+
+

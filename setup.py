@@ -9,7 +9,7 @@ setup(name='pyglow',\
         author='Timothy M. Duly',\
         author_email='duly2@illinois.edu',\
         packages=[
-            'pyglow', 
+            'pyglow',
             ], \
         data_files=[ \
         ('pyglow_trash',['pyglow/models/Makefile']),
@@ -191,7 +191,7 @@ setup(name='pyglow',\
 
 
 
-print "Let's try to update the indices..."
+print("Let's try to update the indices...")
 from pyglow.pyglow import update_indices
 update_indices()
-print "... all done!"
+print("... all done!")

@@ -18,7 +18,7 @@ f1 = 1.57542e9;             # GPS L1 frequency [Hz]
 f2 = 1.22760e9;             # GPS L2 frequency [Hz]
 
 def say_hello():
-    print "hello from coord.py!"
+    print("hello from coord.py!")
 
 def ecef2lla(xyz):
     """
@@ -200,17 +200,17 @@ def test_coord():
     lon = -10.
     alt = 300.*1e3
 
-    print "ecef2lla( lla2ecef([%3.1f, %3.1f, %3.0e]) ) =" % (lat, lon, alt)
-    print ecef2lla( lla2ecef([lat, lon, alt]) )
+    print("ecef2lla( lla2ecef([%3.1f, %3.1f, %3.0e]) ) =" % (lat, lon, alt))
+    print(ecef2lla( lla2ecef([lat, lon, alt]) ))
     
     xyz = np.array([-3197773.77194971,  -563853.79419661, -5587079.67459298])
-    print "\nlla2ecef( ecef2lla([%3.6e, %3.6e, %3.6e]) ) =" % tuple(xyz)
-    print lla2ecef( ecef2lla(xyz) ) 
+    print("\nlla2ecef( ecef2lla([%3.6e, %3.6e, %3.6e]) ) =" % tuple(xyz))
+    print(lla2ecef( ecef2lla(xyz) )) 
 
     lla = [0,0,300e3]
     ven = [0,0,200e3]
-    print "\ntesting ven2ecef()..."
-    print ecef2lla(lla2ecef(lla) + ven2ecef(lla,ven))
+    print("\ntesting ven2ecef()...")
+    print(ecef2lla(lla2ecef(lla) + ven2ecef(lla,ven)))
     
 
 

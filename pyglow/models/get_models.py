@@ -1,6 +1,8 @@
-
-import os
-import urllib2
+import os,sys
+if sys.version_info<(3,):
+    from urllib2 import urlopen
+else:
+    from urllib.request import urlopen
 
 iri = {\
         'folder'     : 'iri',\
@@ -51,20 +53,20 @@ hwm93 = {\
         }
 
 for model in [msis, igrf, hwm07, hwm93, iri]:
-    print "Downloading files for %s ..." % (model['name'])
-    modelfile = urllib2.urlopen(model['url'])
+    print("Downloading files for %s ..." % (model['name']))
+    modelfile = urlopen(model['url'])
     output = open("./dl_models/%s/%s" % (model['folder'], model['filename']), 'wb')
     output.write(modelfile.read())
     output.close()
     if model['tar']:
-        print "time to tar..."
+        print("time to tar...")
         cmd = 'tar -xvf ./dl_models/%s/%s -C ./dl_models/%s/' % (model['folder'], model['filename'], model['folder'])
-        print cmd
+        print(cmd)
         os.system(cmd)
     if model['zip']:
         # unzip:
         cmd = 'unzip ./dl_models/%s/%s' % (model['folder'],model['filename'])
-        print cmd
+        print(cmd)
         os.system(cmd)
         # move contents:
         os.system('mv ./%s/* ./dl_models/%s' % (model['zip_folder'],model['folder']))
