@@ -136,7 +136,6 @@ class Point:
         my_pwd = os.getcwd()
 
         iri_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + "/iri_data/"
-        iri_data_path = os.path.join('/'.join(pyglow.__file__.split("/")[:-1]),'models','dl_models','iri')
         #print "changing directory to \n", iri_data_path
 
         os.chdir(iri_data_path)
