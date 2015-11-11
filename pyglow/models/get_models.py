@@ -16,7 +16,8 @@ iri = {\
 msis = {\
         'folder'     : 'msis',\
         'name'       : 'msis00',\
-        'url'        : 'ftp://nssdcftp.gsfc.nasa.gov/models/atmospheric/msis/nrlmsise00/nrlmsise00_sub.for',\
+        #'url'        : 'ftp://nssdcftp.gsfc.nasa.gov/models/atmospheric/msis/nrlmsise00/nrlmsise00_sub.for',\
+        'url'        : 'ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/msis/nrlmsise00/nrlmsise00_sub.for',\
         'filename'   : 'nrlmsise00_sub.for',\
         'tar'        : False,\
         'zip'        : False,\
@@ -34,7 +35,8 @@ igrf = {\
 hwm07 = {\
         'folder'     : 'hwm07',\
         'name'       : 'hwm07',\
-        'url'        : 'http://nssdcftp.gsfc.nasa.gov/models/atmospheric/hwm07/HWM07_all_files.zip',\
+        #'url'        : 'http://nssdcftp.gsfc.nasa.gov/models/atmospheric/hwm07/HWM07_all_files.zip',\
+        'url'        : 'http://remote2.ece.illinois.edu/~airglow/models/hwm07/HWM07_all_files.zip',\
         'filename'   : 'HWM07_all_file.zip',\
         'tar'        : False,\
         'zip'        : True,\
@@ -44,7 +46,8 @@ hwm07 = {\
 hwm93 = {\
         'folder'     : 'hwm93',\
         'name'       : 'hwm93',\
-        'url'        : 'http://nssdcftp.gsfc.nasa.gov/models/atmospheric/hwm93/hwm93.txt',\
+        #'url'        : 'http://nssdcftp.gsfc.nasa.gov/models/atmospheric/hwm93/hwm93.txt',\
+        'url'        : 'ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/hwm93/hwm93.txt',\
         'filename'   : 'hwm93.f',\
         'tar'        : False,\
         'zip'        : False,\
