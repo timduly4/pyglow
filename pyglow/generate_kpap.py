@@ -69,7 +69,7 @@ History:
 from datetime import datetime, timedelta, date
 import numpy as np
 import os
-from scipy.stats import nanmean
+from numpy import nanmean
 import sys
 import pyglow
 import glob

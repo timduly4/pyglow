@@ -2,7 +2,7 @@
 import numpy as np
 from datetime import datetime
 from datetime import timedelta
-from scipy.stats import nanmean
+from numpy import nanmean
 from get_kpap import get_kpap
 
 def get_apmsis(dn):

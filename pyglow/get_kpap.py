@@ -23,7 +23,7 @@ def get_kpap(dn):
 
     """
     day_index = ( datetime(dn.year, dn.month, dn.day) - epoch).days
-    hour_index = np.floor(dn.hour/3.)
+    hour_index = int(np.floor(dn.hour/3.))
     kp = geophysical_indices[hour_index, day_index]
     ap = geophysical_indices[hour_index+8, day_index]
     f107  = geophysical_indices[16, day_index]
