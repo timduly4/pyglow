@@ -4,7 +4,7 @@ from numpy.distutils.core import setup
 #from setuptools import setup
 
 setup(name='pyglow',\
-        version='0.4',\
+        version='0.5',\
         url='github.com/timduly4/pyglow',\
         author='Timothy M. Duly',\
         author_email='duly2@illinois.edu',\
@@ -184,6 +184,8 @@ setup(name='pyglow',\
             'pyglow/dst/1957_1969',\
             'pyglow/dst/1970_1989',\
             'pyglow/dst/1990_2004',\
+            ]),\
+        ('pyglow/ae/', [
             ]),\
             ],\
         )
