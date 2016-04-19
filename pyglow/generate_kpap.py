@@ -37,6 +37,11 @@ dimensions are 20 x (number of days), with
     geophysical_indices[21,:] = dst value from 01:00 - 02:00
     ...
     geophysical_indices[43,:] = dst value from 23:00 - 24:00
+    
+    geophysical_indices[44,:] = ae value from 00:00 - 01:00 UTC
+    geophysical_indices[45,:] = ae value from 01:00 - 02:00
+    ...
+    geophysical_indices[67,:] = ae value from 23:00 - 24:00
 
 This script is meant to be run in conjunction with "get_kpap.py" to grab the
 geophysical indices from a specific datetime object.
@@ -58,6 +63,7 @@ History:
     1/07/15 : Changed end_year so that it doesn't crash during 
               January. Brian Harding (bhardin2@illinois.edu)
     1/08/15 : Added DST index. Brian Harding (bhardin2@illinois.edu)
+    4/13/16 : Added AE index. Daniel Fisher (dfisher2@illinois.edu)
 """
 
 # TODO
@@ -87,6 +93,7 @@ daily_kp = {}
 daily_ap = {}
 f107a = {}
 dst = {}
+ae = {}
 
 for y in range(1932,end_year):
     #f = open(os.getcwd() + "/kpap/%4i" % y)
@@ -181,6 +188,56 @@ for fn in files:
             dst_per_hour[i] = dsthr
         dst[datetime(year,month,day)] = dst_per_hour
 
+
+# Read in AE values.
+# Search the ae/ folder for final files, and read them.
+pyglow_path = '/'.join(pyglow.__file__.split("/")[:-1])
+ae_path = '%s/ae/' % pyglow_path
+files = glob.glob('%s????' % ae_path) # find files like 1957
+for fn in files:
+    with open(fn,'r') as f:
+        s = f.readlines()
+    for x in s:
+        if len(x) <= 1:
+            break # reached last line. Done with this file.
+        yr23 = x[4:6] # 3rd and 4th digits of year
+        month = int(x[6:8])
+        day   = int(x[9:11])
+        yr12  = x[15:17] # 1st and 2nd digits of year
+        base  = int(x[17:21]) # "Base value, unit 100 nT"
+        year = int('%02s%02s' % (yr12,yr23))
+        dst_per_hour = np.zeros(24)
+        for i in range(24):
+            aehr = base + int(x[21+4*i:25+4*i])
+            if aehr==9999:
+                aehr = np.nan
+            ae_per_hour[i] = aehr
+        ae[datetime(year,month,day)] = ae_per_hour
+
+# Search the ae/ folder for provisional files, and read them.
+files = glob.glob('%s??????m' % ae_path) # files like 201407 
+for fn in files:
+    with open(fn,'r') as f:
+        s = f.readlines()
+    for x in s:
+        if len(x) <= 1:
+            break # reached last line. Done with this file.
+        #yr23 = x[13:15] # 3rd and 4th digits of year
+        month = int(x[15:17])
+        day   = int(x[17:19])
+        #yr12  = x[14:16] # 1st and 2nd digits of year
+        base  = int(x[16:20]) # "Base value, unit 100 nT"
+        year = int(fn[-4:])
+        hour = int(x[20:22])
+        if hour == 0:
+            ae_per_hour = np.zeros(24)
+        aehr = int(x[395:])
+        if aehr==99999:
+            aehr = np.nan
+        ae_per_hour[hour] = aehr
+        ae[datetime(year,month,day)] = ae_per_hour
+
+
         
 """ Part 2: placing indices in 'geophysical_indices' array """
 
@@ -188,7 +245,7 @@ for fn in files:
 epoch = datetime(1932,1,1)
 end_day = datetime.today()
 total_days = (end_day-epoch).days+1
-geophysical_indices = np.zeros((44,total_days))*float('nan')
+geophysical_indices = np.zeros((68,total_days))*float('nan')
 
 i = 0
 while i < total_days: # Try every day. Some will be nan.
@@ -226,6 +283,11 @@ while i < total_days: # Try every day. Some will be nan.
         
     try: # This will fail if no dst data are available on this day
         geophysical_indices[20:44,i] = dst[dn]
+    except KeyError:
+        pass
+
+    try: # This will fail if no ae data are available on this day
+        geophysical_indicies[44:68,i] = ae[dn]
     except KeyError:
         pass
 

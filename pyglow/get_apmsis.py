@@ -42,22 +42,22 @@ def get_apmsis(dn):
     out = float('nan')*np.zeros(7)
 
     # (1) DAILY AP
-    tmp1, ap, tmp2, tmp3, tmp4, daily_ap, tmp5 = get_kpap(dn)
+    tmp1, ap, tmp2, tmp3, tmp4, daily_ap, tmp5, tmp6 = get_kpap(dn)
     out[0] = daily_ap
 
     # (2) 3 HR AP INDEX FOR CURRENT TIME
     out[1] = ap
 
     # (3) 3 HR AP INDEX FOR 3 HRS BEFORE CURRENT TIME
-    tmp1, ap, tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-3))
+    tmp1, ap, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-3))
     out[2] = ap
 
     # (4) 3 HR AP INDEX FOR 6 HRS BEFORE CURRENT TIME
-    tmp1, ap, tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-6))
+    tmp1, ap, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-6))
     out[3] = ap
 
     # (5) 3 HR AP INDEX FOR 9 HRS BEFORE CURRENT TIME 
-    tmp1, ap, tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-9))
+    tmp1, ap, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-9))
     out[4] = ap
 
     # (6) AVERAGE OF EIGHT 3 HR AP INDICIES FROM 12 TO 33 HRS
@@ -65,14 +65,14 @@ def get_apmsis(dn):
 
     temp = np.zeros(8)
 
-    tmp1, temp[0], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-12))
-    tmp1, temp[1], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-15))
-    tmp1, temp[2], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-18))
-    tmp1, temp[3], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-21))
-    tmp1, temp[4], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-24))
-    tmp1, temp[5], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-27))
-    tmp1, temp[6], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-30))
-    tmp1, temp[7], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-33))
+    tmp1, temp[0], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-12))
+    tmp1, temp[1], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-15))
+    tmp1, temp[2], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-18))
+    tmp1, temp[3], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-21))
+    tmp1, temp[4], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-24))
+    tmp1, temp[5], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-27))
+    tmp1, temp[6], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-30))
+    tmp1, temp[7], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-33))
 
     out[5] = nanmean(temp)
 
@@ -81,14 +81,14 @@ def get_apmsis(dn):
 
     temp = np.zeros(8)
 
-    tmp1, temp[0], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-36))
-    tmp1, temp[1], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-39))
-    tmp1, temp[2], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-42))
-    tmp1, temp[3], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-45))
-    tmp1, temp[4], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-48))
-    tmp1, temp[5], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-51))
-    tmp1, temp[6], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-54))
-    tmp1, temp[7], tmp2, tmp3, tmp4, tmp5, tmp6 = get_kpap(dn+timedelta(hours=-57))
+    tmp1, temp[0], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-36))
+    tmp1, temp[1], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-39))
+    tmp1, temp[2], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-42))
+    tmp1, temp[3], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-45))
+    tmp1, temp[4], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-48))
+    tmp1, temp[5], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-51))
+    tmp1, temp[6], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-54))
+    tmp1, temp[7], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-57))
 
     out[6] = nanmean(temp)
 

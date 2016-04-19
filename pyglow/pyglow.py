@@ -29,6 +29,7 @@ class Point:
         self.ap_daily = nan
         self.apmsis   = [nan,]*7
         self.dst      = nan
+        self.ae       = nan
 
         # for iri:
         self.ne = nan
@@ -86,6 +87,8 @@ class Point:
                 + "%4.2f\n" % self.f107a
         out += "%20s" % "dst = "\
                 + "%3.2f\n" % self.dst
+        out += "%20s" % "ae = "\
+                + "%3.2f\n" % self.ae
 
         # IGRF:
         out += "\nFrom IGRF:\n-----------\n"
@@ -112,7 +115,7 @@ class Point:
         #sys.path.append("../indices/")
         from get_kpap import get_kpap
         self.kp, self.ap, self.f107, self.f107a, \
-                self.kp_daily, self.ap_daily, self.dst  = get_kpap(self.dn)
+                self.kp_daily, self.ap_daily, self.dst, self.ae  = get_kpap(self.dn)
 
     def run_iri(self):
         from iri12py import iri_sub as iri
@@ -585,7 +588,95 @@ def update_dst(years=None):
             des = '%s%i%02i' % (pyglow_dir,year,month)
             download_dst(year, month, des) 
 
+def update_ae(years = None):
+    '''
+    Update the AE index files used in pyglow.
+    The files will be downloaded from WDC Kyoto
+    to your pyglow installation directory.
     
+    update_ae(years=None)
+
+    Inputs:
+    ------
+    
+    years : (optional) a list of years to download.
+            If this input is not provided, the full
+            range of years starting from 2005 to the 
+            current year will be downloaded. Pre-2005
+            files are shipped with pyglow.
+    '''
+    from datetime import date, timedelta
+    import urllib
+    import urllib2
+    import pyglow
+    import os
+    import glob
+
+    # Load all data up until today
+    if years is None: years=range(1957, date.today().year + 1)
+    years_temp = [] # List of years that provisional data is needed
+
+    pyglow_dir =\
+            '/'.join(pyglow.__file__.split("/")[:-1]) + "/ae/"
+
+    for year in years:
+        src = 'ftp://ftp.ngdc.noaa.gov/STP/GEOMAGNETIC_DATA/INDICES/' + \
+                'AURORAL_ELECTROJET/HOURLY/ae_%4i_hourly.txt' % (year,)
+        des = pyglow_dir + "%4i" % (year,)
+        print "\nDownloading"
+        print src
+        print "to"
+        print des
+        try:
+            urllib.urlretrieve(src,des)
+            for fm in glob.glob('%s%4i*m'%(pyglow_dir,year)):
+                os.system('rm %s'%(fm))
+        except IOError as e:
+            print 'Failed downloading data for year %i. File does not exist' % year
+            years_temp.append(year)
+    
+    def download_ae(year, month, des):
+        '''
+        Helper function to earch for the appropriate location 
+        and download the AE index file from WDC Kyoto for the 
+        given month and year. Save it to the specified file "des".
+        Return True if successful, False if not.
+        '''
+        # There are three possible sources of data. Search for
+        # them in the following order:
+        # 1) Final
+        # 2) Provisional
+        # 3) Realtime
+        year_month = '%i%02i' % (year, month)
+        wgdc_fn = 'ae%s%02i.for.request' % (str(year)[2:],month)
+        #src_final       = 'http://wdc.kugi.kyoto-u.ac.jp/ae_final/%s/%s' % (year_month, wgdc_fn)
+        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/ae_provisional/%s/%s' % (year_month, wgdc_fn)
+        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/%s/%s' % (year_month, wgdc_fn)
+
+        success = False
+        for src in [src_provisional, src_realtime]:
+            try:
+                response = urllib2.urlopen(src)
+                contents = response.read()
+                # If that succeeded, then the file exists
+                print "\nDownloading"
+                print src
+                print "to"
+                print des
+                with open(des,'w') as f:
+                    f.write(contents)
+                success = True
+                break
+            except urllib2.HTTPError:
+                pass
+        return success
+
+    for year in years_temp:
+        for month in range(1,13):
+            des = '%s%i%02im' % (pyglow_dir,year,month)
+            download_ae(year, month, des) 
+    
+
 def update_indices(years = None):
     '''
     Update all geophysical indices (e.g., kp, dst).
@@ -601,6 +692,7 @@ def update_indices(years = None):
     '''
     update_kpap(years=years)
     update_dst(years=years)
+    update_ae(years=years)
     
 
 if __name__=="__main__":

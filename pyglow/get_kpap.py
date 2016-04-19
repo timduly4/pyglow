@@ -15,7 +15,7 @@ def get_kpap(dn):
 
     Outputs:
     --------
-        kp, ap, f107, f107a, daily_kp, daily_ap, dst
+        kp, ap, f107, f107a, daily_kp, daily_ap, dst, ae
 
     History:
     --------
@@ -33,8 +33,9 @@ def get_kpap(dn):
     daily_ap = geophysical_indices[19, day_index]
     
     dst = geophysical_indices[20+dn.hour, day_index]
+    ae = geophysical_indices[44+dn.hour, day_index]
 
-    return kp, ap, f107, f107a, daily_kp, daily_ap, dst
+    return kp, ap, f107, f107a, daily_kp, daily_ap, dst, ae
 
 
 
@@ -42,16 +43,15 @@ def test_get_kpap():
     # Test it out:
     print "getting first set:" 
     dn = datetime(2008,2,3,15,4)
-    kp, ap, f107, f107a, daily_kp, daily_ap, dst = get_kpap(dn)
-    print kp, ap, f107, f107a, daily_kp, daily_ap, dst
+    kp, ap, f107, f107a, daily_kp, daily_ap, dst, ae = get_kpap(dn)
+    print kp, ap, f107, f107a, daily_kp, daily_ap, dst, ae
 
     print "getting second set:"
-    kp, ap, f107, f107a, daily_kp, daily_ap, dst = get_kpap(datetime(1932,1,1))
-    print kp, ap, f107, f107a, daily_kp, daily_ap, dst
+    kp, ap, f107, f107a, daily_kp, daily_ap, dst, ae = get_kpap(datetime(1932,1,1))
+    print kp, ap, f107, f107a, daily_kp, daily_ap, dst, ae
+
 
 if __name__ == '__main__':
     test_get_kpap()
-
-      
     
     
