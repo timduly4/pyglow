@@ -182,7 +182,7 @@ for fn in files:
         year = int('%02s%02s' % (yr12,yr23))
         dst_per_hour = np.zeros(24)
         for i in range(24):
-            dsthr = base + int(x[20+4*i:24+4*i])
+            dsthr = base*100 + int(x[20+4*i:24+4*i])
             if dsthr==9999:
                 dsthr = np.nan
             dst_per_hour[i] = dsthr
