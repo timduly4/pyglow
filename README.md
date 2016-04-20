@@ -18,6 +18,7 @@ pyglow also provides access to the the following geophysical indices:
   * Kp
   * F10.7
   * DST
+  * AE
 
 pyglow offers access to these models & indices in a convenient, high-level object-oriented interface within Python.
 

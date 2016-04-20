@@ -186,14 +186,16 @@ setup(name='pyglow',\
             'pyglow/dst/1990_2004',\
             ]),\
         ('pyglow/ae/', [
-            ]),\
+            'pyglow/ae/readme.txt']),\
             ],\
         )
 
 
 
-
-print "Let's try to update the indices..."
-from pyglow.pyglow import update_indices
-update_indices()
+# THIS DOES NOT WORK PROPERLY FOR THE 3 LINUX MACHINES I TESTED (DJF)
+# I HAVE COMMENTED THESE OUT UNTIL A SOLUTION IS FOUND
+print "Manually call pyglow.update_indices() from python in home directory"
+#print "Let's try to update the indices..."
+#from pyglow.pyglow import update_indices
+#update_indices()
 print "... all done!"

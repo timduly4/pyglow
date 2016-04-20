@@ -200,15 +200,15 @@ for fn in files:
     for x in s:
         if len(x) <= 1:
             break # reached last line. Done with this file.
-        yr23 = x[4:6] # 3rd and 4th digits of year
-        month = int(x[6:8])
-        day   = int(x[9:11])
-        yr12  = x[15:17] # 1st and 2nd digits of year
-        base  = int(x[17:21]) # "Base value, unit 100 nT"
+        yr23 = x[3:5] # 3rd and 4th digits of year
+        month = int(x[5:7])
+        day   = int(x[8:10])
+        yr12  = x[14:16] # 1st and 2nd digits of year
+        base  = int(x[16:20]) # "Base value, unit 100 nT"
         year = int('%02s%02s' % (yr12,yr23))
-        dst_per_hour = np.zeros(24)
+        ae_per_hour = np.zeros(24)
         for i in range(24):
-            aehr = base + int(x[21+4*i:25+4*i])
+            aehr = base + int(x[20+4*i:24+4*i])
             if aehr==9999:
                 aehr = np.nan
             ae_per_hour[i] = aehr
@@ -222,16 +222,14 @@ for fn in files:
     for x in s:
         if len(x) <= 1:
             break # reached last line. Done with this file.
-        #yr23 = x[13:15] # 3rd and 4th digits of year
-        month = int(x[15:17])
-        day   = int(x[17:19])
-        #yr12  = x[14:16] # 1st and 2nd digits of year
-        base  = int(x[16:20]) # "Base value, unit 100 nT"
-        year = int(fn[-4:])
-        hour = int(x[20:22])
+        #yr23 = x[12:14] # 3rd and 4th digits of year
+        month = int(x[14:16])
+        day   = int(x[16:18])
+        year = int(fn[-7:-3])
+        hour = int(x[19:21])
         if hour == 0:
             ae_per_hour = np.zeros(24)
-        aehr = int(x[395:])
+        aehr = int(x[394:])
         if aehr==99999:
             aehr = np.nan
         ae_per_hour[hour] = aehr
@@ -287,7 +285,7 @@ while i < total_days: # Try every day. Some will be nan.
         pass
 
     try: # This will fail if no ae data are available on this day
-        geophysical_indicies[44:68,i] = ae[dn]
+        geophysical_indices[44:68,i] = ae[dn]
     except KeyError:
         pass
 
