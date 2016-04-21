@@ -11,6 +11,10 @@ class Point:
         self.lon = lon
         self.alt = alt
 
+        # Warn if date is too early
+        if self.dn.year < 1932:
+            raise ValueError('Date cannot be before 1932!')
+
         self.doy = self.dn.timetuple().tm_yday
         self.utc_sec = self.dn.hour*3600. + self.dn.minute*60.
         self.utc_hour = self.dn.hour
@@ -606,35 +610,10 @@ def update_ae(years = None):
             files are shipped with pyglow.
     '''
     from datetime import date, timedelta
-    import urllib
     import urllib2
     import pyglow
-    import os
     import glob
 
-    # Load all data up until today
-    if years is None: years=range(1957, date.today().year + 1)
-    years_temp = [] # List of years that provisional data is needed
-
-    pyglow_dir =\
-            '/'.join(pyglow.__file__.split("/")[:-1]) + "/ae/"
-
-    for year in years:
-        src = 'ftp://ftp.ngdc.noaa.gov/STP/GEOMAGNETIC_DATA/INDICES/' + \
-                'AURORAL_ELECTROJET/HOURLY/ae_%4i_hourly.txt' % (year,)
-        des = pyglow_dir + "%4i" % (year,)
-        print "\nDownloading"
-        print src
-        print "to"
-        print des
-        try:
-            urllib.urlretrieve(src,des)
-            for fm in glob.glob('%s%4i*m'%(pyglow_dir,year)):
-                os.system('rm %s'%(fm))
-        except IOError as e:
-            print 'Failed downloading data for year %i. File does not exist' % year
-            years_temp.append(year)
-    
     def download_ae(year, month, des):
         '''
         Helper function to earch for the appropriate location 
@@ -657,23 +636,32 @@ def update_ae(years = None):
         for src in [src_provisional, src_realtime]:
             try:
                 response = urllib2.urlopen(src)
-                contents = response.read()
+                contents = response.readlines()
                 # If that succeeded, then the file exists
                 print "\nDownloading"
                 print src
                 print "to"
                 print des
                 with open(des,'w') as f:
-                    f.write(contents)
+                    # this shrinks the filesize to hourly
+                    for c in contents:
+                        f.write("%s%s%s\n"%(c[12:18],c[19:21],c[394:400]))
                 success = True
                 break
             except urllib2.HTTPError:
                 pass
         return success
 
-    for year in years_temp:
+    # Read files from 2000 until today. Pre-2000
+    # files are shipped with pyglow.
+    if years is None:
+        years = range(2000,date.today().year + 1)
+    pyglow_dir =\
+            '/'.join(pyglow.__file__.split("/")[:-1]) + "/ae/"   
+
+    for year in years:
         for month in range(1,13):
-            des = '%s%i%02im' % (pyglow_dir,year,month)
+            des = '%s%i%02i' % (pyglow_dir,year,month)
             download_ae(year, month, des) 
     
 

@@ -190,46 +190,26 @@ for fn in files:
 
 
 # Read in AE values.
-# Search the ae/ folder for final files, and read them.
 pyglow_path = '/'.join(pyglow.__file__.split("/")[:-1])
 ae_path = '%s/ae/' % pyglow_path
-files = glob.glob('%s????' % ae_path) # find files like 1957
+files = glob.glob('%s*' % ae_path) # find files like 1975
 for fn in files:
     with open(fn,'r') as f:
         s = f.readlines()
     for x in s:
         if len(x) <= 1:
             break # reached last line. Done with this file.
-        yr23 = x[3:5] # 3rd and 4th digits of year
-        month = int(x[5:7])
-        day   = int(x[8:10])
-        yr12  = x[14:16] # 1st and 2nd digits of year
-        base  = int(x[16:20]) # "Base value, unit 100 nT"
-        year = int('%02s%02s' % (yr12,yr23))
-        ae_per_hour = np.zeros(24)
-        for i in range(24):
-            aehr = base + int(x[20+4*i:24+4*i])
-            if aehr==9999:
-                aehr = np.nan
-            ae_per_hour[i] = aehr
-        ae[datetime(year,month,day)] = ae_per_hour
-
-# Search the ae/ folder for provisional files, and read them.
-files = glob.glob('%s??????m' % ae_path) # files like 201407 
-for fn in files:
-    with open(fn,'r') as f:
-        s = f.readlines()
-    for x in s:
-        if len(x) <= 1:
-            break # reached last line. Done with this file.
-        #yr23 = x[12:14] # 3rd and 4th digits of year
-        month = int(x[14:16])
-        day   = int(x[16:18])
-        year = int(fn[-7:-3])
-        hour = int(x[19:21])
+        yr23 = int(x[0:2]) # 3rd and 4th digits of year
+        month = int(x[2:4])
+        day   = int(x[4:6])
+        year = int(fn.split("/")[-1][:4])
+        # in case file contains an extra day:
+        if yr23 != int(str(year)[2:4]):
+            break
+        hour = int(x[6:8])
         if hour == 0:
             ae_per_hour = np.zeros(24)
-        aehr = int(x[394:])
+        aehr = int(x[8:14])
         if aehr==99999:
             aehr = np.nan
         ae_per_hour[hour] = aehr

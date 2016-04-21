@@ -186,7 +186,30 @@ setup(name='pyglow',\
             'pyglow/dst/1990_2004',\
             ]),\
         ('pyglow/ae/', [
-            'pyglow/ae/readme.txt']),\
+            'pyglow/ae/1975',\
+            'pyglow/ae/1978',\
+            'pyglow/ae/1979',\
+            'pyglow/ae/1980',\
+            'pyglow/ae/1981',\
+            'pyglow/ae/1982',\
+            'pyglow/ae/1983',\
+            'pyglow/ae/1984',\
+            'pyglow/ae/1985',\
+            'pyglow/ae/1986',\
+            'pyglow/ae/1987',\
+            'pyglow/ae/1988',\
+            'pyglow/ae/1989',\
+            'pyglow/ae/1990',\
+            'pyglow/ae/1991',\
+            'pyglow/ae/1992',\
+            'pyglow/ae/1993',\
+            'pyglow/ae/1994',\
+            'pyglow/ae/1995',\
+            'pyglow/ae/1996',\
+            'pyglow/ae/1997',\
+            'pyglow/ae/1998',\
+            'pyglow/ae/1999',\
+            ]),\
             ],\
         )
 
