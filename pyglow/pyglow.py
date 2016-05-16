@@ -121,12 +121,25 @@ class Point:
         self.kp, self.ap, self.f107, self.f107a, \
                 self.kp_daily, self.ap_daily, self.dst, self.ae  = get_kpap(self.dn)
 
-    def run_iri(self):
-        from iri12py import iri_sub as iri
+    def run_iri(self, model_year=2016, debug=False):
+        from iri12py import iri_sub as iri12
+        from iri16py import iri_sub as iri16
         #sys.path.append("./modules")
         import os, sys
         import numpy as np
         import pyglow
+
+        if model_year==2016:
+            iri_data_stub = '/iri16_data/'
+            iri = iri16
+        elif model_year==2012:
+            iri_data_stub = '/iri12_data/'
+            iri = iri12
+        else:
+            raise ValueError('Invalid model_year of \'%i\' for IRI.' % (model_year) +\
+                    '\nEither 2016 (default) or 2012 is valid.')
+
+        if debug: print("model_year = %i" % model_year)
 
         jf = np.ones((50,))
         jf[4]  = 0 # 5  foF2 - URSI (what does that mean?)
@@ -142,8 +155,9 @@ class Point:
 
         my_pwd = os.getcwd()
 
-        iri_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + "/iri_data/"
-        #print "changing directory to \n", iri_data_path
+        iri_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + iri_data_stub
+        if debug:
+            print "changing directory to \n", iri_data_path
 
         os.chdir(iri_data_path)
         [outf,oarr] = iri(jf,0,\
