@@ -2,8 +2,8 @@
 import os
 import urllib2
 
-iri = {\
-        'folder'     : 'iri',\
+iri12 = {\
+        'folder'     : 'iri12',\
         'name'       : 'iri12',\
         #'url'        : 'ftp://nssdcftp.gsfc.nasa.gov/models/ionospheric/iri/iri2012/00_iri2012.tar', \
         'url'        : 'http://spdf.gsfc.nasa.gov/pub/models/iri/iri2012/00_iri2012.tar',\
@@ -53,7 +53,7 @@ hwm93 = {\
         'zip'        : False,\
         }
 
-for model in [msis, igrf, hwm07, hwm93, iri]:
+for model in [msis, igrf, hwm07, hwm93, iri12]:
     print "Downloading files for %s ..." % (model['name'])
     modelfile = urllib2.urlopen(model['url'])
     output = open("./dl_models/%s/%s" % (model['folder'], model['filename']), 'wb')
@@ -61,7 +61,8 @@ for model in [msis, igrf, hwm07, hwm93, iri]:
     output.close()
     if model['tar']:
         print "time to tar..."
-        cmd = 'tar -xvf ./dl_models/%s/%s -C ./dl_models/%s/' % (model['folder'], model['filename'], model['folder'])
+        cmd = 'tar -xvf ./dl_models/%s/%s -C ./dl_models/%s/' %\
+                (model['folder'], model['filename'], model['folder'])
         print cmd
         os.system(cmd)
     if model['zip']:
@@ -73,6 +74,43 @@ for model in [msis, igrf, hwm07, hwm93, iri]:
         os.system('mv ./%s/* ./dl_models/%s' % (model['zip_folder'],model['folder']))
         # remove folder:
         os.system('rm -rf ./%s' % (model['zip_folder']))
+
+
+# ---------------------------------------------------------
+# IRI16 has multiple files. For now, download separately:
+# ---------------------------------------------------------
+model_folder = 'iri16'
+
+# tar files:
+# - - - - - 
+model_urls = [\
+        'http://irimodel.org/IRI-2016/00_iri2016.tar',\
+        'http://irimodel.org/COMMON_FILES/00_ccir-ursi.tar',
+        ]
+
+for model_url in model_urls:
+    tar_file = model_url.split('/')[-1]
+    model_file = urllib2.urlopen(model_url)
+    output = open("./dl_models/%s/%s" % (model_folder, tar_file), 'wb')
+    output.write(model_file.read())
+    output.close()
+    cmd = 'tar -xvf ./dl_models/%s/%s -C ./dl_models/%s/' %\
+            (model_folder, tar_file, model_folder)
+    print(cmd)
+    os.system(cmd)
+
+indice_urls = [\
+        'http://irimodel.org/indices/apf107.dat',\
+        'http://irimodel.org/indices/ig_rz.dat',
+        ]
+# dat files (indices)
+# - - - - - 
+for indice_url in indice_urls:
+    dat_file = indice_url.split('/')[-1]
+    model_file = urllib2.urlopen(indice_url)
+    output = open("./dl_models/%s/%s" % (model_folder, dat_file), 'wb')
+    output.write(model_file.read())
+    output.close()
 
 
 
