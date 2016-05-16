@@ -41,7 +41,7 @@ setup(name='pyglow',\
         ('',['pyglow/models/dl_models/hwm07/hwm07py.so']),
         ('',['pyglow/models/dl_models/hwm14/hwm14py.so']),
         ('',['pyglow/models/dl_models/iri12/iri12py.so']),
-        ('',['pyglow/models/dl_models/iri12/iri16py.so']),
+        ('',['pyglow/models/dl_models/iri16/iri16py.so']),
         ('pyglow/hwm07_data/',[
             'pyglow/models/dl_models/hwm07/apexgrid.dat',
             'pyglow/models/dl_models/hwm07/dwm07b_104i.dat',

@@ -24,8 +24,11 @@ all:
 
 clean:
 	rm -rf *~
-	rm -rf ./dl_models/hwm07/*
 	rm -rf ./dl_models/hwm93/*
+	rm -rf ./dl_models/hwm07/*
+	rm -rf ./dl_models/hwm14/*.pyf
+	rm -rf ./dl_models/hwm14/out*
+	rm -rf ./dl_models/hwm14/*.so
 	rm -rf ./dl_models/igrf/*
 	rm -rf ./dl_models/iri12/*
 	rm -rf ./dl_models/iri16/*
