@@ -141,17 +141,26 @@ class Point:
 
         if debug: print("version = %i" % version)
 
-        jf = np.ones((50,))
-        jf[4]  = 0 # 5  foF2 - URSI (what does that mean?)
-        jf[5]  = 0 # 6  Ni - RBV-10 & TTS-03 
+        jf = np.ones((50,)) # JF switches
+        # Standard IRI model flags
+        #             | FORTRAN Index
+        #             |
+        #             V 
+        jf[3]  = 0 #  4 B0,B1 other model-31
+        jf[4]  = 0 #  5  foF2 - URSI
+        jf[5]  = 0 #  6  Ni - RBV-10 & TTS-03 
         jf[20] = 0 # 21 ion drift not computed
-        jf[21] = 0 # 22 ion densities in m^-3
         jf[22] = 0 # 23 Te_topside (TBT-2011)
+        jf[27] = 0 # 28 spreadF prob not computed
         jf[28] = 0 # 29 (29,30) => NeQuick
         jf[29] = 0 # 30  
-        jf[33] = 0 # 34 messages [on|off]
-        jf[32] = 0 #  33    Auroral boundary model on/off
-                   # Brian found a case that stalled IRI
+        jf[32] = 0 # 33 Auroral boundary model off
+                   #    (Brian found a case that stalled IRI when on)
+        jf[34] = 0 # 35 no foE storm update
+        
+        # Not standard, but outputs same as values as standard so not an issue
+        jf[21] = 0 # 22 ion densities in m^-3 (not %)
+        jf[33] = 0 # 34 turn messages off
 
         my_pwd = os.getcwd()
 
