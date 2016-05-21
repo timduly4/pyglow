@@ -9,3 +9,7 @@ make all;
 cd ../../; 
 python ./setup.py install --user;
 
+# Run update indices:
+cd ~/; 
+python -c "from pyglow import pyglow; pyglow.update_indices()"
+
