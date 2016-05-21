@@ -201,9 +201,15 @@ class Point:
 
         return
     
-    def run_msis(self):
-        from msis00py import gtd7 as msis
+    def run_msis(self, version=2000):
+        from msis00py import gtd7 as msis00
         import numpy as np 
+
+        if version==2000:
+            msis = msis00
+        else:
+            raise ValueError('Invalid version of \'%i\' for MSIS.' % (version) +\
+                    '\n2000 (default) is valid.')
 
         [d,t] = msis(self.doy,\
                 self.utc_sec,\
@@ -230,6 +236,17 @@ class Point:
 
         self.rho = d[5] # total mass density [grams/cm^3]
 
+
+    def run_hwm(self, version=2014):
+        if version==2014:
+            self.run_hwm14()
+        elif version==2007:
+            self.run_hwm07()
+        elif version==1993:
+            self.run_hwm93()
+        else:
+            raise ValueError('Invalid version of \'%i\' for HWM.' % (version) +\
+                    '\nEither 2014 (default), 2007, or 1993 is valid.')
 
     def run_hwm93(self):
         from hwm93py import gws5 as hwm93
@@ -303,10 +320,16 @@ class Point:
         self.u = u
         self.hwm_version = '14'
 
-    def run_igrf(self):
-        from igrf11py import igrf11syn as igrf
+    def run_igrf(self, version=2011):
+        from igrf11py import igrf11syn as igrf11
         import numpy as np
         import warnings
+
+        if version==2011:
+            igrf=igrf11
+        else:
+            raise ValueError('Invalid version of \'%i\' for IGRF.' % (version) +\
+                    '\n2011 (default) is valid.')
 
         x, y, z, f = igrf(0,\
                 self.dn.year,\
