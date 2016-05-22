@@ -6,12 +6,13 @@
 pyglow is a Python module that wraps several upper atmosphere climatoglogical models written in FORTRAN.
 
 It includes the following upper atmospheric models:
-  * IRI
-  * IGRF
-  * MSIS
-  * HWM93
-  * HWM07
-  * HWM14
+  * IRI 2016
+  * IRI 2012
+  * IGRF 2012
+  * MSIS 2000
+  * HWM 2014
+  * HWM 2007
+  * HWM 1993
 
 pyglow also provides access to the the following geophysical indices:
   * AP
@@ -26,13 +27,21 @@ pyglow offers access to these models & indices in a convenient, high-level objec
 
 ### I'm Feeling Lucky
 
-Copy and paste this for a one-liner installation.  Or, follow the steps below with explanation for the individual steps.
+First, checkout the repository:
 
 ```
-    git clone git://github.com/timduly4/pyglow.git; cd pyglow/; cd ./pyglow/models/; make all; cd ../../; python ./setup.py install --user;
+    $ git clone git://github.com/timduly4/pyglow.git;
 ```
 
-### Installation steps
+Change directories into the repository folder and run the installation script:
+```
+    $ cd pyglow/
+    $ ./install_pyglow.sh
+```
+
+### Individual installation steps
+
+If you have troubles, follow the individual installation steps:
 
 (1) Download the package:
 ```
@@ -51,8 +60,10 @@ Copy and paste this for a one-liner installation.  Or, follow the steps below wi
     $ find . -name "*.so"
     ./dl_models/hwm07/hwm07py.so
     ./dl_models/hwm93/hwm93py.so
+    ./dl_models/hwm14/hwm14py.so
     ./dl_models/igrf/igrf11py.so
-    ./dl_models/iri/iri12py.so
+    ./dl_models/iri12/iri12py.so
+    ./dl_models/iri16/iri16py.so
     ./dl_models/msis/msis00py.so
     ```
 
@@ -63,6 +74,13 @@ Copy and paste this for a one-liner installation.  Or, follow the steps below wi
 ```
   * On a mac, the folder `pyglow` and `*.so` files from `./models/dl_models/<model>/` should be in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
   * If you are denied permission, I recommend adding `--user` flag in command
+
+(4) Download the geophysical indices
+
+```
+$ cd ~/
+$ python -c "from pyglow import pyglow; pyglow.update_indices()"
+
 
 # Testing / Example
 
