@@ -78,8 +78,8 @@ If you have troubles, follow the individual installation steps:
 (4) Download the geophysical indices
 
 ```
-$ cd ~/
-$ python -c "from pyglow import pyglow; pyglow.update_indices()"
+	$ cd ~/
+	$ python -c "from pyglow import pyglow; pyglow.update_indices()"
 ```
 
 
