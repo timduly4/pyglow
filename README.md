@@ -80,6 +80,7 @@ If you have troubles, follow the individual installation steps:
 ```
 $ cd ~/
 $ python -c "from pyglow import pyglow; pyglow.update_indices()"
+```
 
 
 # Testing / Example
