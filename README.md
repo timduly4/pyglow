@@ -8,7 +8,7 @@ pyglow is a Python module that wraps several upper atmosphere climatoglogical mo
 It includes the following upper atmospheric models:
   * IRI 2016
   * IRI 2012
-  * IGRF 2012
+  * IGRF 2011
   * MSIS 2000
   * HWM 2014
   * HWM 2007
