@@ -23,11 +23,20 @@ msis = {\
         'zip'        : False,\
         }
 
-igrf = {\
-        'folder'     : 'igrf',\
+igrf11 = {\
+        'folder'     : 'igrf11',\
         'name'       : 'igrf11',\
         'url'        : 'http://www.ngdc.noaa.gov/IAGA/vmod/igrf11.f',\
         'filename'   : 'igrf11.f',\
+        'tar'        : False,\
+        'zip'        : False,\
+        }
+
+igrf12 = {\
+        'folder'     : 'igrf12',\
+        'name'       : 'igrf12',\
+        'url'        : 'http://www.ngdc.noaa.gov/IAGA/vmod/igrf12.f',\
+        'filename'   : 'igrf12.f',\
         'tar'        : False,\
         'zip'        : False,\
         }
@@ -53,7 +62,7 @@ hwm93 = {\
         'zip'        : False,\
         }
 
-for model in [msis, igrf, hwm07, hwm93, iri12]:
+for model in [msis, igrf11, igrf12, hwm07, hwm93, iri12]:
     print "Downloading files for %s ..." % (model['name'])
     modelfile = urllib2.urlopen(model['url'])
     output = open("./dl_models/%s/%s" % (model['folder'], model['filename']), 'wb')

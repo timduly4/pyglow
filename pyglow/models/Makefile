@@ -2,8 +2,11 @@
 all:
 	python get_models.py
 
-	cp ./f2py/igrf/* ./dl_models/igrf/
-	cd ./dl_models/igrf/; make compile
+	cp ./f2py/igrf11/* ./dl_models/igrf11/
+	cd ./dl_models/igrf11/; make compile
+	
+	cp ./f2py/igrf12/* ./dl_models/igrf12/
+	cd ./dl_models/igrf12/; make compile
 
 	cp ./f2py/msis/* ./dl_models/msis/
 	cd ./dl_models/msis/; make compile;
@@ -29,13 +32,15 @@ clean:
 	rm -rf ./dl_models/hwm14/*.pyf
 	rm -rf ./dl_models/hwm14/out*
 	rm -rf ./dl_models/hwm14/*.so
-	rm -rf ./dl_models/igrf/*
+	rm -rf ./dl_models/igrf11/*
+	rm -rf ./dl_models/igrf12/*
 	rm -rf ./dl_models/iri12/*
 	rm -rf ./dl_models/iri16/*
 	rm -rf ./dl_models/msis/*
 	touch ./dl_models/hwm07/dummy.txt
 	touch ./dl_models/hwm93/dummy.txt
-	touch ./dl_models/igrf/dummy.txt
+	touch ./dl_models/igrf11/dummy.txt
+	touch ./dl_models/igrf12/dummy.txt
 	touch ./dl_models/iri12/dummy.txt
 	touch ./dl_models/iri16/dummy.txt
 	touch ./dl_models/msis/dummy.txt
