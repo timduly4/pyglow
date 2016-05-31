@@ -320,16 +320,19 @@ class Point:
         self.u = u
         self.hwm_version = '14'
 
-    def run_igrf(self, version=2011):
+    def run_igrf(self, version=2012):
         from igrf11py import igrf11syn as igrf11
+        from igrf12py import igrf12syn as igrf12
         import numpy as np
         import warnings
 
-        if version==2011:
+        if version==2012:
+            igrf=igrf12
+        elif version==2011:
             igrf=igrf11
         else:
             raise ValueError('Invalid version of \'%i\' for IGRF.' % (version) +\
-                    '\n2011 (default) is valid.')
+                    '\n2012 (default) and 2011 are valid.')
 
         x, y, z, f = igrf(0,\
                 self.dn.year,\
