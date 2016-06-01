@@ -6,13 +6,14 @@
 pyglow is a Python module that wraps several upper atmosphere climatoglogical models written in FORTRAN.
 
 It includes the following upper atmospheric models:
-  * IRI 2016
-  * IRI 2012
-  * IGRF 2011
-  * MSIS 2000
   * HWM 2014
   * HWM 2007
   * HWM 1993
+  * IGRF 2012
+  * IGRF 2011
+  * IRI 2016
+  * IRI 2012
+  * MSIS 2000
 
 pyglow also provides access to the the following geophysical indices:
   * AP
@@ -61,7 +62,8 @@ If you have troubles, follow the individual installation steps:
     ./dl_models/hwm07/hwm07py.so
     ./dl_models/hwm93/hwm93py.so
     ./dl_models/hwm14/hwm14py.so
-    ./dl_models/igrf/igrf11py.so
+    ./dl_models/igrf11/igrf11py.so
+    ./dl_models/igrf12/igrf12py.so
     ./dl_models/iri12/iri12py.so
     ./dl_models/iri16/iri16py.so
     ./dl_models/msis/msis00py.so
