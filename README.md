@@ -37,7 +37,7 @@ First, checkout the repository:
 Change directories into the repository folder and run the installation script:
 ```
     $ cd pyglow/
-    $ ./install_pyglow.sh
+    $ ./pyglow_install.sh
 ```
 
 ### Individual installation steps
