@@ -9,8 +9,8 @@ It includes the following upper atmospheric models:
   * HWM 2014
   * HWM 2007
   * HWM 1993
-  * IGRF 2012
-  * IGRF 2011
+  * IGRF 12
+  * IGRF 11
   * IRI 2016
   * IRI 2012
   * MSIS 2000
