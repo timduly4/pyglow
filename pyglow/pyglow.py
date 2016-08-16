@@ -548,7 +548,9 @@ def update_kpap(years=None):
             current year will be downloaded.
     '''
     from datetime import date,timedelta
-    import urllib
+    import shutil
+    import urllib2
+    from contextlib import closing
     import pyglow
 
     # Load all data up until today
@@ -567,7 +569,9 @@ def update_kpap(years=None):
         print "to"
         print des
         try:
-            urllib.urlretrieve(src,des)
+            with closing(urllib2.urlopen(src)) as r:
+                with open(des, 'wb') as f:
+                    shutil.copyfileobj(r, f)
         except IOError as e:
             print 'Failed downloading data for year %i. File does not exist' % year
 
@@ -590,8 +594,10 @@ def update_dst(years=None):
             files are shipped with pyglow.
     '''
     from datetime import date, timedelta
-    import urllib2
+    import urllib2    
+    from contextlib import closing
     import pyglow
+
 
     def download_dst(year, month, des):
         '''
@@ -614,17 +620,17 @@ def update_dst(years=None):
         success = False
         for src in [src_final, src_provisional, src_realtime]:
             try:
-                response = urllib2.urlopen(src)
-                contents = response.read()
-                # If that succeeded, then the file exists
-                print "\nDownloading"
-                print src
-                print "to"
-                print des
-                with open(des,'w') as f:
-                    f.write(contents)
-                success = True
-                break
+                with closing(urllib2.urlopen(src)) as r:
+                    contents = r.read()
+                    # If that succeeded, then the file exists
+                    print "\nDownloading"
+                    print src
+                    print "to"
+                    print des
+                    with open(des,'w') as f:
+                        f.write(contents)
+                    success = True
+                    break
             except urllib2.HTTPError:
                 pass
         return success
@@ -660,6 +666,7 @@ def update_ae(years = None):
     '''
     from datetime import date, timedelta
     import urllib2
+    from contextlib import closing
     import pyglow
     import glob
 
@@ -684,19 +691,19 @@ def update_ae(years = None):
         success = False
         for src in [src_provisional, src_realtime]:
             try:
-                response = urllib2.urlopen(src)
-                contents = response.readlines()
-                # If that succeeded, then the file exists
-                print "\nDownloading"
-                print src
-                print "to"
-                print des
-                with open(des,'w') as f:
-                    # this shrinks the filesize to hourly
-                    for c in contents:
-                        f.write("%s%s%s\n"%(c[12:18],c[19:21],c[394:400]))
-                success = True
-                break
+                with closing(urllib2.urlopen(src)) as r:
+                    contents = r.readlines()
+                    # If that succeeded, then the file exists
+                    print "\nDownloading"
+                    print src
+                    print "to"
+                    print des
+                    with open(des,'w') as f:
+                        # this shrinks the filesize to hourly
+                        for c in contents:
+                            f.write("%s%s%s\n"%(c[12:18],c[19:21],c[394:400]))
+                    success = True
+                    break
             except urllib2.HTTPError:
                 pass
         return success
