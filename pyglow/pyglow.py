@@ -1,4 +1,4 @@
-class Point:
+class Point(object):
     def __init__(self, dn, lat, lon, alt, user_ind=False):
         import numpy as np
         from get_apmsis import get_apmsis
