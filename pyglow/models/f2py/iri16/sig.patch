@@ -3,4 +3,4 @@
 <             real dimension(100) :: oarr
 ---
 >             real dimension(20,1000), intent(out) :: outf
->             real dimension(100), intent(out) :: oarr
+>             real dimension(100), intent(inplace) :: oarr

@@ -46,6 +46,9 @@ class Point(object):
         self.Te = nan
         self.Tn_iri = nan
 
+        self.NmF2 = nan
+        self.hmF2 = nan
+
         # for msis:
         self.Tn_msis = nan
         self.nn = {}
@@ -120,8 +123,21 @@ class Point(object):
         from get_kpap import get_kpap
         self.kp, self.ap, self.f107, self.f107a, \
                 self.kp_daily, self.ap_daily, self.dst, self.ae  = get_kpap(self.dn)
+        return self
 
-    def run_iri(self, version=2016, debug=False):
+    def run_iri(self,
+                NmF2=None,
+                hmF2=None,
+                version=2016,
+                debug=False):
+        """
+        Run IRI  model at point time/location and update  the object state
+        accordingly. If *NmF2* (in [m^{-3}}])  or *hmF2* (in [km]) are
+        specified,  input them  to  the model  (see documentation  for
+        IRI_SUB)). Override the model with *version* --- valid options
+        are currently  2016 or  2012. Output debugging  information if
+        *debug* is true.
+        """
         from iri12py import iri_sub as iri12
         from iri16py import iri_sub as iri16
         #sys.path.append("./modules")
@@ -162,6 +178,18 @@ class Point(object):
         jf[21] = 0 # 22 ion densities in m^-3 (not %)
         jf[33] = 0 # 34 turn messages off
 
+        oarr = np.zeros((100,))
+
+        if NmF2 is not None:
+            # use specified F2 peak density
+            jf[7] = 0
+            oarr[0] = NmF2
+
+        if hmF2 is not None:
+            # use specified F2 peak height
+            jf[8] = 0
+            oarr[1] = hmF2
+
         my_pwd = os.getcwd()
 
         iri_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + iri_data_stub
@@ -169,15 +197,17 @@ class Point(object):
             print "changing directory to \n", iri_data_path
 
         os.chdir(iri_data_path)
-        [outf,oarr] = iri(jf,0,\
-                self.lat,\
-                self.lon,\
-                int(self.dn.year),\
-                -self.doy,\
-                (self.utc_sec/3600.+25.),\
-                self.alt,\
-                self.alt+1,\
-                1)
+        outf = iri(jf,
+                   0,
+                   self.lat,
+                   self.lon,
+                   int(self.dn.year),
+                   -self.doy,
+                   (self.utc_sec/3600.+25.),
+                   self.alt,
+                   self.alt+1,
+                   1,
+                   oarr)
         os.chdir("%s" % my_pwd)
 
         self.Te        = outf[3,0] # electron temperature from IRI (K)
@@ -191,6 +221,9 @@ class Point(object):
         self.ni['O2+'] = outf[7,0] # O2+ Density (%, or m^-3 with JF(22) = 0)
         self.ni['NO+'] = outf[8,0] # NO+ Density (%, or m^-3 with JF(22) = 0)
 
+        self.NmF2 = oarr[0]
+        self.hmF2 = oarr[1]
+
         # densities are now in cm^-3:
         self.ne        = self.ne        / 100.**3 # [items/cm^3]
         self.ni['O+']  = self.ni['O+']  / 100.**3 # [items/cm^3]
@@ -198,8 +231,8 @@ class Point(object):
         self.ni['HE+'] = self.ni['HE+'] / 100.**3 # [items/cm^3]
         self.ni['O2+'] = self.ni['O2+'] / 100.**3 # [items/cm^3]
         self.ni['NO+'] = self.ni['NO+'] / 100.**3 # [items/cm^3]
-
-        return
+        self.NmF2      = self.NmF2      / 100.**3 # [items/cm^3]
+        return self
 
     def run_msis(self, version=2000):
         from msis00py import gtd7 as msis00
@@ -211,16 +244,16 @@ class Point(object):
             raise ValueError('Invalid version of \'%i\' for MSIS.' % (version) +\
                     '\n2000 (default) is valid.')
 
-        [d,t] = msis(self.doy,\
-                self.utc_sec,\
-                self.alt,\
-                self.lat,\
-                np.mod(self.lon,360),\
-                self.slt_hour,\
-                self.f107a,\
-                self.f107,\
-                self.apmsis,\
-                48)
+        [d,t] = msis(self.doy,
+                     self.utc_sec,
+                     self.alt,
+                     self.lat,
+                     np.mod(self.lon,360),
+                     self.slt_hour,
+                     self.f107a,
+                     self.f107,
+                     self.apmsis,
+                     48)
         self.Tn_msis = t[1] # neutral temperature from MSIS (K)
 
         self.nn = {}
@@ -235,7 +268,7 @@ class Point(object):
         self.nn['O_anomalous'] = d[8] # [items/cm^3]
 
         self.rho = d[5] # total mass density [grams/cm^3]
-
+        return self
 
     def run_hwm(self, version=2014):
         if version==2014:
@@ -247,23 +280,25 @@ class Point(object):
         else:
             raise ValueError('Invalid version of \'%i\' for HWM.' % (version) +\
                     '\nEither 2014 (default), 2007, or 1993 is valid.')
+        return self
 
     def run_hwm93(self):
         from hwm93py import gws5 as hwm93
         import numpy as np
 
-        w = hwm93(self.iyd,\
-                self.utc_sec,\
-                self.alt,\
-                self.lat,\
-                np.mod(self.lon,360),\
-                self.slt_hour,\
-                self.f107a,\
-                self.f107,\
-                self.ap_daily)
+        w = hwm93(self.iyd,
+                  self.utc_sec,
+                  self.alt,
+                  self.lat,
+                  np.mod(self.lon,360),
+                  self.slt_hour,
+                  self.f107a,
+                  self.f107,
+                  self.ap_daily)
         self.v = w[0]
         self.u = w[1]
         self.hwm_version = '93'
+        return self
 
     def run_hwm07(self):
         from hwm07py import hwmqt as hwm07
@@ -278,19 +313,20 @@ class Point(object):
 
         os.chdir(hwm07_data_path)
         aphwm07 = [float('NaN'), self.ap]
-        w = hwm07(self.iyd,\
-                self.utc_sec,\
-                self.alt,\
-                self.lat,\
-                np.mod(self.lon,360),\
-                self.slt_hour,\
-                self.f107a,\
-                self.f107,\
-                aphwm07)
+        w = hwm07(self.iyd,
+                  self.utc_sec,
+                  self.alt,
+                  self.lat,
+                  np.mod(self.lon,360),
+                  self.slt_hour,
+                  self.f107a,
+                  self.f107,
+                  aphwm07)
         os.chdir("%s" % my_pwd)
         self.v = w[0]
         self.u = w[1]
         self.hwm_version = '07'
+        return self
 
     def run_hwm14(self):
         from hwm14py import hwm14
@@ -304,21 +340,20 @@ class Point(object):
 
         os.chdir(hwm14_data_path)
 
-        (v,u) = hwm14(\
-                self.iyd,\
-                self.utc_sec,\
-                self.alt,\
-                self.lat,\
-                np.mod(self.lon,360),\
-                np.nan,\
-                np.nan,\
-                np.nan,\
-                [np.nan,self.ap],\
-                )
+        (v,u) = hwm14(self.iyd,
+                      self.utc_sec,
+                      self.alt,
+                      self.lat,
+                      np.mod(self.lon,360),
+                      np.nan,
+                      np.nan,
+                      np.nan,
+                      [np.nan,self.ap])
         os.chdir("%s" % my_pwd)
         self.v = v
         self.u = u
         self.hwm_version = '14'
+        return self
 
     def run_igrf(self, version=12):
         from igrf11py import igrf11syn as igrf11
@@ -334,13 +369,12 @@ class Point(object):
             raise ValueError('Invalid version of \'%i\' for IGRF.' % (version) +\
                     '\nVersion 12 (default) and 11 are valid.')
 
-        x, y, z, f = igrf(0,\
-                self.dn.year,\
-                1,\
-                self.alt,\
-                90.-self.lat,\
-                np.mod(self.lon,360),\
-                )
+        x, y, z, f = igrf(0,
+                          self.dn.year,
+                          1,
+                          self.alt,
+                          90.-self.lat,
+                          np.mod(self.lon,360))
 
         h = np.sqrt(x**2 + y**2)
         dip = 180./np.pi * np.arctan2(z,h)
@@ -364,6 +398,7 @@ class Point(object):
 
         self.dip = dip
         self.dec = dec
+        return self
 
     def run_airglow(self):
         '''
@@ -418,7 +453,7 @@ class Point(object):
         AGNumerator = a6300/a1D*b6300*K1_6300*Oplus*O2;
         AGDenominator = 1.+(K3_6300*N2+K4_6300*O2+K5_6300*Ne)/a1D;
         self.ag6300 = AGNumerator / AGDenominator;
-
+        return self
 
 # ---------
 
