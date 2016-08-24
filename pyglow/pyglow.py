@@ -131,11 +131,11 @@ class Point(object):
                 version=2016,
                 debug=False):
         """
-        Run IRI  model at point time/location and update  the object state
-        accordingly. If *NmF2* (in [m^{-3}}])  or *hmF2* (in [km]) are
-        specified,  input them  to  the model  (see documentation  for
+        Run IRI model at point time/location and update the object state
+        accordingly. If *NmF2* (in [cm^{-3}}]) or *hmF2* (in [km]) are
+        specified, input them to the model (see documentation for
         IRI_SUB)). Override the model with *version* --- valid options
-        are currently  2016 or  2012. Output debugging  information if
+        are currently 2016 or 2012. Output debugging information if
         *debug* is true.
         """
         from iri12py import iri_sub as iri12
@@ -183,7 +183,7 @@ class Point(object):
         if NmF2 is not None:
             # use specified F2 peak density
             jf[7] = 0
-            oarr[0] = NmF2
+            oarr[0] = NmF2 * 100.**3  # IRI expects [m^{-3}]
 
         if hmF2 is not None:
             # use specified F2 peak height
