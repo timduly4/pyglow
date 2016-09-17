@@ -71,6 +71,7 @@ class Point(object):
 
         # for run_airglow:
         self.ag6300 = nan
+        self.ag7774 = nan
 
         if not user_ind:
             # call the indice models:
@@ -405,8 +406,9 @@ class Point(object):
         Computes airglow intensities
 
 
-        After running, self.ag6300 has the
-        630.0-nm volume emission rate (ph/cm^3/s)
+        After running, self.ag6300 has the 630.0-nm volume emission
+        rate (ph/cm^3/s) and self.ag7774 has the 777.4-nm volume
+        emission rate.
 
 
         History
@@ -414,6 +416,7 @@ class Point(object):
         9/9/13 -- implemented into pyglow
                   based on Jonathan J. Makela's MATLAB
                   and subsequent python code
+        9/13/16 -- added 7774 calculation
         '''
         import numpy as np
 
@@ -424,35 +427,59 @@ class Point(object):
         if np.isnan(self.nn['O2']):
             self.run_msis()
 
-        # Perform 630.0-nm calcualtion
-        Ne = self.ne;       # electron density [cm^-3]
-        Tn = self.Tn_msis;  # neutral temperature [K]
-        Ti = self.Ti;       # ion temperature [K]
-        Te = self.Te;       # electron temperature [K]
-        O2 = self.nn['O2']; # O2 density [cm^-3]
-        N2 = self.nn['N2']; # N2 density [cm^-3]
+        # Perform 630.0-nm calculation
+        Ne = self.ne        # electron density [cm^-3]
+        Tn = self.Tn_msis   # neutral temperature [K]
+        Ti = self.Ti        # ion temperature [K]
+        Te = self.Te        # electron temperature [K]
+        O2 = self.nn['O2']  # O2 density [cm^-3]
+        N2 = self.nn['N2']  # N2 density [cm^-3]
+        O  = self.nn['O']   # O density [cm^-3]
 
-        te = Te/300;
-        ti = Ti/300;
+        te = Te/300
+        ti = Ti/300
 
         # These coefs are from Link and Cogger, JGR 93(A9), 988309892, 1988
-        K1_6300 = 3.23e-12*np.exp(3.72/ti - 1.87/ti**2);
-        K2_6300 = 2.78e-13*np.exp(2.07/ti - 0.61/ti**2);
-        K3_6300 = 2.0e-11*np.exp(111.8/Tn);
-        K4_6300 = 2.9e-11*np.exp(67.5/Tn);
-        K5_6300 = 1.6e-12*Te**0.91;
-        b6300 = 1.1;
-        a1D = 7.45e-3;   # Corrected value form Link and Cogger, JGR, 94(A2), 1989
-        a6300 = 5.63e-3; # Corrected value form Link and Cogger, JGR, 94(A2), 1989
+        K1_6300 = 3.23e-12*np.exp(3.72/ti - 1.87/ti**2)
+        K2_6300 = 2.78e-13*np.exp(2.07/ti - 0.61/ti**2)
+        K3_6300 = 2.0e-11*np.exp(111.8/Tn)
+        K4_6300 = 2.9e-11*np.exp(67.5/Tn)
+        K5_6300 = 1.6e-12*Te**0.91
+        b6300 = 1.1
+        a1D = 7.45e-3    # Corrected value form Link and Cogger, JGR, 94(A2), 1989
+        a6300 = 5.63e-3  # Corrected value form Link and Cogger, JGR, 94(A2), 1989
 
         # Calculate O+ assuming mixture of ions (also from Link and Cogger, 1988)
-        a1 = 1.95e-7*te**-0.7;
-        a2 = 4.00e-7*te**-0.9;
-        Oplus = Ne/(1.+K2_6300*N2/a2/Ne + K1_6300*O2/a1/Ne);
+        a1 = 1.95e-7*te**-0.7
+        a2 = 4.00e-7*te**-0.9
+        Oplus = Ne/(1.+K2_6300*N2/a2/Ne + K1_6300*O2/a1/Ne)
 
-        AGNumerator = a6300/a1D*b6300*K1_6300*Oplus*O2;
-        AGDenominator = 1.+(K3_6300*N2+K4_6300*O2+K5_6300*Ne)/a1D;
-        self.ag6300 = AGNumerator / AGDenominator;
+        AGNumerator = a6300/a1D*b6300*K1_6300*Oplus*O2
+        AGDenominator = 1.+(K3_6300*N2+K4_6300*O2+K5_6300*Ne)/a1D
+        self.ag6300 = AGNumerator / AGDenominator
+
+        # Perform the 777.4-nm calculation
+
+        # These coefs are from a number of sources (see Makela's
+        # dissertation Table 2.3 or Makela et al., "Ionospheric
+        # topography maps using multiple-wavelength all-sky images",
+        # JGR, 106, 29161--29174, 2001.)
+        alpha1_7774 = 7.8e-13
+        beta_7774 = 0.42
+        K1_7774 = 1.3e-15
+        K2_7774 = 1.5e-7
+        K3_7774 = 1.4e-10
+
+        # Makela shows that Oplus may be replaced by Ne below in his
+        # dissertation (see p. 25) with only a 0.5% impact. Since we
+        # have Oplus at hand, we use it in the calculation.
+        V7774_rr = alpha1_7774 * Oplus * Ne
+
+        V7774_ii_num = beta_7774 * K1_7774 * K2_7774 * O * Oplus * Ne
+        V7774_ii_den = K2_7774 * Oplus + K3_7774 * O
+
+        self.ag7774 = V7774_rr + V7774_ii_num / V7774_ii_den
+
         return self
 
 # ---------
