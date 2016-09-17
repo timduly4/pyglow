@@ -16,5 +16,5 @@ python ./setup.py install --user --prefix=;
 
 # Run update indices:
 cd ~/; 
-#python -c "from pyglow import pyglow; pyglow.update_indices()"
+python -c "from pyglow import pyglow; pyglow.update_indices()"
 
