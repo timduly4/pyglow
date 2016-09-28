@@ -1,5 +1,5 @@
-fortran_files = cira.for igrf.for iridreg.for irifun.for irisub_modified.for iritec.for iriflip_modified.for cosd_sind.for
-only = iri_sub
+fortran_files = cira.for igrf.for iridreg.for irifun.for irisub.for iritec.for iriflip_modified.for cosd_sind.for
+only = iri_sub read_ig_rz readapf107
 mod = iri16py
 
 f77flags = -std=legacy -w -O2 -fbacktrace -fno-automatic -fPIC
@@ -22,9 +22,6 @@ test_gfortran:
 patch_iriflip:
 	python delete_iriflip_comments.py
 
-patch_irisub:
-	patch irisub.for -i irisub.patch -o irisub_modified.for
-
 sig:
 	f2py -m $(mod) -h sig_file.pyf $(fortran_files) only: $(only) : | tee out1
 
@@ -37,8 +34,7 @@ mod:
 
 compile:
 	make patch_iriflip;
-	make patch_irisub;
-	make sig; 
+	make sig;
 	make patch_sig;
 	make mod;
 
@@ -46,13 +42,12 @@ install:
 	cp $(mod).so ../model_atmosphere/modules/
 
 #   [1]  I had a huge bug where iri was not repeating itself on python calls. I found
-# this github https://github.com/sdelarquier/iri and the compiler options 
+# this github https://github.com/sdelarquier/iri and the compiler options
 #   	f2py --overwrite-signature irisub.for -m ${MODULE} -h iri.pyf
 #   	gfortran -w -O2 -fbacktrace -fno-automatic -fPIC -c *.for
 # 	    f2py --f77flags="-w" -c iri.pyf *.for
-# makes it so it works! I need to look into these compiler options and 
+# makes it so it works! I need to look into these compiler options and
 # how they relate to IRI
 
 #remove_comments:
 #	perl -pi -e 's/![\.|-].*$//g' iriflip.for
-
