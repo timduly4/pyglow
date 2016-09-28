@@ -20,7 +20,7 @@
 
           jf(5)  = .false.
           jf(6)  = .false.
-          jf(21) = .false. 
+          jf(21) = .false.
           jf(22) = .false.
           jf(23) = .false.
           jf(29) = .false.
@@ -35,6 +35,9 @@
           heibeg = 250.
           heiend = 251.
           heistp = 1.
+
+          call read_ig_rz
+          call readapf107
 
           call iri_sub(jf,jmag,alati,along,iyyyy,mmdd,dhour,
      &               heibeg,heiend,heistp,outf,oarr)
@@ -77,6 +80,3 @@
           endif
 
       end program simple_iri_driver
-
-
-
