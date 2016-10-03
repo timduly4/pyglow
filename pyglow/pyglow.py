@@ -1,3 +1,12 @@
+"""
+Global variable indicating if IRI 2016 has been initialized with
+the contents of the ionosphere global index (ig_rz.dat) and Ap/F10.7
+index (apf107.dat) files. IRI 2016 initialization is required only
+once per session.
+"""
+__INIT_IRI16 = False
+
+
 class Point(object):
     def __init__(self, dn, lat, lon, alt, user_ind=False):
         import numpy as np
@@ -126,10 +135,28 @@ class Point(object):
                 self.kp_daily, self.ap_daily, self.dst, self.ae  = get_kpap(self.dn)
         return self
 
+    @staticmethod
+    def init_iri16():
+        """
+        If required (depending on the global variable *__INIT_IRI16*),
+        initialize IRI 2016. Return `True` if the model was
+        initialized and `False` otherwise.
+        """
+        if not globals()['__INIT_IRI16']:
+            from iri16py import read_ig_rz, readapf107
+            read_ig_rz()
+            readapf107()
+            globals()['__INIT_IRI16'] = True
+            return True
+        return False
+
     def run_iri(self,
                 NmF2=None,
                 hmF2=None,
                 version=2016,
+                compute_Ne=True,
+                compute_Te_Ti=True,
+                compute_Ni=True,
                 debug=False):
         """
         Run IRI model at point time/location and update the object state
@@ -137,7 +164,11 @@ class Point(object):
         specified, input them to the model (see documentation for
         IRI_SUB)). Override the model with *version* --- valid options
         are currently 2016 or 2012. Output debugging information if
-        *debug* is true.
+        *debug* is true. The toggles *compute_Ne*, *compute_Te_Ti*,
+        and *compute_Ni* control, respectively, whether electron
+        density, electron and ion temperatures, and ion density are
+        computed (restricting the model to only what is required can
+        reduce run time) or set to `NaN`.
         """
         from iri12py import iri_sub as iri12
         from iri16py import iri_sub as iri16
@@ -149,9 +180,11 @@ class Point(object):
         if version==2016:
             iri_data_stub = '/iri16_data/'
             iri = iri16
+            init_iri = Point.init_iri16
         elif version==2012:
             iri_data_stub = '/iri12_data/'
             iri = iri12
+            init_iri = lambda: False
         else:
             raise ValueError('Invalid version of \'%i\' for IRI.' % (version) +\
                     '\nEither 2016 (default) or 2012 is valid.')
@@ -179,6 +212,15 @@ class Point(object):
         jf[21] = 0 # 22 ion densities in m^-3 (not %)
         jf[33] = 0 # 34 turn messages off
 
+        if not compute_Ne:
+            jf[0] = 0
+
+        if not compute_Te_Ti:
+            jf[1] = 0
+
+        if not compute_Ni:
+            jf[2] = 0
+
         oarr = np.zeros((100,))
 
         if NmF2 is not None:
@@ -198,6 +240,7 @@ class Point(object):
             print "changing directory to \n", iri_data_path
 
         os.chdir(iri_data_path)
+        init_iri()
         outf = iri(jf,
                    0,
                    self.lat,
@@ -211,8 +254,13 @@ class Point(object):
                    oarr)
         os.chdir("%s" % my_pwd)
 
-        self.Te        = outf[3,0] # electron temperature from IRI (K)
-        self.Ti        = outf[2,0] # ion temperature from IRI (K)
+        if compute_Te_Ti:
+            self.Te    = outf[3,0] # electron temperature from IRI (K)
+            self.Ti    = outf[2,0] # ion temperature from IRI (K)
+        else:
+            self.Te    = float('NaN')
+            self.Ti    = float('NaN')
+
         self.Tn_iri    = outf[1,0] # neutral temperature from IRI (K)
 
         self.ne        = outf[0,0] # electron density (m^-3)
@@ -226,6 +274,10 @@ class Point(object):
         self.hmF2 = oarr[1]
 
         # densities are now in cm^-3:
+        if compute_Ne:
+            self.ne    = outf[0,0] # electron density (m^-3)
+        else:
+            self.ne    = float('NaN')
         self.ne        = self.ne        / 100.**3 # [items/cm^3]
         self.ni['O+']  = self.ni['O+']  / 100.**3 # [items/cm^3]
         self.ni['H+']  = self.ni['H+']  / 100.**3 # [items/cm^3]
