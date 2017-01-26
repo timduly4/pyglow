@@ -57,17 +57,22 @@ hwm07 = {\
         'zip_folder' : 'HWM07',\
         }
 
-hwm93 = {\
-        'folder'     : 'hwm93',\
-        'name'       : 'hwm93',\
-        #'url'        : 'http://nssdcftp.gsfc.nasa.gov/models/atmospheric/hwm93/hwm93.txt',\
-        'url'        : 'ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/hwm93/hwm93.txt',\
-        'filename'   : 'hwm93.f',\
-        'tar'        : False,\
-        'zip'        : False,\
-        }
+"""
+Similar issue to MSIS --- the CCMC FTP server is no longer active
+and an alternative source is unknown. Hosting the file in the
+repository for now.
+"""
+# hwm93 = {\
+#         'folder'     : 'hwm93',\
+#         'name'       : 'hwm93',\
+#         #'url'        : 'http://nssdcftp.gsfc.nasa.gov/models/atmospheric/hwm93/hwm93.txt',\
+#         'url'        : 'ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/hwm93/hwm93.txt',\
+#         'filename'   : 'hwm93.f',\
+#         'tar'        : False,\
+#         'zip'        : False,\
+#         }
 
-for model in [igrf11, igrf12, hwm07, hwm93, iri12]:
+for model in [igrf11, igrf12, hwm07, iri12]:
     print "Downloading files for %s ..." % (model['name'])
     modelfile = urllib2.urlopen(model['url'])
     output = open("./dl_models/%s/%s" % (model['folder'], model['filename']), 'wb')
