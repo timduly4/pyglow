@@ -13,15 +13,20 @@ iri12 = {\
         'tar_folder' : 'IRI12',\
         }
 
-msis = {\
-        'folder'     : 'msis',\
-        'name'       : 'msis00',\
-        #'url'        : 'ftp://nssdcftp.gsfc.nasa.gov/models/atmospheric/msis/nrlmsise00/nrlmsise00_sub.for',\
-        'url'        : 'ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/msis/nrlmsise00/nrlmsise00_sub.for',\
-        'filename'   : 'nrlmsise00_sub.for',\
-        'tar'        : False,\
-        'zip'        : False,\
-        }
+"""
+The MSIS00 model does not seem to be available from any URL. As a
+stopgap, we will now include the model as part of the pyglow code
+base.
+"""
+# msis = {\
+#         'folder'     : 'msis',\
+#         'name'       : 'msis00',\
+#         #'url'        : 'ftp://nssdcftp.gsfc.nasa.gov/models/atmospheric/msis/nrlmsise00/nrlmsise00_sub.for',\
+#         'url'        : 'ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/msis/nrlmsise00/nrlmsise00_sub.for',\
+#         'filename'   : 'nrlmsise00_sub.for',\
+#         'tar'        : False,\
+#         'zip'        : False,\
+#         }
 
 igrf11 = {\
         'folder'     : 'igrf11',\
@@ -62,7 +67,7 @@ hwm93 = {\
         'zip'        : False,\
         }
 
-for model in [msis, igrf11, igrf12, hwm07, hwm93, iri12]:
+for model in [igrf11, igrf12, hwm07, hwm93, iri12]:
     print "Downloading files for %s ..." % (model['name'])
     modelfile = urllib2.urlopen(model['url'])
     output = open("./dl_models/%s/%s" % (model['folder'], model['filename']), 'wb')
@@ -91,7 +96,7 @@ for model in [msis, igrf11, igrf12, hwm07, hwm93, iri12]:
 model_folder = 'iri16'
 
 # tar files:
-# - - - - - 
+# - - - - -
 model_urls = [\
         'http://irimodel.org/IRI-2016/00_iri2016.tar',\
         'http://irimodel.org/COMMON_FILES/00_ccir-ursi.tar',
@@ -113,17 +118,10 @@ indice_urls = [\
         'http://irimodel.org/indices/ig_rz.dat',
         ]
 # dat files (indices)
-# - - - - - 
+# - - - - -
 for indice_url in indice_urls:
     dat_file = indice_url.split('/')[-1]
     model_file = urllib2.urlopen(indice_url)
     output = open("./dl_models/%s/%s" % (model_folder, dat_file), 'wb')
     output.write(model_file.read())
     output.close()
-
-
-
-
-
-
-
