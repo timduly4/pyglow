@@ -91,12 +91,36 @@ epoch = datetime(1932,1,1)
 
 pyglow_path = '/'.join(pyglow.__file__.split("/")[:-1])
 
+# Identify a directory in which the modification times file can be kept
+if os.access(pyglow_path, os.W_OK):
+    pyglow_tmp_path = pyglow_path
+else:
+    tmp_keys = ['TMP', 'TEMP', 'TMPDIR', 'TEMPDIR']
+    wrt_keys = list(set(os.environ.keys()).intersection(tmp_keys))
+
+    # Grab the first key that has write access, since any one should work
+    pyglow_tmp_path = ''
+    for wk in wrt_keys:
+        wpath = os.environ[wk]
+        if os.access(wpath, os.W_OK):
+            pyglow_tmp_path = wpath
+            break
+    
+    # Exit with failure if no writable temp directory was found
+    if not os.path.isdir(pyglow_tmp_path):
+        estr = "Unable to identify a safe writable directory for temporary "
+        estr = "{:s} files.  Try installing pyglow locally or ".format(estr)
+        estr = "{:s}defining one of these environment ".format(estr)
+        estr = "{:s}variables: {:s}".format(estr, ", ".join(tmp_keys))
+        print estr
+        sys.exit(1)
+
 """File to store table of index file modification times"""
-mtime_table_fname = os.path.join(pyglow_path, 'mtime_table.pkl')
+mtime_table_fname = os.path.join(pyglow_tmp_path, 'mtime_table.pkl')
 
 """File to store cached geophysical_indices array"""
-geophysical_indices_fname = os.path.join(pyglow_path, 'geophysical_indices.npy')
-
+geophysical_indices_fname = os.path.join(pyglow_tmp_path,
+                                         'geophysical_indices.npy')
 
 def get_mtime_table():
     mtime_table = {}
