@@ -6,536 +6,6 @@ once per session.
 """
 __INIT_IRI16 = False
 
-
-class Point(object):
-    def __init__(self, dn, lat, lon, alt, user_ind=False):
-        import numpy as np
-        from get_apmsis import get_apmsis
-
-        nan = float('nan')
-
-        # record input:
-        self.dn = dn
-        self.lat = lat
-        self.lon = lon
-        self.alt = alt
-
-        # Warn if date is too early
-        if self.dn.year < 1932:
-            raise ValueError('Date cannot be before 1932!')
-
-        self.doy = self.dn.timetuple().tm_yday
-        self.utc_sec = self.dn.hour*3600. + self.dn.minute*60.
-        self.utc_hour = self.dn.hour
-        self.slt_hour = np.mod(self.utc_sec/3600. + self.lon/15., 24)
-        self.iyd = np.mod(self.dn.year,100)*1000 + self.doy
-
-        # initialize variables:
-        # ---------------------
-
-        # for kp, ap function
-        self.kp       = nan
-        self.ap       = nan
-        self.f107     = nan
-        self.f107a    = nan
-        self.kp_daily = nan
-        self.ap_daily = nan
-        self.apmsis   = [nan,]*7
-        self.dst      = nan
-        self.ae       = nan
-
-        # for iri:
-        self.ne = nan
-        ions = ['O+', 'H+', 'HE+', 'O2+', 'NO+']
-        self.ni={}
-        for ion in ions:
-            self.ni[ion] = nan
-
-        self.Ti = nan
-        self.Te = nan
-        self.Tn_iri = nan
-
-        self.NmF2 = nan
-        self.hmF2 = nan
-
-        # for msis:
-        self.Tn_msis = nan
-        self.nn = {}
-        for neutral in ['HE','O','N2','O2','AR','H','N','O_anomalous']:
-            self.nn[neutral] = nan
-        self.rho = nan
-
-        # for hwm 93/07:
-        self.u = nan
-        self.v = nan
-        self.hwm_version = nan
-
-        # for igrf:
-        self.Bx  = nan
-        self.By  = nan
-        self.Bz  = nan
-        self.B   = nan
-        self.dip = nan
-        self.dec = nan
-
-        # for run_airglow:
-        self.ag6300 = nan
-        self.ag7774 = nan
-
-        if not user_ind:
-            # call the indice models:
-            self.get_indices()
-            self.apmsis = get_apmsis(self.dn)
-
-    def __repr__(self):
-        out = ""
-        out += "%20s" % "dn = "\
-                + self.dn.__str__() + '\n'
-        out += "%20s" % "(lat, lon, alt) = "\
-                + "(%4.2f, %4.2f, %4.2f)\n" % (self.lat, self.lon, self.alt)
-
-        # Indices:
-        out += "\nGeophysical Indices:\n---------------------\n"
-        out += "%20s" % "kp = "\
-                + "%4.2f\n" % self.kp
-        out += "%20s" % "ap = "\
-                + "%4.2f\n" % self.ap
-        out += "%20s" % "f107a = "\
-                + "%4.2f\n" % self.f107a
-        out += "%20s" % "dst = "\
-                + "%3.2f\n" % self.dst
-        out += "%20s" % "ae = "\
-                + "%3.2f\n" % self.ae
-
-        # IGRF:
-        out += "\nFrom IGRF:\n-----------\n"
-        out += "%20s" % "(Bx, By, Bz) = "\
-                + "(%4.3e, %4.3e, %4.3e)\n" % (self.Bx, self.By, self.Bz)
-        out += "%20s" % "B = "\
-                + "%4.3e\n" % (self.B)
-        out += "%20s" % "dip = "\
-                + "%4.2f\n" % (self.dip)
-
-        # HWM:
-        out += "\nFrom HWM:\n------------\n"
-        out += "%20s" % "hwm version = "\
-                + "%s\n" % (self.hwm_version)
-        out += "%20s" % "(u, v) = "\
-                + "(%4.2f, %4.2f)\n" % (self.u, self.v)
-
-        #out += "%20s" % "n      = %4.2e\n" % self.n
-
-        return out
-
-    def get_indices(self):
-        import sys
-        #sys.path.append("../indices/")
-        from get_kpap import get_kpap
-        self.kp, self.ap, self.f107, self.f107a, \
-                self.kp_daily, self.ap_daily, self.dst, self.ae  = get_kpap(self.dn)
-        return self
-
-    @staticmethod
-    def init_iri16():
-        """
-        If required (depending on the global variable *__INIT_IRI16*),
-        initialize IRI 2016. Return `True` if the model was
-        initialized and `False` otherwise.
-        """
-        if not globals()['__INIT_IRI16']:
-            from iri16py import read_ig_rz, readapf107
-            read_ig_rz()
-            readapf107()
-            globals()['__INIT_IRI16'] = True
-            return True
-        return False
-
-    def run_iri(self,
-                NmF2=None,
-                hmF2=None,
-                version=2016,
-                compute_Ne=True,
-                compute_Te_Ti=True,
-                compute_Ni=True,
-                debug=False):
-        """
-        Run IRI model at point time/location and update the object state
-        accordingly. If *NmF2* (in [cm^{-3}}]) or *hmF2* (in [km]) are
-        specified, input them to the model (see documentation for
-        IRI_SUB)). Override the model with *version* --- valid options
-        are currently 2016 or 2012. Output debugging information if
-        *debug* is true. The toggles *compute_Ne*, *compute_Te_Ti*,
-        and *compute_Ni* control, respectively, whether electron
-        density, electron and ion temperatures, and ion density are
-        computed (restricting the model to only what is required can
-        reduce run time) or set to `NaN`.
-        """
-        from iri12py import iri_sub as iri12
-        from iri16py import iri_sub as iri16
-        #sys.path.append("./modules")
-        import os, sys
-        import numpy as np
-        import pyglow
-
-        if version==2016:
-            iri_data_stub = '/iri16_data/'
-            iri = iri16
-            init_iri = Point.init_iri16
-        elif version==2012:
-            iri_data_stub = '/iri12_data/'
-            iri = iri12
-            init_iri = lambda: False
-        else:
-            raise ValueError('Invalid version of \'%i\' for IRI.' % (version) +\
-                    '\nEither 2016 (default) or 2012 is valid.')
-
-        if debug: print("version = %i" % version)
-
-        jf = np.ones((50,)) # JF switches
-        # Standard IRI model flags
-        #             | FORTRAN Index
-        #             |
-        #             V
-        jf[3]  = 0 #  4 B0,B1 other model-31
-        jf[4]  = 0 #  5  foF2 - URSI
-        jf[5]  = 0 #  6  Ni - RBV-10 & TTS-03
-        jf[20] = 0 # 21 ion drift not computed
-        jf[22] = 0 # 23 Te_topside (TBT-2011)
-        jf[27] = 0 # 28 spreadF prob not computed
-        jf[28] = 0 # 29 (29,30) => NeQuick
-        jf[29] = 0 # 30
-        jf[32] = 0 # 33 Auroral boundary model off
-                   #    (Brian found a case that stalled IRI when on)
-        jf[34] = 0 # 35 no foE storm update
-
-        # Not standard, but outputs same as values as standard so not an issue
-        jf[21] = 0 # 22 ion densities in m^-3 (not %)
-        jf[33] = 0 # 34 turn messages off
-
-        if not compute_Ne:
-            jf[0] = 0
-
-        if not compute_Te_Ti:
-            jf[1] = 0
-
-        if not compute_Ni:
-            jf[2] = 0
-
-        oarr = np.zeros((100,))
-
-        if NmF2 is not None:
-            # use specified F2 peak density
-            jf[7] = 0
-            oarr[0] = NmF2 * 100.**3  # IRI expects [m^{-3}]
-
-        if hmF2 is not None:
-            # use specified F2 peak height
-            jf[8] = 0
-            oarr[1] = hmF2
-
-        my_pwd = os.getcwd()
-
-        iri_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + iri_data_stub
-        if debug:
-            print "changing directory to \n", iri_data_path
-
-        os.chdir(iri_data_path)
-        init_iri()
-        outf = iri(jf,
-                   0,
-                   self.lat,
-                   self.lon,
-                   int(self.dn.year),
-                   -self.doy,
-                   (self.utc_sec/3600.+25.),
-                   self.alt,
-                   self.alt+1,
-                   1,
-                   oarr)
-        os.chdir("%s" % my_pwd)
-
-        if compute_Te_Ti:
-            self.Te    = outf[3,0] # electron temperature from IRI (K)
-            self.Ti    = outf[2,0] # ion temperature from IRI (K)
-        else:
-            self.Te    = float('NaN')
-            self.Ti    = float('NaN')
-
-        self.Tn_iri    = outf[1,0] # neutral temperature from IRI (K)
-
-        self.ne        = outf[0,0] # electron density (m^-3)
-        self.ni['O+']  = outf[4,0] # O+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['H+']  = outf[5,0] # H+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['HE+'] = outf[6,0] # HE+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['O2+'] = outf[7,0] # O2+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['NO+'] = outf[8,0] # NO+ Density (%, or m^-3 with JF(22) = 0)
-
-        self.NmF2 = oarr[0]
-        self.hmF2 = oarr[1]
-
-        # densities are now in cm^-3:
-        if compute_Ne:
-            self.ne    = outf[0,0] # electron density (m^-3)
-        else:
-            self.ne    = float('NaN')
-        self.ne        = self.ne        / 100.**3 # [items/cm^3]
-        self.ni['O+']  = self.ni['O+']  / 100.**3 # [items/cm^3]
-        self.ni['H+']  = self.ni['H+']  / 100.**3 # [items/cm^3]
-        self.ni['HE+'] = self.ni['HE+'] / 100.**3 # [items/cm^3]
-        self.ni['O2+'] = self.ni['O2+'] / 100.**3 # [items/cm^3]
-        self.ni['NO+'] = self.ni['NO+'] / 100.**3 # [items/cm^3]
-        self.NmF2      = self.NmF2      / 100.**3 # [items/cm^3]
-        return self
-
-    def run_msis(self, version=2000):
-        from msis00py import gtd7 as msis00
-        import numpy as np
-
-        if version==2000:
-            msis = msis00
-        else:
-            raise ValueError('Invalid version of \'%i\' for MSIS.' % (version) +\
-                    '\n2000 (default) is valid.')
-
-        [d,t] = msis(self.doy,
-                     self.utc_sec,
-                     self.alt,
-                     self.lat,
-                     np.mod(self.lon,360),
-                     self.slt_hour,
-                     self.f107a,
-                     self.f107,
-                     self.apmsis,
-                     48)
-        self.Tn_msis = t[1] # neutral temperature from MSIS (K)
-
-        self.nn = {}
-        self.nn['HE'] = d[0] # [items/cm^3]
-        self.nn['O']  = d[1] # [items/cm^3]
-        self.nn['N2'] = d[2] # [items/cm^3]
-        self.nn['O2'] = d[3] # [items/cm^3]
-        self.nn['AR'] = d[4] # [items/cm^3]
-        # [5] is below
-        self.nn['H']  = d[6] # [items/cm^3]
-        self.nn['N']  = d[7] # [items/cm^3]
-        self.nn['O_anomalous'] = d[8] # [items/cm^3]
-
-        self.rho = d[5] # total mass density [grams/cm^3]
-        return self
-
-    def run_hwm(self, version=2014):
-        if version==2014:
-            self.run_hwm14()
-        elif version==2007:
-            self.run_hwm07()
-        elif version==1993:
-            self.run_hwm93()
-        else:
-            raise ValueError('Invalid version of \'%i\' for HWM.' % (version) +\
-                    '\nEither 2014 (default), 2007, or 1993 is valid.')
-        return self
-
-    def run_hwm93(self):
-        from hwm93py import gws5 as hwm93
-        import numpy as np
-
-        w = hwm93(self.iyd,
-                  self.utc_sec,
-                  self.alt,
-                  self.lat,
-                  np.mod(self.lon,360),
-                  self.slt_hour,
-                  self.f107a,
-                  self.f107,
-                  self.ap_daily)
-        self.v = w[0]
-        self.u = w[1]
-        self.hwm_version = '93'
-        return self
-
-    def run_hwm07(self):
-        from hwm07py import hwmqt as hwm07
-        import pyglow
-        import os
-        import numpy as np
-
-        my_pwd = os.getcwd()
-
-        hwm07_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + "/hwm07_data/"
-        #print "changing directory to \n", hwm07_data_path
-
-        os.chdir(hwm07_data_path)
-        aphwm07 = [float('NaN'), self.ap]
-        w = hwm07(self.iyd,
-                  self.utc_sec,
-                  self.alt,
-                  self.lat,
-                  np.mod(self.lon,360),
-                  self.slt_hour,
-                  self.f107a,
-                  self.f107,
-                  aphwm07)
-        os.chdir("%s" % my_pwd)
-        self.v = w[0]
-        self.u = w[1]
-        self.hwm_version = '07'
-        return self
-
-    def run_hwm14(self):
-        from hwm14py import hwm14
-        import pyglow
-        import os
-        import numpy as np
-
-        my_pwd = os.getcwd()
-
-        hwm14_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + "/hwm14_data/"
-
-        os.chdir(hwm14_data_path)
-
-        (v,u) = hwm14(self.iyd,
-                      self.utc_sec,
-                      self.alt,
-                      self.lat,
-                      np.mod(self.lon,360),
-                      np.nan,
-                      np.nan,
-                      np.nan,
-                      [np.nan,self.ap])
-        os.chdir("%s" % my_pwd)
-        self.v = v
-        self.u = u
-        self.hwm_version = '14'
-        return self
-
-    def run_igrf(self, version=12):
-        from igrf11py import igrf11syn as igrf11
-        from igrf12py import igrf12syn as igrf12
-        import numpy as np
-        import warnings
-
-        if version==12:
-            igrf=igrf12
-        elif version==11:
-            igrf=igrf11
-        else:
-            raise ValueError('Invalid version of \'%i\' for IGRF.' % (version) +\
-                    '\nVersion 12 (default) and 11 are valid.')
-
-        x, y, z, f = igrf(0,
-                          self.dn.year,
-                          1,
-                          self.alt,
-                          90.-self.lat,
-                          np.mod(self.lon,360))
-
-        h = np.sqrt(x**2 + y**2)
-        dip = 180./np.pi * np.arctan2(z,h)
-        dec = 180./np.pi * np.arctan2(y,x)
-
-        # Note that the changes here match
-        # coordinate convention with other models
-        # (i.e., HWM), that is:
-        # (x -> east, y -> north, z -> up)
-        #
-        # IGRF gives (x -> north, y -> east, z -> down)
-        warnings.warn("Caution: IGRF coordinates have been recently changed to\n" +\
-                " Bx -> positive eastward\n" +\
-                " By -> positive northward\n" +\
-                " Bz -> positive upward\n" +\
-                '')
-        self.Bx  =  y/1e9 # [T] (positive eastward) (note x/y switch here)
-        self.By  =  x/1e9 # [T] (positive northward) (note x/y switch here)
-        self.Bz  = -z/1e9 # [T] (positive upward) (note negation here)
-        self.B   =  f/1e9 # [T]
-
-        self.dip = dip
-        self.dec = dec
-        return self
-
-    def run_airglow(self):
-        '''
-        Computes airglow intensities
-
-
-        After running, self.ag6300 has the 630.0-nm volume emission
-        rate (ph/cm^3/s) and self.ag7774 has the 777.4-nm volume
-        emission rate.
-
-
-        History
-        ------
-        9/9/13 -- implemented into pyglow
-                  based on Jonathan J. Makela's MATLAB
-                  and subsequent python code
-        9/13/16 -- added 7774 calculation
-        '''
-        import numpy as np
-
-        # let's see if IRI and MSIS have been executed
-        # if not, run the appropriate models:
-        if np.isnan(self.ne):
-            self.run_iri()
-        if np.isnan(self.nn['O2']):
-            self.run_msis()
-
-        # Perform 630.0-nm calculation
-        Ne = self.ne        # electron density [cm^-3]
-        Tn = self.Tn_msis   # neutral temperature [K]
-        Ti = self.Ti        # ion temperature [K]
-        Te = self.Te        # electron temperature [K]
-        O2 = self.nn['O2']  # O2 density [cm^-3]
-        N2 = self.nn['N2']  # N2 density [cm^-3]
-        O  = self.nn['O']   # O density [cm^-3]
-
-        te = Te/300
-        ti = Ti/300
-
-        # These coefs are from Link and Cogger, JGR 93(A9), 988309892, 1988
-        K1_6300 = 3.23e-12*np.exp(3.72/ti - 1.87/ti**2)
-        K2_6300 = 2.78e-13*np.exp(2.07/ti - 0.61/ti**2)
-        K3_6300 = 2.0e-11*np.exp(111.8/Tn)
-        K4_6300 = 2.9e-11*np.exp(67.5/Tn)
-        K5_6300 = 1.6e-12*Te**0.91
-        b6300 = 1.1
-        a1D = 7.45e-3    # Corrected value form Link and Cogger, JGR, 94(A2), 1989
-        a6300 = 5.63e-3  # Corrected value form Link and Cogger, JGR, 94(A2), 1989
-
-        # Calculate O+ assuming mixture of ions (also from Link and Cogger, 1988)
-        a1 = 1.95e-7 * te **-0.7
-        a2 = 4.00e-7*te**-0.9
-        Oplus = Ne/(1.+K2_6300*N2/a2/Ne + K1_6300*O2/a1/Ne)
-
-        AGNumerator = a6300/a1D*b6300*K1_6300*Oplus*O2
-        AGDenominator = 1.+(K3_6300*N2+K4_6300*O2+K5_6300*Ne)/a1D
-        self.ag6300 = AGNumerator / AGDenominator
-
-        # Perform the 777.4-nm calculation
-
-        # These coefs are from a number of sources (see Makela's
-        # dissertation Table 2.3 or Makela et al., "Ionospheric
-        # topography maps using multiple-wavelength all-sky images",
-        # JGR, 106, 29161--29174, 2001.)
-        alpha1_7774 = 7.8e-13
-        beta_7774 = 0.42
-        K1_7774 = 1.3e-15
-        K2_7774 = 1.5e-7
-        K3_7774 = 1.4e-10
-
-        # Makela shows that Oplus may be replaced by Ne below in his
-        # dissertation (see p. 25) with only a 0.5% impact. Since we
-        # have Oplus at hand, we use it in the calculation.
-        V7774_rr = alpha1_7774 * Oplus * Ne
-
-        V7774_ii_num = beta_7774 * K1_7774 * K2_7774 * O * Oplus * Ne
-        V7774_ii_den = K2_7774 * Oplus + K3_7774 * O
-
-        self.ag7774 = V7774_rr + V7774_ii_num / V7774_ii_den
-
-        return self
-
-# ---------
-
 def _igrf_tracefield(dn, lat, lon, alt, target_ht, step):
     import numpy as np
 
@@ -591,7 +61,8 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
         A = p.B  # Total
 
         # Step along the field line
-        ecef_new =  ecef + coord.ven2ecef(lla,[(-D/A*step), (E/A*step), (N/A*step)] )
+        ecef_new =  ecef + coord.ven2ecef(lla,[(-D / A * step), (E / A * step),
+                                               (N / A * step)])
 
         # Convert to lla coordinates:
         lla = coord.ecef2lla(ecef_new)
@@ -618,9 +89,9 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
         A = p.B  # Total
 
         # trace the field, but use the modified step:
-        ecef_new = ecef + coord.ven2ecef(lla,np.array([(-D/A), (E/A), N/A])*step/(-D/A) )
+        ecef_new = ecef + coord.ven2ecef(lla, np.array([(-D/A), (E/A), N/A])
+                                         * step/(-D/A))
         # TODO : I changed this, is this correct?
-
         lla = coord.ecef2lla(ecef_new)
 
     # replace last entry with the point close to target_ht:
@@ -686,7 +157,8 @@ def update_kpap(years=None):
                 with open(des, 'wb') as f:
                     shutil.copyfileobj(r, f)
         except IOError as e:
-            print 'Failed downloading data for year %i. File does not exist' % year
+            print 'Failed downloading data for year %i. File does not exist' \
+                % year
 
 
 def update_dst(years=None):
@@ -726,9 +198,12 @@ def update_dst(years=None):
         # 3) Realtime
         year_month = '%i%02i' % (year, month)
         wgdc_fn = 'dst%s%02i.for.request' % (str(year)[2:],month)
-        src_final       = 'http://wdc.kugi.kyoto-u.ac.jp/dst_final/%s/%s' % (year_month, wgdc_fn)
-        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/dst_provisional/%s/%s' % (year_month, wgdc_fn)
-        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/dst_realtime/%s/%s' % (year_month, wgdc_fn)
+        src_final = 'http://wdc.kugi.kyoto-u.ac.jp/dst_final/%s/%s' % \
+                          (year_month, wgdc_fn)
+        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/dst_provisional/%s/%s'\
+                          % (year_month, wgdc_fn)
+        src_realtime = 'http://wdc.kugi.kyoto-u.ac.jp/dst_realtime/%s/%s' \
+                       % (year_month, wgdc_fn)
 
         success = False
         for src in [src_final, src_provisional, src_realtime]:
@@ -797,9 +272,12 @@ def update_ae(years = None):
         # 3) Realtime
         year_month = '%i%02i' % (year, month)
         wgdc_fn = 'ae%s%02i.for.request' % (str(year)[2:],month)
-        #src_final       = 'http://wdc.kugi.kyoto-u.ac.jp/ae_final/%s/%s' % (year_month, wgdc_fn)
-        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/ae_provisional/%s/%s' % (year_month, wgdc_fn)
-        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/%s/%s' % (year_month, wgdc_fn)
+        #src_final = 'http://wdc.kugi.kyoto-u.ac.jp/ae_final/%s/%s' \
+        #            % (year_month, wgdc_fn)
+        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/ae_provisional/%s/%s'\
+                          % (year_month, wgdc_fn)
+        src_realtime = 'http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/%s/%s' % \
+                       (year_month, wgdc_fn)
 
         success = False
         for src in [src_provisional, src_realtime]:
@@ -917,6 +395,7 @@ class Profile(object):
         self.ae       = np.nan
 
         # for iri:
+        self.iri_version = np.nan
         self.ne = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         ions = ['O+', 'H+', 'HE+', 'O2+', 'NO+']
         self.ni={ion:np.ones(shape=self.alt.shape, dtype=float) * np.nan
@@ -936,6 +415,7 @@ class Profile(object):
         self.hmD = np.nan
 
         # for msis:
+        self.msis_version = np.nan
         self.Tn_msis = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         neuts = ['HE','O','N2','O2','AR','H','N','O_anomalous']
         self.nn = {neu:np.ones(shape=self.alt.shape, dtype=float) * np.nan
@@ -948,14 +428,16 @@ class Profile(object):
         self.hwm_version = np.nan
 
         # for igrf:
-        self.Bx  = np.ones(shape=self.alt.shape, dtype=float) * np.nan
-        self.By  = np.ones(shape=self.alt.shape, dtype=float) * np.nan
-        self.Bz  = np.ones(shape=self.alt.shape, dtype=float) * np.nan
-        self.B   = np.ones(shape=self.alt.shape, dtype=float) * np.nan
+        self.igrf_version = np.nan
+        self.Bx = np.ones(shape=self.alt.shape, dtype=float) * np.nan
+        self.By = np.ones(shape=self.alt.shape, dtype=float) * np.nan
+        self.Bz = np.ones(shape=self.alt.shape, dtype=float) * np.nan
+        self.B = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         self.dip = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         self.dec = np.ones(shape=self.alt.shape, dtype=float) * np.nan
 
         # for run_airglow:
+        self.ag_stat = False
         self.ag6300 = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         self.ag7774 = np.ones(shape=self.alt.shape, dtype=float) * np.nan
 
@@ -985,15 +467,19 @@ class Profile(object):
 
         # Specify which models have been loaded
         out = "{:s}\nModel Data Available For:\n-----------\n".format(out)
-        out = "{:s}{:>36s}{:}\n".format(out, "IGRF = ",
-                                        not np.isnan(self.B).all())
-        out = "{:s}{:>36s}{:}\n".format(out, "HWM = ",
-                                        not np.isnan(self.u).all())
-        out = "{:s}{:>36s}{:}\n".format(out, "IRI = ", not np.isnan(self.NmF2))
-        out = "{:s}{:>36s}{:}\n".format(out, "MSIS = ",
-                                        not np.isnan(self.rho).all())
-        out = "{:s}{:>36s}{:}".format(out, "Airglow = ",
-                                      not np.isnan(self.ag6300).all())
+        out = "{:s}{:>36s}{:}\n".format(out, "IGRF = ", self.igrf_version
+                                        if not np.isnan(self.igrf_version)
+                                        else False)
+        out = "{:s}{:>36s}{:}\n".format(out, "HWM = ", self.hwm_version
+                                        if not np.isnan(self.hwm_version)
+                                        else False)
+        out = "{:s}{:>36s}{:}\n".format(out, "IRI = ", self.iri_version
+                                        if not np.isnan(self.iri_version)
+                                        else False)
+        out = "{:s}{:>36s}{:}\n".format(out, "MSIS = ", self.msis_version
+                                        if not np.isnan(self.msis_version)
+                                        else False)
+        out = "{:s}{:>36s}{:}".format(out, "Airglow = ", self.ag_stat)
 
         return out
 
@@ -1175,6 +661,9 @@ class Profile(object):
         self.NmD = oarr[6] * 1.0e-6
         self.hmD = oarr[7]
 
+        if not np.isnan(self.hmF2):
+            self.iri_version = version
+
         return self
 
     def run_msis(self, version=2000):
@@ -1205,6 +694,9 @@ class Profile(object):
             self.nn['O_anomalous'][ia] = d[8] # [items/cm^3]
 
             self.rho[ia] = d[5] # total mass density [grams/cm^3]
+
+        if not np.isnan(self.rho.all()):
+            self.msis_version = version
             
         return self
 
@@ -1224,7 +716,7 @@ class Profile(object):
         from hwm93py import gws5 as hwm93
         import numpy as np
 
-        self.hwm_version = '93'
+        self.hwm_version = 1993
         hwm_lon = np.mod(self.lon,360)
         for ia,aa in enumerate(self.alt):
             w = hwm93(self.iyd, self.utc_sec, aa, self.lat, hwm_lon,
@@ -1239,7 +731,7 @@ class Profile(object):
         import os
         import numpy as np
 
-        self.hwm_version = '07'
+        self.hwm_version = 2007
         my_pwd = os.getcwd()
         hwm07_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + \
                           "/hwm07_data/"
@@ -1273,7 +765,7 @@ class Profile(object):
                                            [np.nan, self.ap])
             
         os.chdir("%s" % my_pwd)
-        self.hwm_version = '14'
+        self.hwm_version = 2014
         return self
 
     def run_igrf(self, version=12):
@@ -1312,6 +804,9 @@ class Profile(object):
             h = np.sqrt(x**2 + y**2)
             self.dip[ia] = np.degrees(np.arctan2(z, h))
             self.dec[ia] = np.degrees(np.arctan2(y, x))
+
+        if not np.isnan(self.B.all()):
+            self.igrf_version = version
             
         return self
 
@@ -1388,7 +883,68 @@ class Profile(object):
 
         self.ag7774 = V7774_rr + V7774_ii_num / V7774_ii_den
 
+        if not np.isnan(self.ag7774.all()):
+            self.ag_stat = True
+            
         return self
+
+# ---------
+
+class Point(Profile):
+    def __init__(self, dn, lat, lon, alt, user_ind=False):
+        Profile.__init__(self, dn, lat, lon, alt_min=alt, alt_max=alt,
+                         user_ind=user_ind)
+
+        # record input that differs from Profile:
+        self.alt_float = self.alt[0]
+
+    def flatten(self):
+        '''Change variable dimention to reflect single point in profile
+        '''
+        import numpy as np
+        
+        # for iri:
+        if not np.isnan(self.iri_version):
+            try:
+                self.ne = self.ne[0]
+                self.ni = {ion : self.ni[ion][0] for ion in self.ni.keys()}
+                self.Ti = self.Ti[0]
+                self.Te = self.Te[0]
+                self.Tn_iri = self.Tn_iri[0]
+            except: pass
+
+        # for msis:
+        if not np.isnan(self.msis_version):
+            try:
+                self.Tn_msis = self.Tn_msis[0]
+                self.nn = {neu : self.nn[neu][0] for neu in self.nn.keys()}
+                self.rho = self.rho[0]
+            except: pass
+
+        # for hwm 93/07:
+        if not np.isnan(self.hwm_version):
+            try:
+                self.u = self.u[0]
+                self.v = self.v[0]
+            except: pass
+
+        # for igrf:
+        if not np.isnan(self.igrf_version):
+            try:
+                self.Bx = self.Bx[0]
+                self.By = self.By[0]
+                self.Bz = self.Bz[0]
+                self.B = self.B[0]
+                self.dip = self.dip[0]
+                self.dec = self.dec[0]
+            except: pass
+
+        # for run_airglow:
+        if self.ag_stat:
+            try:
+                self.ag6300 = self.ag6300[0]
+                self.ag7774 = self.ag7774[0]
+            except: pass
 
 # ---------
 
