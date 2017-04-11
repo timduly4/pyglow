@@ -395,6 +395,7 @@ class Profile(object):
         self.ae       = np.nan
 
         # for iri:
+        self.iri_version = np.nan
         self.ne = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         ions = ['O+', 'H+', 'HE+', 'O2+', 'NO+']
         self.ni={ion:np.ones(shape=self.alt.shape, dtype=float) * np.nan
@@ -414,6 +415,7 @@ class Profile(object):
         self.hmD = np.nan
 
         # for msis:
+        self.msis_version = np.nan
         self.Tn_msis = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         neuts = ['HE','O','N2','O2','AR','H','N','O_anomalous']
         self.nn = {neu:np.ones(shape=self.alt.shape, dtype=float) * np.nan
@@ -426,14 +428,16 @@ class Profile(object):
         self.hwm_version = np.nan
 
         # for igrf:
-        self.Bx  = np.ones(shape=self.alt.shape, dtype=float) * np.nan
-        self.By  = np.ones(shape=self.alt.shape, dtype=float) * np.nan
-        self.Bz  = np.ones(shape=self.alt.shape, dtype=float) * np.nan
-        self.B   = np.ones(shape=self.alt.shape, dtype=float) * np.nan
+        self.igrf_version = np.nan
+        self.Bx = np.ones(shape=self.alt.shape, dtype=float) * np.nan
+        self.By = np.ones(shape=self.alt.shape, dtype=float) * np.nan
+        self.Bz = np.ones(shape=self.alt.shape, dtype=float) * np.nan
+        self.B = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         self.dip = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         self.dec = np.ones(shape=self.alt.shape, dtype=float) * np.nan
 
         # for run_airglow:
+        self.ag_stat = False
         self.ag6300 = np.ones(shape=self.alt.shape, dtype=float) * np.nan
         self.ag7774 = np.ones(shape=self.alt.shape, dtype=float) * np.nan
 
@@ -463,15 +467,19 @@ class Profile(object):
 
         # Specify which models have been loaded
         out = "{:s}\nModel Data Available For:\n-----------\n".format(out)
-        out = "{:s}{:>36s}{:}\n".format(out, "IGRF = ",
-                                        not np.isnan(self.B).all())
-        out = "{:s}{:>36s}{:}\n".format(out, "HWM = ",
-                                        not np.isnan(self.u).all())
-        out = "{:s}{:>36s}{:}\n".format(out, "IRI = ", not np.isnan(self.NmF2))
-        out = "{:s}{:>36s}{:}\n".format(out, "MSIS = ",
-                                        not np.isnan(self.rho).all())
-        out = "{:s}{:>36s}{:}".format(out, "Airglow = ",
-                                      not np.isnan(self.ag6300).all())
+        out = "{:s}{:>36s}{:}\n".format(out, "IGRF = ", self.igrf_version
+                                        if not np.isnan(self.igrf_version)
+                                        else False)
+        out = "{:s}{:>36s}{:}\n".format(out, "HWM = ", self.hwm_version
+                                        if not np.isnan(self.hwm_version)
+                                        else False)
+        out = "{:s}{:>36s}{:}\n".format(out, "IRI = ", self.iri_version
+                                        if not np.isnan(self.iri_version)
+                                        else False)
+        out = "{:s}{:>36s}{:}\n".format(out, "MSIS = ", self.msis_version
+                                        if not np.isnan(self.msis_version)
+                                        else False)
+        out = "{:s}{:>36s}{:}".format(out, "Airglow = ", self.ag_stat)
 
         return out
 
@@ -653,6 +661,9 @@ class Profile(object):
         self.NmD = oarr[6] * 1.0e-6
         self.hmD = oarr[7]
 
+        if not np.isnan(self.hmF2):
+            self.iri_version = version
+
         return self
 
     def run_msis(self, version=2000):
@@ -683,6 +694,9 @@ class Profile(object):
             self.nn['O_anomalous'][ia] = d[8] # [items/cm^3]
 
             self.rho[ia] = d[5] # total mass density [grams/cm^3]
+
+        if not np.isnan(self.rho.all()):
+            self.msis_version = version
             
         return self
 
@@ -702,7 +716,7 @@ class Profile(object):
         from hwm93py import gws5 as hwm93
         import numpy as np
 
-        self.hwm_version = '93'
+        self.hwm_version = 1993
         hwm_lon = np.mod(self.lon,360)
         for ia,aa in enumerate(self.alt):
             w = hwm93(self.iyd, self.utc_sec, aa, self.lat, hwm_lon,
@@ -717,7 +731,7 @@ class Profile(object):
         import os
         import numpy as np
 
-        self.hwm_version = '07'
+        self.hwm_version = 2007
         my_pwd = os.getcwd()
         hwm07_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + \
                           "/hwm07_data/"
@@ -751,7 +765,7 @@ class Profile(object):
                                            [np.nan, self.ap])
             
         os.chdir("%s" % my_pwd)
-        self.hwm_version = '14'
+        self.hwm_version = 2014
         return self
 
     def run_igrf(self, version=12):
@@ -790,6 +804,9 @@ class Profile(object):
             h = np.sqrt(x**2 + y**2)
             self.dip[ia] = np.degrees(np.arctan2(z, h))
             self.dec[ia] = np.degrees(np.arctan2(y, x))
+
+        if not np.isnan(self.B.all()):
+            self.igrf_version = version
             
         return self
 
@@ -866,6 +883,9 @@ class Profile(object):
 
         self.ag7774 = V7774_rr + V7774_ii_num / V7774_ii_den
 
+        if not np.isnan(self.ag7774.all()):
+            self.ag_stat = True
+            
         return self
 
 # ---------
@@ -878,9 +898,53 @@ class Point(Profile):
         # record input that differs from Profile:
         self.alt_float = self.alt[0]
 
-    def __repr__(self):
-        out = Profile.__repr__(self)
-        return out
+    def flatten(self):
+        '''Change variable dimention to reflect single point in profile
+        '''
+        import numpy as np
+        
+        # for iri:
+        if not np.isnan(self.iri_version):
+            try:
+                self.ne = self.ne[0]
+                self.ni = {ion : self.ni[ion][0] for ion in self.ni.keys()}
+                self.Ti = self.Ti[0]
+                self.Te = self.Te[0]
+                self.Tn_iri = self.Tn_iri[0]
+            except: pass
+
+        # for msis:
+        if not np.isnan(self.msis_version):
+            try:
+                self.Tn_msis = self.Tn_msis[0]
+                self.nn = {neu : self.nn[neu][0] for neu in self.nn.keys()}
+                self.rho = self.rho[0]
+            except: pass
+
+        # for hwm 93/07:
+        if not np.isnan(self.hwm_version):
+            try:
+                self.u = self.u[0]
+                self.v = self.v[0]
+            except: pass
+
+        # for igrf:
+        if not np.isnan(self.igrf_version):
+            try:
+                self.Bx = self.Bx[0]
+                self.By = self.By[0]
+                self.Bz = self.Bz[0]
+                self.B = self.B[0]
+                self.dip = self.dip[0]
+                self.dec = self.dec[0]
+            except: pass
+
+        # for run_airglow:
+        if self.ag_stat:
+            try:
+                self.ag6300 = self.ag6300[0]
+                self.ag7774 = self.ag7774[0]
+            except: pass
 
 # ---------
 

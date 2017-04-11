@@ -3,7 +3,10 @@
 
 # Overview
 
-pyglow is a Python module that wraps several upper atmosphere climatoglogical models written in FORTRAN, such as the Horizontal Wind Model (HWM), the International Geomagnetic Reference Field (IGRF), the International Reference Ionosphere (IRI), and the Mass Spectrometer and Incoherent Scatter Radar (MSIS).
+pyglow is a Python module that wraps several upper atmosphere climatoglogical
+models written in FORTRAN, such as the Horizontal Wind Model (HWM), the
+International Geomagnetic Reference Field (IGRF), the International Reference
+Ionosphere (IRI), and the Mass Spectrometer and Incoherent Scatter Radar (MSIS).
 
 It includes the following upper atmospheric models:
 
@@ -56,7 +59,8 @@ If you have troubles, follow the individual installation steps:
     $ cd ./pyglow/models/
     $ make all
 ```
-  * If successful, there should be a `*.so` file in each of the `./models/dl_models/<model>/` directories:
+  * If successful, there should be a `*.so` file in each of the
+    `./models/dl_models/<model>/` directories:
 
     ```
     $ find . -name "*.so"
@@ -75,7 +79,9 @@ If you have troubles, follow the individual installation steps:
     $ cd ../../   # get back to root directory
     $ python ./setup.py install --user
 ```
-  * On a mac, the folder `pyglow` and `*.so` files from `./models/dl_models/<model>/` should be in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
+  * On a mac, the folder `pyglow` and `*.so` files from
+    `./models/dl_models/<model>/` should be in
+    `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
   * If you are denied permission, I recommend adding `--user` flag in command
 
 (4) Download the geophysical indices
@@ -92,12 +98,12 @@ If you have troubles, follow the individual installation steps:
 
 ```
 from pyglow.pyglow import Point
-from datetime import datetime
+import datetime as dt
 
-dn = datetime(2011, 3, 23, 9, 30)
-lat = 0.
-lon = -80.
-alt = 250.
+dn = dt.datetime(2011, 3, 23, 9, 30)
+lat = 0.0
+lon = -80.0
+alt = 250.0
 
 pt = Point(dn, lat, lon, alt)
 
@@ -108,66 +114,103 @@ pt.run_igrf()
 pt.run_hwm93()
 pt.run_msis()
 pt.run_iri()
+pt.run_airglow()
 
 print "After running models:"
-print pt
+pt.flatten()
+test_line = "IGRF {:d}:\n(Bx, By, Bz) = ({:.4g}, {:.4g}, {:.4g})\n".format(pt.igrf_version, pt.By, pt.Bx, pt.Bz)
+test_line = "{:s}{:>15s}{:.4g}\n".format(test_line, "B = ", pt.B)
+test_line = "{:s}{:>15s}{:.4g}\n\n".format(test_line, "dip = ", pt.dip)
+test_line = "{:s}{:>15s}{:d}\n".format(test_line, "HWM Version = ", pt.hwm_version)
+test_line = "{:s}{:>15s}({:.2f}, {:.2f})\n\n".format(test_line, "(u, v) = ", pt.u, pt.v)
+test_line = "{:s}{:>15s}{:d}\n".format(test_line, "IRI Version = ", pt.iri_version)
+test_line = "{:s}{:>15s}({:.2f}, {:.4g})\n\n".format(test_line, "(hmF2, NmF2) = ", pt.hmF2, pt.NmF2)
+test_line = "{:s}{:>15s}{:d}\n".format(test_line, "MSIS Version = ", pt.msis_version)
+test_line = "{:s}{:>15s}{:.4g}\n\n".format(test_line, "Tn = ", pt.Tn_msis)
+test_line = "{:s}{:>15s}{:.4g}\n".format(test_line, "Airglow at 6300 = ", pt.ag6300)
+test_line = "{:s}{:>15s}{:.4g}".format(test_line, "Airglow at 7774 = ", pt.ag7774)
+print test_line
 ```
 
 * The output should be as follows:
 
 ```
 Before running any models:
-               dn = 2011-03-23 09:30:00
-  (lat, lon, alt) = (0.00, -80.00, 250.00)
+                    date and time = 2011-03-23 09:30:00
+lat, lon, alt min, max, step (km) = 0.00, -80.00, 250.00, 250.00, 10.00
 
 Geophysical Indices:
 ---------------------
-               kp = 2.70
-               ap = 12.00
-            f107a = 110.47
+                               kp = 2.70
+                               ap = 12.00
+                             f107 = 104.00
+                            f107a = 110.47
+                              Dst = nan
+                               ae = nan
 
-From IGRF:
+Model Data Available For:
 -----------
-     (Bx, By, Bz) = ( nan,  nan,  nan)
-                B =  nan
-              dip =  nan
+                             IGRF = False
+                              HWM = False
+                              IRI = False
+                             MSIS = False
+                          Airglow = False
 
-From HWM:
-------------
-      hwm version = nan
-           (u, v) = ( nan,  nan)
+# After running each model, an updated status will print, ending with:
+
+                    date and time = 2011-03-23 09:30:00
+lat, lon, alt min, max, step (km) = 0.00, -80.00, 250.00, 250.00, 10.00
+
+Geophysical Indices:
+---------------------
+                               kp = 2.70
+                               ap = 12.00
+                             f107 = 104.00
+                            f107a = 110.47
+                              Dst = nan
+                               ae = nan
+
+Model Data Available For:
+-----------
+                             IGRF = 12
+                              HWM = 1993
+                              IRI = 2016
+                             MSIS = 2000
+                          Airglow = True
 
 After running models:
-               dn = 2011-03-23 09:30:00
-  (lat, lon, alt) = (0.00, -80.00, 250.00)
 
-Geophysical Indices:
----------------------
-               kp = 2.70
-               ap = 12.00
-            f107a = 110.47
+IGRF 12:
+(Bx, By, Bz) = (2.448e-05, -6.433e-07, -9.925e-06)
+           B = 2.643e-05
+         dip = 22.06
 
-From IGRF:
------------
-     (Bx, By, Bz) = (2.448e-05, -6.449e-07, 9.932e-06)
-                B = 2.642e-05
-              dip = 22.08
+ HWM Version = 1993
+      (u, v) = (14.07, 12.18)
 
-From HWM:
-------------
-      hwm version = 93
-           (u, v) = (14.07, 12.18)
+ IRI Version = 2016
+(hmF2, NmF2) = (266.28, 7.869e+04)
+
+MSIS Version = 2000
+          Tn = 779.9
+
+Airglow at 6300 = 4.032
+Airglow at 7774 = 0.00749
 ```
 
 
 # Hints
 
 ### General
-1. Use tab completion in ipython to view the full set of member data and variables available in the Point class.
-  * For example, in the test code, run `pt.<TAB><TAB>` and class information will be listed.
+1. Use tab completion in ipython to view the full set of member data and
+   variables available in the Point class.
+  * For example, in the test code, run `pt.<TAB><TAB>` and class information
+    will be listed.
 
 ### Updating geophysical indices with `update_indices()`
-1. You'll need to download the geophysical indices as they become available.  The `update_indices()` function is available in pyglow that enables you do this:
+1. You'll need to download the geophysical indices as they become available.
+   The `update_indices()` function is available in pyglow that enables you do
+   this:
 
 ```
 from pyglow.pyglow import update_indices
@@ -180,6 +223,9 @@ update_indices() # grabs all indices starting from 1932 to the current year
 
 # Uninstallation 
 
-1. The install directory for pyglow is outputted when you run the `python ./setup.py install` command.  For example, on a mac this is usually in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.
-2.  Simply remove the `*.so` climatological models in this directory, as well as the `pyglow` and `pyglow_trash` folders.
+1. The install directory for pyglow is outputted when you run the
+   `python ./setup.py install` command.  For example, for macs this is usually
+    `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.
+2.  Simply remove the `*.so` climatological models in this directory, as well
+    as the `pyglow` and `pyglow_trash` folders.
 
