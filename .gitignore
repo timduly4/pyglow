@@ -3,3 +3,7 @@ pyglow/models/
 pyglow/ae/
 pyglow/dst/
 pyglow/kpap/
+*.pyc
+*~
+pyglow/mtime_table.pkl
+pyglow/geophysical_indices.npy
