@@ -392,7 +392,7 @@ class Point(object):
 
         my_pwd = os.getcwd()
 
-        hwm07_data_path = os.path.join(DIR_FILE, "/hwm07_data/")
+        hwm07_data_path = os.path.join(DIR_FILE, "hwm07_data/")
 
         os.chdir(hwm07_data_path)
         aphwm07 = [float('NaN'), self.ap]
@@ -419,7 +419,7 @@ class Point(object):
 
         my_pwd = os.getcwd()
 
-        hwm14_data_path = os.path.join(DIR_FILE, "/hwm14_data/")
+        hwm14_data_path = os.path.join(DIR_FILE, "hwm14_data/")
 
         os.chdir(hwm14_data_path)
 

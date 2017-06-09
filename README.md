@@ -3,7 +3,7 @@
 
 # Overview
 
-pyglow is a Python module that wraps several upper atmosphere climatoglogical models written in FORTRAN, such as the Horizontal Wind Model (HWM), the International Geomagnetic Reference Field (IGRF), the International Reference Ionosphere (IRI), and the Mass Spectrometer and Incoherent Scatter Radar (MSIS).
+`pyglow` is a Python module that wraps several upper atmosphere climatoglogical models written in FORTRAN, such as the Horizontal Wind Model (HWM), the International Geomagnetic Reference Field (IGRF), the International Reference Ionosphere (IRI), and the Mass Spectrometer and Incoherent Scatter Radar (MSIS).
 
 It includes the following upper atmospheric models:
 
