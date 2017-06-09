@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import numpy as np
 
-from pyglow.pyglow import Point
+import pyglow
 
 # Inputs:
 lat = 40.
@@ -20,7 +20,7 @@ ne_2016 = []
 # Calculate for both IRI model year 2012 and 2016:
 for alt in alts:
     print "Computing alt=%3.1f km..." % (alt)
-    pt = Point(dn, lat, lon, alt)
+    pt = pyglow.Point(dn, lat, lon, alt)
 
     pt.run_iri() # default year is 2016
     ne_2016.append(pt.ne)

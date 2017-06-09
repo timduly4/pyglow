@@ -80,8 +80,9 @@ import numpy as np
 import os
 from numpy import nanmean
 import sys
-import pyglow
 import glob
+
+from ipdb import set_trace as db
 
 
 # Load all data up to and including this year, if it exists
@@ -89,7 +90,7 @@ end_year = date.today().year + 1
 
 epoch = datetime(1932,1,1)
 
-pyglow_path = '/'.join(pyglow.__file__.split("/")[:-1])
+pyglow_path = os.path.dirname(__file__)
 
 """File to store table of index file modification times"""
 mtime_table_fname = os.path.join(pyglow_path, 'mtime_table.pkl')
@@ -131,7 +132,7 @@ def update_required():
         try:
             if mtime_table[key] != new_mtime_table[key]:
                 return True
-        except IndexError:
+        except (IndexError, KeyError):
             return True
     # all current file modification times matched those associated
     # with cached geophysical_indices
