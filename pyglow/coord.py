@@ -1,26 +1,19 @@
 
-from scipy import mat, cos, sin, arctan, sqrt, pi, arctan2, e
+from scipy import mat, cos, sin, arctan, sqrt, pi, arctan2
 import numpy as np
 
 """ GPS Constants"""
-a = 6378137;                # semi-major axis of the earth [m]
-b = 6356752.3145;           # semi-minor axis of the earth [m]
-e = sqrt(1-(b**2)/(a**2));  # eccentricity of the earth = 0.08181919035596
-lat_accuracy_thresh = 1.57e-6; #  10 meter latitude accuracy
-leapSeconds = 14;           # GPS leap seconds [s]
-muearth = 398600.5e9;       # G*Me, the "gravitational constant" for orbital
-                            # motion about the Earth [m^3/s^2]
-OmegaEDot = 7.2921151467e-5;# the sidereal rotation rate of the Earth
-                            # (WGS-84) [rad/s]
-c = 299792458;              # speed of light [m/s]
-F = -4.442807633e-10;       # Relativistic correction term [s/m^(1/2)]
-f1 = 1.57542e9;             # GPS L1 frequency [Hz]
-f2 = 1.22760e9;             # GPS L2 frequency [Hz]
+A = 6378137;                # semi-major axis of the earth [m]
+B = 6356752.3145;           # semi-minor axis of the earth [m]
+E = sqrt(1-(B**2)/(A**2));  # eccentricity of the earth = 0.08181919035596
+LAT_ACCURACY_THRESH = 1.57e-6; #  10 meter latitude accuracy
 
 def say_hello():
     print "hello from coord.py!"
 
 def ecef2lla(xyz):
+    # TODO 
+    # [ ] make it vectorizable ?
     """
     Function: ecef2lla(xyz)
     ---------------------
@@ -45,8 +38,6 @@ def ecef2lla(xyz):
         7/21/12 Created, Timothy Duly (duly2@illinois.edu)
 
     """
-# TODO 
-# [ ] make it vectorizable ?
     x = xyz[0][0]
     y = xyz[0][1]
     z = xyz[0][2]
@@ -59,19 +50,19 @@ def ecef2lla(xyz):
 
     # guess iniital latitude (assume you're on surface, h=0)
     p = sqrt(x**2+y**2)
-    lat0 = arctan(z/p*(1-e**2)**-1)
+    lat0 = arctan(z/p*(1-E**2)**-1)
 
     while (run == 1):
         # Use initial latitude to estimate N:
-        N = a**2 / sqrt(a**2 * (cos(lat0))**2+b**2*(sin(lat0))**2)
+        N = A**2 / sqrt(A**2 * (cos(lat0))**2+B**2*(sin(lat0))**2)
 
         # Estimate altitude 
         h = p/cos(lat0)-N
     
         # Estimate new latitude using new height:
-        lat1 = arctan(z/p*(1-((e**2*N)/(N+h)))**-1)
+        lat1 = arctan(z/p*(1-((E**2*N)/(N+h)))**-1)
         
-        if abs(lat1-lat0) < lat_accuracy_thresh:
+        if abs(lat1-lat0) < LAT_ACCURACY_THRESH:
             run = 0
         
         # Replace our guess latitude with most recent estimate:
@@ -126,7 +117,7 @@ def lla2ecef(lla):
 
     xyz = np.array(np.zeros(lla.shape))
 
-    N = a**2/sqrt((a*cos(lat))**2+(b*sin(lat))**2)
+    N = A**2/sqrt((A*cos(lat))**2+(B*sin(lat))**2)
 
     # Calculate the X-coordinate
     xyz[:,0] = (N+alt)*cos(lat)*cos(lon)
@@ -135,7 +126,7 @@ def lla2ecef(lla):
     xyz[:,1] = (N+alt)*sin(lon)*cos(lat)
 
     # Calculate the Z-coordinate
-    xyz[:,2] = (N*(1-e**2)+alt)*sin(lat)
+    xyz[:,2] = (N*(1-E**2)+alt)*sin(lat)
 
     return np.array(xyz)
     
@@ -182,8 +173,10 @@ def ven2ecef(lla,ven):
     phiP = arctan2(Zr,sqrt(Xr**2+Yr**2))
 
     # calculate the ECEF location of the point    
-    X = -sin(refLong)*ven[1] - cos(refLong)*sin(phiP)*ven[2]+cos(refLong)*cos(phiP)*ven[0]+Xr
-    Y =  cos(refLong)*ven[1] - sin(refLong)*sin(phiP)*ven[2]+cos(phiP)*sin(refLong)*ven[0]+Yr
+    X = -sin(refLong)*ven[1] - \
+            cos(refLong)*sin(phiP)*ven[2]+cos(refLong)*cos(phiP)*ven[0]+Xr
+    Y =  cos(refLong)*ven[1] - \
+            sin(refLong)*sin(phiP)*ven[2]+cos(phiP)*sin(refLong)*ven[0]+Yr
     Z = cos(phiP)*ven[2]+sin(phiP)*ven[0]+Zr
 
     # Subtract out the reference location
@@ -192,6 +185,7 @@ def ven2ecef(lla,ven):
     return XYZ
 
 def ecef2enu(XYZr, XYZp, lat_r, lon_r):
+
     return lat_r
     
 
@@ -216,18 +210,5 @@ def test_coord():
 
 if __name__ == '__main__':
     test_coord()
-#    [lat_r, lon_r, alt_r] = [20., 0., 280.e3]
-#    [lat_p, lon_p, alt_p] = [20.5, 0., 270.e3]
-#    XYZr = lla2ecef(np.array([lat_r, lon_r, alt_r]))
-#    XYZp = lla2ecef(np.array([lat_p, lon_p, alt_p])) 
-
-#    from numpy import sin, cos, pi
-#    A = np.mat( [-sin(lat_r*pi/180.), cos(lat_r*pi/180.), 0.], \
-#                [-sin(lon_r*pi/180.)*cos(lat_r*pi/180.), -sin(lon_r*pi/180.)*sin(lat_r*pi/180.), cos(lon_
-    
-
-
-
-
 
 

@@ -23,7 +23,7 @@ pyglow also provides access to the the following geophysical indices:
   * DST
   * AE
 
-pyglow offers access to these models & indices in a convenient, high-level object-oriented interface within Python.
+`pyglow` offers access to these models & indices in a convenient, high-level object-oriented interface within Python.
 
 # Installation
 
@@ -32,7 +32,7 @@ pyglow offers access to these models & indices in a convenient, high-level objec
 First, checkout the repository:
 
 ```
-    $ git clone git://github.com/timduly4/pyglow.git;
+    $ git clone git://github.com/timduly4/pyglow.git pyglow
 ```
 
 Change directories into the repository folder and run the installation script:
@@ -82,7 +82,7 @@ If you have troubles, follow the individual installation steps:
 
 ```
 	$ cd ~/
-	$ python -c "from pyglow import pyglow; pyglow.update_indices()"
+	$ python -c "import pyglow; pyglow.update_indices()"
 ```
 
 
@@ -91,7 +91,7 @@ If you have troubles, follow the individual installation steps:
 * In Python, run:
 
 ```
-from pyglow.pyglow import Point
+from pyglow import Point
 from datetime import datetime
 
 dn = datetime(2011, 3, 23, 9, 30)
@@ -180,6 +180,6 @@ update_indices() # grabs all indices starting from 1932 to the current year
 
 # Uninstallation 
 
-1. The install directory for pyglow is outputted when you run the `python ./setup.py install` command.  For example, on a mac this is usually in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.
+1. The install directory for pyglow is outputted when you run the `python ./setup.py install` command.  For example, on a mac this is usually in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.  You can also retrieve the library location with `python -c "import pyglow; print(pyglow.__file__)"`
 2.  Simply remove the `*.so` climatological models in this directory, as well as the `pyglow` and `pyglow_trash` folders.
 

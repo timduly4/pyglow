@@ -1,7 +1,6 @@
 
 import numpy as np
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from numpy import nanmean
 from get_kpap import get_kpap
 
@@ -74,7 +73,7 @@ def get_apmsis(dn):
     tmp1, temp[6], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-30))
     tmp1, temp[7], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-33))
 
-    out[5] = nanmean(temp)
+    out[5] = np.nan if all(np.isnan(temp)) else np.nanmean(temp)
 
     # (7) AVERAGE OF EIGHT 3 HR AP INDICIES FROM 36 TO 57 HRS
     #     PRIOR  TO CURRENT TIME
@@ -90,16 +89,15 @@ def get_apmsis(dn):
     tmp1, temp[6], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-54))
     tmp1, temp[7], tmp2, tmp3, tmp4, tmp5, tmp6, tmp7 = get_kpap(dn+timedelta(hours=-57))
 
-    out[6] = nanmean(temp)
+    out[6] = np.nan if all(np.isnan(temp)) else np.nanmean(temp)
 
     return out
 
 
-    
-
 def test_get_apmsis():
-    out = get_apmsis(datetime(2000,3,23,0))
-    print "ap indices for msis are:\n",out
+    dn = datetime(2000,3,23,0)
+    out = get_apmsis(dn)
+    print("ap indices for msis are:\n{}".format(out))
 
 if __name__ == '__main__':
     test_get_apmsis()

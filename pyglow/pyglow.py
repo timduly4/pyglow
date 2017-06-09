@@ -30,11 +30,13 @@ index (apf107.dat) files. IRI 2016 initialization is required only
 once per session.
 """
 __INIT_IRI16 = False
+__version__ = '1.0'
 
 DIR_FILE = os.path.dirname(__file__)
 
 
 class Point(object):
+
     def __init__(self, dn, lat, lon, alt, user_ind=False):
 
         nan = float('nan')
@@ -390,7 +392,6 @@ class Point(object):
 
         my_pwd = os.getcwd()
 
-        # TODO: use os.path.join here:
         hwm07_data_path = os.path.join(DIR_FILE, "/hwm07_data/")
 
         os.chdir(hwm07_data_path)
@@ -418,7 +419,6 @@ class Point(object):
 
         my_pwd = os.getcwd()
 
-        # TODO: use os.path.join here:
         hwm14_data_path = os.path.join(DIR_FILE, "/hwm14_data/")
 
         os.chdir(hwm14_data_path)
@@ -643,7 +643,7 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
 
         my_error = lla[2]-target_ht
         old_step = step
-        # find out how much we need to step by:
+        # Find out how much we need to step by:
         step = -np.sign(step)*abs(lla[2]-target_ht)
 
         ecef = coord.lla2ecef(lla)
@@ -656,13 +656,13 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
         D = p.Bz # Down
         A = p.B  # Total
 
-        # trace the field, but use the modified step:
+        # Trace the field, but use the modified step:
         ecef_new = ecef + coord.ven2ecef(
             lla,
             np.array([-D/A, E/A, N/A]) * step/(-D/A),
         )
-        # TODO : I changed this, is this correct?
 
+        # TODO : I changed this, is this correct?
         lla = coord.ecef2lla(ecef_new)
 
     # replace last entry with the point close to target_ht:
@@ -707,24 +707,25 @@ def update_kpap(years=None):
     '''
 
     # Load all data up until today
-    if years is None: years=range(1932, date.today().year + 1)
+    if years is None: 
+        years = range(1932, date.today().year + 1)[::-1] # reverse
 
-    pyglow_dir = os.path.join(DIR_FILE, "/kpap/")
+    pyglow_dir = os.path.join(DIR_FILE, "kpap/")
 
     for year in years:
         src = 'ftp://ftp.ngdc.noaa.gov/'\
                 + 'STP/GEOMAGNETIC_DATA/INDICES/KP_AP/%4i'\
                 % (year,)
         des = pyglow_dir + "%4i" % (year,)
-        print("\nDownloading\n{src}\nto{des}".format(src=src, des=des))
+        print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
         try:
             with contextlib.closing(urllib2.urlopen(src)) as r:
                 with open(des, 'wb') as f:
                     shutil.copyfileobj(r, f)
         except IOError as e:
             print(
-                'Failed downloading data for year {}. File does not exist'
-            ).format(year)
+                'Failed downloading data for year {}. File does not exist'.format(year)
+            )
 
 
 def update_dst(years=None):
@@ -770,7 +771,7 @@ def update_dst(years=None):
                 with contextlib.closing(urllib2.urlopen(src)) as r:
                     contents = r.read()
                     # If that succeeded, then the file exists
-                    print("\nDownloading\n{src}\nto{des}".format(src=src, des=des))
+                    print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
                     with open(des,'w') as f:
                         f.write(contents)
                     success = True
@@ -782,8 +783,8 @@ def update_dst(years=None):
     # Read files from 2005 until today. Pre-2005
     # files are shipped with pyglow.
     if years is None:
-        years = range(2005, date.today().year + 1)
-    pyglow_dir = os.path.join(DIR_FILE, "/dst/")
+        years = range(2005, date.today().year + 1)[::-1] # reversed
+    pyglow_dir = os.path.join(DIR_FILE, "dst/")
 
     for year in years:
         for month in range(1, 13):
@@ -832,7 +833,7 @@ def update_ae(years = None):
                 with contextlib.closing(urllib2.urlopen(src)) as r:
                     contents = r.readlines()
                     # If that succeeded, then the file exists
-                    print("\nDownloading\n{src}\nto{des}".format(src=src, des=des))
+                    print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
                     with open(des,'w') as f:
                         # this shrinks the filesize to hourly
                         for c in contents:
@@ -846,8 +847,8 @@ def update_ae(years = None):
     # Read files from 2000 until today. Pre-2000
     # files are shipped with pyglow.
     if years is None:
-        years = range(2000,date.today().year + 1)
-    pyglow_dir = os.path.join(DIR_FILE, "/ae/")
+        years = range(2000, date.today().year + 1)[::-1] # reversed
+    pyglow_dir = os.path.join(DIR_FILE, "ae/")
 
     for year in years:
         for month in range(1,13):
@@ -865,6 +866,7 @@ def update_indices(years=None):
             If this input is not provided, default
             values will be used.
     '''
+
     update_kpap(years=years)
     update_dst(years=years)
     update_ae(years=years)
