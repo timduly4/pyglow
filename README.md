@@ -27,7 +27,7 @@ pyglow also provides access to the the following geophysical indices:
 
 # Installation
 
-### I'm Feeling Lucky
+### I'm Feeling Lucky:
 
 First, checkout the repository:
 
@@ -41,7 +41,7 @@ Change directories into the repository folder and run the installation script:
     $ ./pyglow_install.sh
 ```
 
-### Individual installation steps
+### Individual installation steps:
 
 If you have troubles, follow the individual installation steps:
 
