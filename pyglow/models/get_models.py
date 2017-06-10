@@ -2,6 +2,8 @@
 import os
 import urllib2
 
+from ipdb import set_trace as db
+
 # IRI 2012:
 iri12 = {
     'folder' : 'iri12',
@@ -105,9 +107,11 @@ for model in [igrf11, igrf12, hwm07, iri12]:
         os.system(cmd)
 
         # Move contents:
-        os.system('mv ./{zip_folder}/* ./dl_models/{folder}'.format(
-            zip_folder=model['zip_folder'],
-            folder=model['folder'],
+        os.system(
+            'mv ./{zip_folder}/* ./dl_models/{folder}'.format(
+                zip_folder=model['zip_folder'],
+                folder=model['folder'],
+            )
         )
             
         # Remove folder:
