@@ -128,22 +128,27 @@ def get_mtime_table():
 
 def update_required():
     """
+    Determines if new data are available to index into
+    geophysical_indices.npy.
 
     """
     if not os.path.isfile(MTIME_TABLE_FNAME):
         return True
-    with open(MTIME_TABLE_FNAME) as fid:
-        mtime_table = load(fid)
-    new_mtime_table = get_mtime_table()
-    for key, val in new_mtime_table.iteritems():
-        try:
-            if mtime_table[key] != new_mtime_table[key]:
+    else:
+        with open(MTIME_TABLE_FNAME) as fid:
+            mtime_table = load(fid)
+        new_mtime_table = get_mtime_table()
+        for key, val in new_mtime_table.iteritems():
+            try:
+                if mtime_table[key] != new_mtime_table[key]:
+                    return True
+            except (IndexError, KeyError):
+                # Differing keys in mtime_tables,
+                # so we need to update:
                 return True
-        except (IndexError, KeyError):
-            return True
-    # all current file modification times matched those associated
-    # with cached geophysical_indices
-    return False
+        # All current file modification times matched those associated
+        # with cached geophysical_indices
+        return False
 
 
 def generate_kpap():
