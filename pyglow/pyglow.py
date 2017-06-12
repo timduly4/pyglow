@@ -450,7 +450,7 @@ class Point(object):
             igrf=igrf11
         else:
             raise ValueError(
-                "Invalid version of {} for IGRF.".format(version) + \
+                "Invalid version of {} for IGRF.\n".format(version) + \
                         "Version 12 (default) and 11 are valid."
             )
 

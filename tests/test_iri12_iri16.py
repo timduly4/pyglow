@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Profile plot to compare IRI 2012 and IRI 2016.
 '''

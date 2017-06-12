@@ -1,8 +1,10 @@
+#!/usr/bin/env python
+
 '''
-testing out the different 'version' keywords
+Testing out the different 'version' keywords
 '''
 from datetime import datetime, timedelta
-from pyglow.pyglow import Point
+from pyglow import Point
 
 dn = datetime(2010, 3, 23, 15, 30)
 lat = 40.
@@ -24,7 +26,8 @@ pt.run_msis()
 pt.run_msis(version=2000)
 
 pt.run_igrf()
-pt.run_igrf(version=2011)
+pt.run_igrf(version=11)
+pt.run_igrf(version=12)
 
 pt.run_iri()
 pt.run_iri(version=2016)
@@ -33,6 +36,6 @@ pt.run_iri(version=2012)
 try:
     pt.run_iri(version=2020) # should fail
 except ValueError as e:
-    print("Caught an exception: %s" % e)
+    print("Caught an exception: `{}`".format(e))
 
 
