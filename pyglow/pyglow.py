@@ -358,11 +358,11 @@ class Point(object):
 
         """
         if version==2014:
-            self.run_hwm14()
+            self._run_hwm14()
         elif version==2007:
-            self.run_hwm07()
+            self._run_hwm07()
         elif version==1993:
-            self.run_hwm93()
+            self._run_hwm93()
         else:
             raise ValueError(
                 "Invalid version of {} for HWM.\n".format(version) +\
@@ -370,7 +370,7 @@ class Point(object):
             )
         return self
 
-    def run_hwm93(self):
+    def _run_hwm93(self):
 
         w = hwm93(
             self.iyd,
@@ -388,7 +388,7 @@ class Point(object):
         self.hwm_version = '93'
         return self
 
-    def run_hwm07(self):
+    def _run_hwm07(self):
 
         my_pwd = os.getcwd()
 
@@ -415,7 +415,7 @@ class Point(object):
         return self
 
 
-    def run_hwm14(self):
+    def _run_hwm14(self):
 
         my_pwd = os.getcwd()
 
