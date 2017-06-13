@@ -18,7 +18,7 @@ for dn in dns:
     print("kp = {}".format(kp))
     print("ap = {}".format(ap))
     print("f107 = {}".format(f107))
-    print("f107a = {}".format(f107a))
+    print("f107a = {:3.2f}".format(f107a))
     print("daily_kp = {}".format(daily_kp))
     print("daily_ap = {}".format(daily_ap))
     print("dst = {}".format(dst))
