@@ -828,6 +828,9 @@ def update_dst(years=None):
             des = '%s%i%02i' % (pyglow_dir,year,month)
             download_dst(year, month, des)
 
+    return
+
+
 def update_ae(years = None):
     '''
     Update the AE index files used in pyglow.
