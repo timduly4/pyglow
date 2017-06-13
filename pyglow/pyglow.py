@@ -38,6 +38,22 @@ DIR_FILE = os.path.dirname(__file__)
 class Point(object):
 
     def __init__(self, dn, lat, lon, alt, user_ind=False):
+        """
+        An instance of Point is the fundamental data object
+        for running each climatological model.
+
+        Instantation of a Point initializes member variables,
+        and also grabs the corresponding geophysical indices.
+
+        :param dn: datetime.datetime object 
+        :param lat: Latitude [degrees]
+        :param lon: Longitude [degrees]
+        :param alt: Altitude [km]
+        :param user_ind: (optional) Boolean switch to calculate
+                         geophysical indices. If True, then it
+                         is up to the user to assign geophysical 
+                         indices to the Point
+        """
 
         nan = float('nan')
 
@@ -47,20 +63,18 @@ class Point(object):
         self.lon = lon
         self.alt = alt
 
-        # Warn if date is too early
+        # Error if date is too early
         if self.dn.year < 1932:
             raise ValueError('Date cannot be before 1932!')
 
+        # Time variables:
         self.doy = self.dn.timetuple().tm_yday
         self.utc_sec = self.dn.hour*3600. + self.dn.minute*60.
         self.utc_hour = self.dn.hour
         self.slt_hour = np.mod(self.utc_sec/3600. + self.lon/15., 24)
         self.iyd = np.mod(self.dn.year,100)*1000 + self.doy
 
-        # Initialize variables:
-        # ---------------------
-
-        # for kp, ap function
+        # For kp, ap function
         self.kp       = nan
         self.ap       = nan
         self.f107     = nan
@@ -114,51 +128,16 @@ class Point(object):
             self.get_indices()
             self.apmsis = get_apmsis(self.dn)
 
-    def __repr__(self):
-        out = ""
-        out += "%20s" % "dn = "\
-                + self.dn.__str__() + '\n'
-        out += "%20s" % "(lat, lon, alt) = "\
-                + "(%4.2f, %4.2f, %4.2f)\n" % (self.lat, self.lon, self.alt)
-
-        # Indices:
-        out += "\nGeophysical Indices:\n---------------------\n"
-        out += "%20s" % "kp = "\
-                + "%4.2f\n" % self.kp
-        out += "%20s" % "ap = "\
-                + "%4.2f\n" % self.ap
-        out += "%20s" % "f107a = "\
-                + "%4.2f\n" % self.f107a
-        out += "%20s" % "dst = "\
-                + "%3.2f\n" % self.dst
-        out += "%20s" % "ae = "\
-                + "%3.2f\n" % self.ae
-
-        # IGRF:
-        out += "\nFrom IGRF:\n-----------\n"
-        out += "%20s" % "(Bx, By, Bz) = "\
-                + "(%4.3e, %4.3e, %4.3e)\n" % (self.Bx, self.By, self.Bz)
-        out += "%20s" % "B = "\
-                + "%4.3e\n" % (self.B)
-        out += "%20s" % "dip = "\
-                + "%4.2f\n" % (self.dip)
-
-        # HWM:
-        out += "\nFrom HWM:\n------------\n"
-        out += "%20s" % "hwm version = "\
-                + "%s\n" % (self.hwm_version)
-        out += "%20s" % "(u, v) = "\
-                + "(%4.2f, %4.2f)\n" % (self.u, self.v)
-
-        #out += "%20s" % "n      = %4.2e\n" % self.n
-
-        return out
 
     def get_indices(self):
+        """
+        Retreives geophysical indices.
+        """
         self.kp, self.ap, self.f107, self.f107a, \
                 self.kp_daily, self.ap_daily, self.dst, self.ae  \
                         = get_kpap(self.dn)
         return self
+
 
     @staticmethod
     def init_iri16():
@@ -174,6 +153,7 @@ class Point(object):
             return True
         else:
             return False
+
 
     def run_iri(
         self,
@@ -261,7 +241,7 @@ class Point(object):
 
         iri_data_path = os.path.join(DIR_FILE, iri_data_stub)
         if debug:
-            print("changing directory to \n", iri_data_path)
+            print("Changing directory to {}\n".format(iri_data_path))
 
         os.chdir(iri_data_path)
         init_iri()
@@ -281,15 +261,15 @@ class Point(object):
         os.chdir(my_pwd)
 
         if compute_Te_Ti:
-            self.Te    = outf[3,0] # electron temperature from IRI (K)
-            self.Ti    = outf[2,0] # ion temperature from IRI (K)
+            self.Te = outf[3,0] # Electron temperature from IRI (K)
+            self.Ti = outf[2,0] # Ion temperature from IRI (K)
         else:
-            self.Te    = float('NaN')
-            self.Ti    = float('NaN')
+            self.Te = float('NaN')
+            self.Ti = float('NaN')
 
-        self.Tn_iri    = outf[1,0] # neutral temperature from IRI (K)
+        self.Tn_iri = outf[1,0] # Neutral temperature from IRI (K)
 
-        self.ne        = outf[0,0] # electron density (m^-3)
+        self.ne        = outf[0,0] # Electron density (m^-3)
         self.ni['O+']  = outf[4,0] # O+ Density (%, or m^-3 with JF(22) = 0)
         self.ni['H+']  = outf[5,0] # H+ Density (%, or m^-3 with JF(22) = 0)
         self.ni['HE+'] = outf[6,0] # HE+ Density (%, or m^-3 with JF(22) = 0)
@@ -299,11 +279,12 @@ class Point(object):
         self.NmF2 = oarr[0]
         self.hmF2 = oarr[1]
 
-        # densities are now in cm^-3:
         if compute_Ne:
-            self.ne    = outf[0,0] # electron density (m^-3)
+            self.ne    = outf[0,0] # Electron density (m^-3)
         else:
             self.ne    = float('NaN')
+
+        # Densities are now in cm^-3:
         self.ne        = self.ne        / 100.**3 # [items/cm^3]
         self.ni['O+']  = self.ni['O+']  / 100.**3 # [items/cm^3]
         self.ni['H+']  = self.ni['H+']  / 100.**3 # [items/cm^3]
@@ -311,10 +292,14 @@ class Point(object):
         self.ni['O2+'] = self.ni['O2+'] / 100.**3 # [items/cm^3]
         self.ni['NO+'] = self.ni['NO+'] / 100.**3 # [items/cm^3]
         self.NmF2      = self.NmF2      / 100.**3 # [items/cm^3]
+
         return self
 
 
     def run_msis(self, version=2000):
+        """
+        Method to call MSIS model
+        """
 
         if version==2000:
             msis = msis00
@@ -350,12 +335,13 @@ class Point(object):
         self.nn['O_anomalous'] = d[8] # [items/cm^3]
 
         self.rho = d[5] # total mass density [grams/cm^3]
+
         return self
 
 
     def run_hwm(self, version=2014):
         """
-
+        Wrapper to call various HWM models
         """
         if version==2014:
             self._run_hwm14()
@@ -368,9 +354,15 @@ class Point(object):
                 "Invalid version of {} for HWM.\n".format(version) +\
                         "Either 2014 (default), 2007, or 1993 is valid."
             )
+
         return self
 
+
     def _run_hwm93(self):
+        """
+        HWM 1993 Climatological model.
+
+        """
 
         w = hwm93(
             self.iyd,
@@ -386,9 +378,15 @@ class Point(object):
         self.v = w[0]
         self.u = w[1]
         self.hwm_version = '93'
+
         return self
 
+
     def _run_hwm07(self):
+        """
+        HWM 2007 Climatological model.
+
+        """
 
         my_pwd = os.getcwd()
 
@@ -407,6 +405,8 @@ class Point(object):
             self.f107,
             aphwm07,
         )
+
+        # Change back to original directory:
         os.chdir(my_pwd)
         self.v = w[0]
         self.u = w[1]
@@ -416,6 +416,10 @@ class Point(object):
 
 
     def _run_hwm14(self):
+        """
+        HWM 2014 Climatological model.
+
+        """
 
         my_pwd = os.getcwd()
 
@@ -434,6 +438,8 @@ class Point(object):
             np.nan,
             [np.nan,self.ap],
         )
+
+        # Change back to original directory:
         os.chdir(my_pwd)
         self.v = v
         self.u = u
@@ -443,6 +449,9 @@ class Point(object):
 
 
     def run_igrf(self, version=12):
+        """
+        Run the IGRF climatological model
+        """
 
         if version==12:
             igrf=igrf12
@@ -574,6 +583,18 @@ class Point(object):
 
 def _igrf_tracefield(dn, lat, lon, alt, target_ht, step):
     """
+    Helper function to trace along a magnetic field line using IGRF
+
+
+    :param dn: datetime.datetime object of requested trace
+    :param lat: Latitude [degrees]
+    :param lon: Longitude [degrees]
+    :param alt: Altitude [km]
+    :param target_ht: Altitude to stop trace [km]
+    :param step: Step size of trace [km]
+
+    :return lla: (latitude, longitude, altitude) data structure of trace
+                 with dimentions [Nsteps x 3]
 
     """
 
@@ -592,6 +613,21 @@ def _igrf_tracefield(dn, lat, lon, alt, target_ht, step):
 
 
 def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
+    """
+    Helper function to trace along a magnetic field line using IGRF
+    for only one hemisphere
+
+    :param dn: datetime.datetime object of requested trace
+    :param lat: Latitude [degrees]
+    :param lon: Longitude [degrees]
+    :param alt: Altitude [km]
+    :param target_ht: Altitude to stop trace [km]
+    :param step: Step size of trace [km]
+
+    :return lla: (latitude, longitude, altitude) data structure of trace
+                 with dimentions [Nsteps x 3]
+
+    """
 
     lat = float(lat)
     lon = float(lon)
@@ -672,21 +708,27 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
 
 def Line(dn, lat, lon, alt, target_ht=90., step=15.):
     """
-    pts = Line(dn, lat, lon, alt, target_ht=90., step=15.)
-
     Return a list of instances of Point by
     tracing along the geomagnetic field line.
 
-    target_ht : altitude to quit tracing at
-                for N and S hemispheres [km]
-    step : approximate step to take between points [km]
+    pts = Line(dn, lat, lon, alt, target_ht=90., step=15.)
+
+    :param dn: datetime.datetime object of requested trace
+    :param lat: Latitude [degrees]
+    :param lon: Longitude [degrees]
+    :param alt: Altitude [km]
+    :param target_ht: Altitude to stop trace [km]
+    :param step: Step size of trace [km]
+
     """
     llas = _igrf_tracefield(dn, lat, lon, alt, target_ht, step)
     pts = []
+
     for lla in llas:
         pts.append(
             Point(dn, lla[0], lla[1], lla[2]/1e3)
         )
+
     return pts
 
 
@@ -698,9 +740,7 @@ def update_kpap(years=None):
 
     update_kpap(years=None)
 
-    Inputs:
-    ------
-    years : (optional) a list of years to download.
+    :param years: (optional) a list of years to download.
             If this input is not provided, the full
             range of years starting from 1932 to the
             current year will be downloaded.
@@ -736,10 +776,7 @@ def update_dst(years=None):
 
     update_dst(years=None)
 
-    Inputs:
-    ------
-
-    years : (optional) a list of years to download.
+    :param years: (optional) a list of years to download.
             If this input is not provided, the full
             range of years starting from 2005 to the
             current year will be downloaded. Pre-2005
@@ -799,10 +836,7 @@ def update_ae(years = None):
 
     update_ae(years=None)
 
-    Inputs:
-    ------
-
-    years : (optional) a list of years to download.
+    :param years: (optional) a list of years to download.
             If this input is not provided, the full
             range of years starting from 2005 to the
             current year will be downloaded. Pre-2005
@@ -824,8 +858,10 @@ def update_ae(years = None):
         year_month = '%i%02i' % (year, month)
         wgdc_fn = 'ae%s%02i.for.request' % (str(year)[2:],month)
         #src_final       = 'http://wdc.kugi.kyoto-u.ac.jp/ae_final/%s/%s' % (year_month, wgdc_fn)
-        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/ae_provisional/%s/%s' % (year_month, wgdc_fn)
-        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/%s/%s' % (year_month, wgdc_fn)
+        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/ae_provisional/%s/%s' %\
+                (year_month, wgdc_fn)
+        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/%s/%s' %\
+                (year_month, wgdc_fn)
 
         success = False
         for src in [src_provisional, src_realtime]:
@@ -858,7 +894,7 @@ def update_ae(years = None):
 
 def update_indices(years=None):
     '''
-    Update all geophysical indices (e.g., kp, dst).
+    Update all geophysical indices (e.g., KP, DST, AE).
 
     update_indices(years=None)
 
