@@ -73,7 +73,7 @@ If you have troubles, follow the individual installation steps:
 (3) Install the python package
 ```
     $ cd ../../   # get back to root directory
-    $ python ./setup.py install --user
+    $ python ./setup.py install --user --prefix=
 ```
   * On a mac, the folder `pyglow` and `*.so` files from `./models/dl_models/<model>/` should be in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
   * If you are denied permission, I recommend adding `--user` flag in command
