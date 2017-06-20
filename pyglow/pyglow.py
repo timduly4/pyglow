@@ -1,3 +1,28 @@
+
+import contextlib
+from datetime import date, timedelta
+import glob
+import numpy as np
+import os
+import shutil
+import sys
+import warnings
+import urllib2
+from ipdb import set_trace as db
+
+import coord
+from get_kpap import get_kpap
+from get_apmsis import get_apmsis
+from hwm93py import gws5 as hwm93
+from hwm07py import hwmqt as hwm07
+from hwm14py import hwm14
+from igrf11py import igrf11syn as igrf11
+from igrf12py import igrf12syn as igrf12
+from iri12py import iri_sub as iri12
+from iri16py import iri_sub as iri16
+from iri16py import read_ig_rz, readapf107
+from msis00py import gtd7 as msis00
+
 """
 Global variable indicating if IRI 2016 has been initialized with
 the contents of the ionosphere global index (ig_rz.dat) and Ap/F10.7
@@ -5,35 +30,51 @@ index (apf107.dat) files. IRI 2016 initialization is required only
 once per session.
 """
 __INIT_IRI16 = False
+__version__ = '1.0'
+
+DIR_FILE = os.path.dirname(__file__)
 
 
 class Point(object):
+
     def __init__(self, dn, lat, lon, alt, user_ind=False):
-        import numpy as np
-        from get_apmsis import get_apmsis
+        """
+        An instance of Point is the fundamental data object
+        for running each climatological model.
+
+        Instantation of a Point initializes member variables,
+        and also grabs the corresponding geophysical indices.
+
+        :param dn: datetime.datetime object 
+        :param lat: Latitude [degrees]
+        :param lon: Longitude [degrees]
+        :param alt: Altitude [km]
+        :param user_ind: (optional) Boolean switch to calculate
+                         geophysical indices. If True, then it
+                         is up to the user to assign geophysical 
+                         indices to the Point
+        """
 
         nan = float('nan')
 
-        # record input:
+        # Record input:
         self.dn = dn
         self.lat = lat
         self.lon = lon
         self.alt = alt
 
-        # Warn if date is too early
+        # Error if date is too early
         if self.dn.year < 1932:
             raise ValueError('Date cannot be before 1932!')
 
+        # Time variables:
         self.doy = self.dn.timetuple().tm_yday
         self.utc_sec = self.dn.hour*3600. + self.dn.minute*60.
         self.utc_hour = self.dn.hour
         self.slt_hour = np.mod(self.utc_sec/3600. + self.lon/15., 24)
         self.iyd = np.mod(self.dn.year,100)*1000 + self.doy
 
-        # initialize variables:
-        # ---------------------
-
-        # for kp, ap function
+        # For kp, ap function
         self.kp       = nan
         self.ap       = nan
         self.f107     = nan
@@ -44,7 +85,7 @@ class Point(object):
         self.dst      = nan
         self.ae       = nan
 
-        # for iri:
+        # For iri:
         self.ne = nan
         ions = ['O+', 'H+', 'HE+', 'O2+', 'NO+']
         self.ni={}
@@ -58,19 +99,19 @@ class Point(object):
         self.NmF2 = nan
         self.hmF2 = nan
 
-        # for msis:
+        # For msis:
         self.Tn_msis = nan
         self.nn = {}
         for neutral in ['HE','O','N2','O2','AR','H','N','O_anomalous']:
             self.nn[neutral] = nan
         self.rho = nan
 
-        # for hwm 93/07:
+        # For hwm 93/07:
         self.u = nan
         self.v = nan
         self.hwm_version = nan
 
-        # for igrf:
+        # For igrf:
         self.Bx  = nan
         self.By  = nan
         self.Bz  = nan
@@ -78,62 +119,25 @@ class Point(object):
         self.dip = nan
         self.dec = nan
 
-        # for run_airglow:
+        # For run_airglow:
         self.ag6300 = nan
         self.ag7774 = nan
 
         if not user_ind:
-            # call the indice models:
+            # Call the indice models:
             self.get_indices()
             self.apmsis = get_apmsis(self.dn)
 
-    def __repr__(self):
-        out = ""
-        out += "%20s" % "dn = "\
-                + self.dn.__str__() + '\n'
-        out += "%20s" % "(lat, lon, alt) = "\
-                + "(%4.2f, %4.2f, %4.2f)\n" % (self.lat, self.lon, self.alt)
-
-        # Indices:
-        out += "\nGeophysical Indices:\n---------------------\n"
-        out += "%20s" % "kp = "\
-                + "%4.2f\n" % self.kp
-        out += "%20s" % "ap = "\
-                + "%4.2f\n" % self.ap
-        out += "%20s" % "f107a = "\
-                + "%4.2f\n" % self.f107a
-        out += "%20s" % "dst = "\
-                + "%3.2f\n" % self.dst
-        out += "%20s" % "ae = "\
-                + "%3.2f\n" % self.ae
-
-        # IGRF:
-        out += "\nFrom IGRF:\n-----------\n"
-        out += "%20s" % "(Bx, By, Bz) = "\
-                + "(%4.3e, %4.3e, %4.3e)\n" % (self.Bx, self.By, self.Bz)
-        out += "%20s" % "B = "\
-                + "%4.3e\n" % (self.B)
-        out += "%20s" % "dip = "\
-                + "%4.2f\n" % (self.dip)
-
-        # HWM:
-        out += "\nFrom HWM:\n------------\n"
-        out += "%20s" % "hwm version = "\
-                + "%s\n" % (self.hwm_version)
-        out += "%20s" % "(u, v) = "\
-                + "(%4.2f, %4.2f)\n" % (self.u, self.v)
-
-        #out += "%20s" % "n      = %4.2e\n" % self.n
-
-        return out
 
     def get_indices(self):
-        import sys
-        #sys.path.append("../indices/")
-        from get_kpap import get_kpap
+        """
+        Retreives geophysical indices.
+        """
         self.kp, self.ap, self.f107, self.f107a, \
-                self.kp_daily, self.ap_daily, self.dst, self.ae  = get_kpap(self.dn)
+                self.kp_daily, self.ap_daily, self.dst, self.ae  \
+                        = get_kpap(self.dn)
         return self
+
 
     @staticmethod
     def init_iri16():
@@ -143,21 +147,24 @@ class Point(object):
         initialized and `False` otherwise.
         """
         if not globals()['__INIT_IRI16']:
-            from iri16py import read_ig_rz, readapf107
             read_ig_rz()
             readapf107()
             globals()['__INIT_IRI16'] = True
             return True
-        return False
+        else:
+            return False
 
-    def run_iri(self,
-                NmF2=None,
-                hmF2=None,
-                version=2016,
-                compute_Ne=True,
-                compute_Te_Ti=True,
-                compute_Ni=True,
-                debug=False):
+
+    def run_iri(
+        self,
+        NmF2=None,
+        hmF2=None,
+        version=2016,
+        compute_Ne=True,
+        compute_Te_Ti=True,
+        compute_Ni=True,
+        debug=False,
+    ):
         """
         Run IRI model at point time/location and update the object state
         accordingly. If *NmF2* (in [cm^{-3}}]) or *hmF2* (in [km]) are
@@ -170,26 +177,23 @@ class Point(object):
         computed (restricting the model to only what is required can
         reduce run time) or set to `NaN`.
         """
-        from iri12py import iri_sub as iri12
-        from iri16py import iri_sub as iri16
-        #sys.path.append("./modules")
-        import os, sys
-        import numpy as np
-        import pyglow
 
         if version==2016:
-            iri_data_stub = '/iri16_data/'
+            iri_data_stub = 'iri16_data/'
             iri = iri16
             init_iri = Point.init_iri16
         elif version==2012:
-            iri_data_stub = '/iri12_data/'
+            iri_data_stub = 'iri12_data/'
             iri = iri12
             init_iri = lambda: False
         else:
-            raise ValueError('Invalid version of \'%i\' for IRI.' % (version) +\
-                    '\nEither 2016 (default) or 2012 is valid.')
+            raise ValueError(
+                "Invalid version of {} for IRI.\n".format(version) + \
+                        "Either 2016 (default) or 2012 is valid."
+            )
 
-        if debug: print("version = %i" % version)
+        if debug:
+            print("Version = {}".format(version))
 
         jf = np.ones((50,)) # JF switches
         # Standard IRI model flags
@@ -235,35 +239,37 @@ class Point(object):
 
         my_pwd = os.getcwd()
 
-        iri_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + iri_data_stub
+        iri_data_path = os.path.join(DIR_FILE, iri_data_stub)
         if debug:
-            print "changing directory to \n", iri_data_path
+            print("Changing directory to {}\n".format(iri_data_path))
 
         os.chdir(iri_data_path)
         init_iri()
-        outf = iri(jf,
-                   0,
-                   self.lat,
-                   self.lon,
-                   int(self.dn.year),
-                   -self.doy,
-                   (self.utc_sec/3600.+25.),
-                   self.alt,
-                   self.alt+1,
-                   1,
-                   oarr)
-        os.chdir("%s" % my_pwd)
+        outf = iri(
+            jf,
+            0,
+            self.lat,
+            self.lon,
+            int(self.dn.year),
+            -self.doy,
+            (self.utc_sec/3600.+25.),
+            self.alt,
+            self.alt+1,
+            1,
+            oarr,
+        )
+        os.chdir(my_pwd)
 
         if compute_Te_Ti:
-            self.Te    = outf[3,0] # electron temperature from IRI (K)
-            self.Ti    = outf[2,0] # ion temperature from IRI (K)
+            self.Te = outf[3,0] # Electron temperature from IRI (K)
+            self.Ti = outf[2,0] # Ion temperature from IRI (K)
         else:
-            self.Te    = float('NaN')
-            self.Ti    = float('NaN')
+            self.Te = float('NaN')
+            self.Ti = float('NaN')
 
-        self.Tn_iri    = outf[1,0] # neutral temperature from IRI (K)
+        self.Tn_iri = outf[1,0] # Neutral temperature from IRI (K)
 
-        self.ne        = outf[0,0] # electron density (m^-3)
+        self.ne        = outf[0,0] # Electron density (m^-3)
         self.ni['O+']  = outf[4,0] # O+ Density (%, or m^-3 with JF(22) = 0)
         self.ni['H+']  = outf[5,0] # H+ Density (%, or m^-3 with JF(22) = 0)
         self.ni['HE+'] = outf[6,0] # HE+ Density (%, or m^-3 with JF(22) = 0)
@@ -273,11 +279,12 @@ class Point(object):
         self.NmF2 = oarr[0]
         self.hmF2 = oarr[1]
 
-        # densities are now in cm^-3:
         if compute_Ne:
-            self.ne    = outf[0,0] # electron density (m^-3)
+            self.ne    = outf[0,0] # Electron density (m^-3)
         else:
             self.ne    = float('NaN')
+
+        # Densities are now in cm^-3:
         self.ne        = self.ne        / 100.**3 # [items/cm^3]
         self.ni['O+']  = self.ni['O+']  / 100.**3 # [items/cm^3]
         self.ni['H+']  = self.ni['H+']  / 100.**3 # [items/cm^3]
@@ -285,28 +292,35 @@ class Point(object):
         self.ni['O2+'] = self.ni['O2+'] / 100.**3 # [items/cm^3]
         self.ni['NO+'] = self.ni['NO+'] / 100.**3 # [items/cm^3]
         self.NmF2      = self.NmF2      / 100.**3 # [items/cm^3]
+
         return self
 
+
     def run_msis(self, version=2000):
-        from msis00py import gtd7 as msis00
-        import numpy as np
+        """
+        Method to call MSIS model
+        """
 
         if version==2000:
             msis = msis00
         else:
-            raise ValueError('Invalid version of \'%i\' for MSIS.' % (version) +\
-                    '\n2000 (default) is valid.')
+            raise ValueError(
+                "Invalid version of '{}' for MSIS.\n".format(version) + \
+                        "2000 (default) is valid."
+            )
 
-        [d,t] = msis(self.doy,
-                     self.utc_sec,
-                     self.alt,
-                     self.lat,
-                     np.mod(self.lon,360),
-                     self.slt_hour,
-                     self.f107a,
-                     self.f107,
-                     self.apmsis,
-                     48)
+        [d,t] = msis(
+            self.doy,
+            self.utc_sec,
+            self.alt,
+            self.lat,
+            np.mod(self.lon,360),
+            self.slt_hour,
+            self.f107a,
+            self.f107,
+            self.apmsis,
+            48,
+        )
         self.Tn_msis = t[1] # neutral temperature from MSIS (K)
 
         self.nn = {}
@@ -321,113 +335,142 @@ class Point(object):
         self.nn['O_anomalous'] = d[8] # [items/cm^3]
 
         self.rho = d[5] # total mass density [grams/cm^3]
+
         return self
+
 
     def run_hwm(self, version=2014):
+        """
+        Wrapper to call various HWM models
+        """
         if version==2014:
-            self.run_hwm14()
+            self._run_hwm14()
         elif version==2007:
-            self.run_hwm07()
+            self._run_hwm07()
         elif version==1993:
-            self.run_hwm93()
+            self._run_hwm93()
         else:
-            raise ValueError('Invalid version of \'%i\' for HWM.' % (version) +\
-                    '\nEither 2014 (default), 2007, or 1993 is valid.')
+            raise ValueError(
+                "Invalid version of {} for HWM.\n".format(version) +\
+                        "Either 2014 (default), 2007, or 1993 is valid."
+            )
+
         return self
 
-    def run_hwm93(self):
-        from hwm93py import gws5 as hwm93
-        import numpy as np
 
-        w = hwm93(self.iyd,
-                  self.utc_sec,
-                  self.alt,
-                  self.lat,
-                  np.mod(self.lon,360),
-                  self.slt_hour,
-                  self.f107a,
-                  self.f107,
-                  self.ap_daily)
+    def _run_hwm93(self):
+        """
+        HWM 1993 Climatological model.
+
+        """
+
+        w = hwm93(
+            self.iyd,
+            self.utc_sec,
+            self.alt,
+            self.lat,
+            np.mod(self.lon, 360),
+            self.slt_hour,
+            self.f107a,
+            self.f107,
+            self.ap_daily,
+        )
         self.v = w[0]
         self.u = w[1]
         self.hwm_version = '93'
+
         return self
 
-    def run_hwm07(self):
-        from hwm07py import hwmqt as hwm07
-        import pyglow
-        import os
-        import numpy as np
+
+    def _run_hwm07(self):
+        """
+        HWM 2007 Climatological model.
+
+        """
 
         my_pwd = os.getcwd()
 
-        hwm07_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + "/hwm07_data/"
-        #print "changing directory to \n", hwm07_data_path
+        hwm07_data_path = os.path.join(DIR_FILE, "hwm07_data/")
 
         os.chdir(hwm07_data_path)
         aphwm07 = [float('NaN'), self.ap]
-        w = hwm07(self.iyd,
-                  self.utc_sec,
-                  self.alt,
-                  self.lat,
-                  np.mod(self.lon,360),
-                  self.slt_hour,
-                  self.f107a,
-                  self.f107,
-                  aphwm07)
-        os.chdir("%s" % my_pwd)
+        w = hwm07(
+            self.iyd,
+            self.utc_sec,
+            self.alt,
+            self.lat,
+            np.mod(self.lon,360),
+            self.slt_hour,
+            self.f107a,
+            self.f107,
+            aphwm07,
+        )
+
+        # Change back to original directory:
+        os.chdir(my_pwd)
         self.v = w[0]
         self.u = w[1]
         self.hwm_version = '07'
+
         return self
 
-    def run_hwm14(self):
-        from hwm14py import hwm14
-        import pyglow
-        import os
-        import numpy as np
+
+    def _run_hwm14(self):
+        """
+        HWM 2014 Climatological model.
+
+        """
 
         my_pwd = os.getcwd()
 
-        hwm14_data_path = '/'.join(pyglow.__file__.split("/")[:-1]) + "/hwm14_data/"
+        hwm14_data_path = os.path.join(DIR_FILE, "hwm14_data/")
 
         os.chdir(hwm14_data_path)
 
-        (v,u) = hwm14(self.iyd,
-                      self.utc_sec,
-                      self.alt,
-                      self.lat,
-                      np.mod(self.lon,360),
-                      np.nan,
-                      np.nan,
-                      np.nan,
-                      [np.nan,self.ap])
-        os.chdir("%s" % my_pwd)
+        v, u = hwm14(
+            self.iyd,
+            self.utc_sec,
+            self.alt,
+            self.lat,
+            np.mod(self.lon, 360),
+            np.nan,
+            np.nan,
+            np.nan,
+            [np.nan,self.ap],
+        )
+
+        # Change back to original directory:
+        os.chdir(my_pwd)
         self.v = v
         self.u = u
         self.hwm_version = '14'
+
         return self
 
+
     def run_igrf(self, version=12):
-        from igrf11py import igrf11syn as igrf11
-        from igrf12py import igrf12syn as igrf12
-        import numpy as np
-        import warnings
+        """
+        Run the IGRF climatological model
+        """
 
         if version==12:
             igrf=igrf12
         elif version==11:
             igrf=igrf11
         else:
-            raise ValueError('Invalid version of \'%i\' for IGRF.' % (version) +\
-                    '\nVersion 12 (default) and 11 are valid.')
+            raise ValueError(
+                "Invalid version of {} for IGRF.\n".format(version) + \
+                        "Version 12 (default) and 11 are valid."
+            )
 
-        x, y, z, f = igrf(0,
-                          self.dn.year,
-                          1,
-                          self.alt,
-                          90.-self.lat,
-                          np.mod(self.lon,360))
+        x, y, z, f = igrf(
+            0,
+            self.dn.year,
+            1,
+            self.alt,
+            90.-self.lat,
+            np.mod(self.lon, 360),
+        )
 
         h = np.sqrt(x**2 + y**2)
         dip = 180./np.pi * np.arctan2(z,h)
@@ -439,11 +482,12 @@ class Point(object):
         # (x -> east, y -> north, z -> up)
         #
         # IGRF gives (x -> north, y -> east, z -> down)
-        warnings.warn("Caution: IGRF coordinates have been recently changed to\n" +\
-                " Bx -> positive eastward\n" +\
-                " By -> positive northward\n" +\
-                " Bz -> positive upward\n" +\
-                '')
+        warnings.warn(
+            "Caution: IGRF coordinates have been recently changed to\n" + \
+                    "Bx -> positive eastward\n" + \
+                    "By -> positive northward\n" + \
+                    " Bz -> positive upward\n"
+        )
         self.Bx  =  y/1e9 # [T] (positive eastward) (note x/y switch here)
         self.By  =  x/1e9 # [T] (positive northward) (note x/y switch here)
         self.Bz  = -z/1e9 # [T] (positive upward) (note negation here)
@@ -451,10 +495,12 @@ class Point(object):
 
         self.dip = dip
         self.dec = dec
+
         return self
 
+
     def run_airglow(self):
-        '''
+        """
         Computes airglow intensities
 
 
@@ -469,11 +515,10 @@ class Point(object):
                   based on Jonathan J. Makela's MATLAB
                   and subsequent python code
         9/13/16 -- added 7774 calculation
-        '''
-        import numpy as np
+        """
 
-        # let's see if IRI and MSIS have been executed
-        # if not, run the appropriate models:
+        # Let's see if IRI and MSIS have been executed.
+        # If not, run the appropriate models:
         if np.isnan(self.ne):
             self.run_iri()
         if np.isnan(self.nn['O2']):
@@ -537,7 +582,21 @@ class Point(object):
 # ---------
 
 def _igrf_tracefield(dn, lat, lon, alt, target_ht, step):
-    import numpy as np
+    """
+    Helper function to trace along a magnetic field line using IGRF
+
+
+    :param dn: datetime.datetime object of requested trace
+    :param lat: Latitude [degrees]
+    :param lon: Longitude [degrees]
+    :param alt: Altitude [km]
+    :param target_ht: Altitude to stop trace [km]
+    :param step: Step size of trace [km]
+
+    :return lla: (latitude, longitude, altitude) data structure of trace
+                 with dimentions [Nsteps x 3]
+
+    """
 
     # Go North:
     lla_north = _igrf_tracefield_hemis(dn, lat, lon, alt,\
@@ -554,9 +613,21 @@ def _igrf_tracefield(dn, lat, lon, alt, target_ht, step):
 
 
 def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
-    import numpy as np
-    import coord
-    from numpy import array as arr
+    """
+    Helper function to trace along a magnetic field line using IGRF
+    for only one hemisphere
+
+    :param dn: datetime.datetime object of requested trace
+    :param lat: Latitude [degrees]
+    :param lon: Longitude [degrees]
+    :param alt: Altitude [km]
+    :param target_ht: Altitude to stop trace [km]
+    :param step: Step size of trace [km]
+
+    :return lla: (latitude, longitude, altitude) data structure of trace
+                 with dimentions [Nsteps x 3]
+
+    """
 
     lat = float(lat)
     lon = float(lon)
@@ -591,20 +662,24 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
         A = p.B  # Total
 
         # Step along the field line
-        ecef_new =  ecef + coord.ven2ecef(lla,[(-D/A*step), (E/A*step), (N/A*step)] )
+        ecef_new =  ecef + coord.ven2ecef(
+            lla,
+            [-D/A*step, E/A*step, N/A*step],
+        )
 
         # Convert to lla coordinates:
         lla = coord.ecef2lla(ecef_new)
 
         # add the field line to our collection:
-        lla_field = np.vstack( [lla_field, lla] )
+        lla_field = np.vstack([lla_field, lla])
         i = i + 1
 
     """ Step 2: Make the last point close to target_ht """
     while (abs(lla[2]-target_ht) > TOLERANCE):
+
         my_error = lla[2]-target_ht
         old_step = step
-        # find out how much we need to step by:
+        # Find out how much we need to step by:
         step = -np.sign(step)*abs(lla[2]-target_ht)
 
         ecef = coord.lla2ecef(lla)
@@ -617,10 +692,13 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
         D = p.Bz # Down
         A = p.B  # Total
 
-        # trace the field, but use the modified step:
-        ecef_new = ecef + coord.ven2ecef(lla,np.array([(-D/A), (E/A), N/A])*step/(-D/A) )
-        # TODO : I changed this, is this correct?
+        # Trace the field, but use the modified step:
+        ecef_new = ecef + coord.ven2ecef(
+            lla,
+            np.array([-D/A, E/A, N/A]) * step/(-D/A),
+        )
 
+        # TODO : I changed this, is this correct?
         lla = coord.ecef2lla(ecef_new)
 
     # replace last entry with the point close to target_ht:
@@ -629,20 +707,28 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
     return lla_field
 
 def Line(dn, lat, lon, alt, target_ht=90., step=15.):
-    '''
-    pts = Line(dn, lat, lon, alt, target_ht=90., step=15.)
-
+    """
     Return a list of instances of Point by
     tracing along the geomagnetic field line.
 
-    target_ht : altitude to quit tracing at
-                for N and S hemispheres [km]
-    step : approximate step to take between points [km]
-    '''
+    pts = Line(dn, lat, lon, alt, target_ht=90., step=15.)
+
+    :param dn: datetime.datetime object of requested trace
+    :param lat: Latitude [degrees]
+    :param lon: Longitude [degrees]
+    :param alt: Altitude [km]
+    :param target_ht: Altitude to stop trace [km]
+    :param step: Step size of trace [km]
+
+    """
     llas = _igrf_tracefield(dn, lat, lon, alt, target_ht, step)
     pts = []
+
     for lla in llas:
-        pts.append( Point(dn, lla[0], lla[1], lla[2]/1e3) )
+        pts.append(
+            Point(dn, lla[0], lla[1], lla[2]/1e3)
+        )
+
     return pts
 
 
@@ -654,72 +740,57 @@ def update_kpap(years=None):
 
     update_kpap(years=None)
 
-    Inputs:
-    ------
-    years : (optional) a list of years to download.
+    :param years: (optional) a list of years to download.
             If this input is not provided, the full
             range of years starting from 1932 to the
             current year will be downloaded.
     '''
-    from datetime import date,timedelta
-    import shutil
-    import urllib2
-    from contextlib import closing
-    import pyglow
 
     # Load all data up until today
-    if years is None: years=range(1932, date.today().year + 1)
+    if years is None: 
+        years = range(1932, date.today().year + 1)[::-1] # reverse
 
-    pyglow_dir =\
-            '/'.join(pyglow.__file__.split("/")[:-1]) + "/kpap/"
+    pyglow_dir = os.path.join(DIR_FILE, "kpap/")
 
     for year in years:
         src = 'ftp://ftp.ngdc.noaa.gov/'\
                 + 'STP/GEOMAGNETIC_DATA/INDICES/KP_AP/%4i'\
                 % (year,)
         des = pyglow_dir + "%4i" % (year,)
-        print "\nDownloading"
-        print src
-        print "to"
-        print des
+        print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
         try:
-            with closing(urllib2.urlopen(src)) as r:
+            with contextlib.closing(urllib2.urlopen(src)) as r:
                 with open(des, 'wb') as f:
                     shutil.copyfileobj(r, f)
         except IOError as e:
-            print 'Failed downloading data for year %i. File does not exist' % year
+            print(
+                'Failed downloading data for year {}. File does not exist'.format(year)
+            )
 
 
 def update_dst(years=None):
-    '''
+    """
     Update the Dst index files used in pyglow.
     The files will be downloaded from WDC Kyoto
     to your pyglow installation directory.
 
     update_dst(years=None)
 
-    Inputs:
-    ------
-
-    years : (optional) a list of years to download.
+    :param years: (optional) a list of years to download.
             If this input is not provided, the full
             range of years starting from 2005 to the
             current year will be downloaded. Pre-2005
             files are shipped with pyglow.
-    '''
-    from datetime import date, timedelta
-    import urllib2
-    from contextlib import closing
-    import pyglow
+    """
 
 
     def download_dst(year, month, des):
-        '''
+        """
         Helper function to earch for the appropriate location
         and download the DST index file from WDC Kyoto for the
         given month and year. Save it to the specified file "des".
         Return True if successful, False if not.
-        '''
+        """
         # There are three possible sources of data. Search for
         # them in the following order:
         # 1) Final
@@ -734,13 +805,10 @@ def update_dst(years=None):
         success = False
         for src in [src_final, src_provisional, src_realtime]:
             try:
-                with closing(urllib2.urlopen(src)) as r:
+                with contextlib.closing(urllib2.urlopen(src)) as r:
                     contents = r.read()
                     # If that succeeded, then the file exists
-                    print "\nDownloading"
-                    print src
-                    print "to"
-                    print des
+                    print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
                     with open(des,'w') as f:
                         f.write(contents)
                     success = True
@@ -752,14 +820,16 @@ def update_dst(years=None):
     # Read files from 2005 until today. Pre-2005
     # files are shipped with pyglow.
     if years is None:
-        years = range(2005,date.today().year + 1)
-    pyglow_dir =\
-            '/'.join(pyglow.__file__.split("/")[:-1]) + "/dst/"
+        years = range(2005, date.today().year + 1)[::-1] # reversed
+    pyglow_dir = os.path.join(DIR_FILE, "dst/")
 
     for year in years:
-        for month in range(1,13):
+        for month in range(1, 13):
             des = '%s%i%02i' % (pyglow_dir,year,month)
             download_dst(year, month, des)
+
+    return
+
 
 def update_ae(years = None):
     '''
@@ -769,20 +839,12 @@ def update_ae(years = None):
 
     update_ae(years=None)
 
-    Inputs:
-    ------
-
-    years : (optional) a list of years to download.
+    :param years: (optional) a list of years to download.
             If this input is not provided, the full
             range of years starting from 2005 to the
             current year will be downloaded. Pre-2005
             files are shipped with pyglow.
     '''
-    from datetime import date, timedelta
-    import urllib2
-    from contextlib import closing
-    import pyglow
-    import glob
 
     def download_ae(year, month, des):
         '''
@@ -799,19 +861,18 @@ def update_ae(years = None):
         year_month = '%i%02i' % (year, month)
         wgdc_fn = 'ae%s%02i.for.request' % (str(year)[2:],month)
         #src_final       = 'http://wdc.kugi.kyoto-u.ac.jp/ae_final/%s/%s' % (year_month, wgdc_fn)
-        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/ae_provisional/%s/%s' % (year_month, wgdc_fn)
-        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/%s/%s' % (year_month, wgdc_fn)
+        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/ae_provisional/%s/%s' %\
+                (year_month, wgdc_fn)
+        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/%s/%s' %\
+                (year_month, wgdc_fn)
 
         success = False
         for src in [src_provisional, src_realtime]:
             try:
-                with closing(urllib2.urlopen(src)) as r:
+                with contextlib.closing(urllib2.urlopen(src)) as r:
                     contents = r.readlines()
                     # If that succeeded, then the file exists
-                    print "\nDownloading"
-                    print src
-                    print "to"
-                    print des
+                    print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
                     with open(des,'w') as f:
                         # this shrinks the filesize to hourly
                         for c in contents:
@@ -825,9 +886,8 @@ def update_ae(years = None):
     # Read files from 2000 until today. Pre-2000
     # files are shipped with pyglow.
     if years is None:
-        years = range(2000,date.today().year + 1)
-    pyglow_dir =\
-            '/'.join(pyglow.__file__.split("/")[:-1]) + "/ae/"
+        years = range(2000, date.today().year + 1)[::-1] # reversed
+    pyglow_dir = os.path.join(DIR_FILE, "ae/")
 
     for year in years:
         for month in range(1,13):
@@ -835,62 +895,21 @@ def update_ae(years = None):
             download_ae(year, month, des)
 
 
-def update_indices(years = None):
+def update_indices(years=None):
     '''
-    Update all geophysical indices (e.g., kp, dst).
+    Update all geophysical indices (e.g., KP, DST, AE).
 
     update_indices(years=None)
 
-    Inputs:
-    ------
-
-    years : (optional) a list of years to download.
+    :param years: (optional) a list of years to download.
             If this input is not provided, default
             values will be used.
     '''
+
     update_kpap(years=years)
     update_dst(years=years)
     update_ae(years=years)
 
-
-if __name__=="__main__":
-    from datetime import datetime, timedelta
-    import numpy as np
-
-    dn = datetime(2002, 3, 25, 12, 0, 0)
-    lat = 42.5
-    lon = 0.
-    alt = 250.
-    o = Point(dn, lat, lon, alt)
+    return
 
 
-    o.run_iri()
-    o.run_msis()
-    o.run_hwm93()
-    o.run_hwm07()
-    o.run_igrf()
-
-
-
-    #l = Line(dn, lat, lon, alt)
-
-
-    '''
-    dn_start = datetime(2000,1,1)
-    dn_end   = datetime(2005,1,1)
-    dns = [dn_start + timedelta(days=kk) for kk in range((dn_end-dn_start).days)]
-    f107a = []
-    for dn in dns:
-        p = Point(dn, 0, 0, 300)
-        f107a.append( p.f107a )
-
-    from matplotlib.pyplot import *
-    figure(1); clf()
-    plot(dns, f107a)
-    grid()
-    draw(); show();
-    kmin = np.argmin(f107a)
-    kmax = np.argmax(f107a)
-    print dns[kmin], f107a[kmin]
-    print dns[kmax], f107a[kmax]
-    '''
