@@ -5,7 +5,6 @@ import os
 from numpy import nanmean
 import sys
 import glob
-from ipdb import set_trace as db
 
 
 """
