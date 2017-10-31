@@ -78,6 +78,7 @@ class Point(object):
         self.ap       = nan
         self.f107     = nan
         self.f107a    = nan
+        self.f107p    = nan # previous day's F10.7
         self.kp_daily = nan
         self.ap_daily = nan
         self.apmsis   = [nan,]*7
@@ -132,7 +133,7 @@ class Point(object):
         """
         Retreives geophysical indices.
         """
-        self.kp, self.ap, self.f107, self.f107a, \
+        self.kp, self.ap, self.f107, self.f107a, self.f107p, \
                 self.kp_daily, self.ap_daily, self.dst, self.ae  \
                         = get_kpap(self.dn)
         return self
@@ -316,7 +317,7 @@ class Point(object):
             np.mod(self.lon,360),
             self.slt_hour,
             self.f107a,
-            self.f107,
+            self.f107p,
             self.apmsis,
             48,
         )
