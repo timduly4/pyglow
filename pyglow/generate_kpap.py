@@ -84,6 +84,8 @@ History:
 END_YEAR = date.today().year + 1
 EPOCH = datetime(1932, 1, 1)
 PYGLOW_PATH = os.path.dirname(__file__)
+if not PYGLOW_PATH: # Corner case: we are in the installation directory
+    PYGLOW_PATH = './'
 
 # File to store table of index file modification times:
 MTIME_TABLE_FNAME = os.path.join(PYGLOW_PATH, 'mtime_table.pkl')
