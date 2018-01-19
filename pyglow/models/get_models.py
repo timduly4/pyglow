@@ -1,7 +1,8 @@
 
 import os
 import urllib2
-
+import shutil
+from ipdb import set_trace as db
 
 # IRI 2012:
 iri12 = {
@@ -9,6 +10,9 @@ iri12 = {
     'name' : 'iri12',
     #'url' : 'ftp://nssdcftp.gsfc.nasa.gov/models/ionospheric/iri/iri2012/00_iri2012.tar',
     'url' : 'http://spdf.gsfc.nasa.gov/pub/models/iri/iri2012/00_iri2012.tar',
+    'url_backup': [
+        'https://github.com/timduly4/pyglow/raw/master/static/00_iri2012.tar',
+    ],
     'filename' : '00_iri2012.tar',
     'tar' : True,
     'zip' : False,
@@ -75,8 +79,26 @@ repository for now.
 #         }
 
 for model in [igrf11, igrf12, hwm07, iri12]:
-    print "Downloading files for %s ..." % (model['name'])
-    modelfile = urllib2.urlopen(model['url'])
+
+    model_name = model['name']
+
+    # Download the tar or zip file:
+    print("Downloading files for %s ..." % (model['name']))
+    modelfile = None
+    try:
+        modelfile = urllib2.urlopen(model['url'])
+    except urllib2.HTTPError as e:
+        print("{} did not work, attempting backup urls...".format(model['url']))
+        if model['url_backup']:
+            for url_backup in model['url_backup']:
+                try:
+                    modelfile = urllib2.urlopen(url_backup)
+                except urllib2.HTTPError as e:
+                    pass
+        else:
+            raise e
+    if not modelfile:
+        raise ValueError("Unable to download: {}".format(model['name']))
     output = open(
         "./dl_models/{}/{}".format(model['folder'], model['filename']),
         'wb',
@@ -86,7 +108,7 @@ for model in [igrf11, igrf12, hwm07, iri12]:
 
     # Tar file?
     if model['tar']:
-        print "time to tar..."
+        print("time to tar...")
         cmd = 'tar -xvf ./dl_models/{folder}/{filename} '\
                 '-C ./dl_models/{folder}/'.format(
                     folder=model['folder'],
