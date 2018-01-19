@@ -11,6 +11,7 @@ iri12 = {
     #'url' : 'ftp://nssdcftp.gsfc.nasa.gov/models/ionospheric/iri/iri2012/00_iri2012.tar',
     'url' : 'http://spdf.gsfc.nasa.gov/pub/models/iri/iri2012/00_iri2012.tar',
     'url_backup': [
+        'https://github.com/timduly4/pyglow/raw/url-backup/static/00_iri2012.tar',
         'https://github.com/timduly4/pyglow/raw/master/static/00_iri2012.tar',
     ],
     'filename' : '00_iri2012.tar',
@@ -92,9 +93,12 @@ for model in [igrf11, igrf12, hwm07, iri12]:
         if model['url_backup']:
             for url_backup in model['url_backup']:
                 try:
+                    print("Trying: {}".format(url_backup))
                     modelfile = urllib2.urlopen(url_backup)
                 except urllib2.HTTPError as e:
                     pass
+                if modelfile:
+                    break
         else:
             raise e
     if not modelfile:
