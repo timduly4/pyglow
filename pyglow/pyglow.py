@@ -8,6 +8,7 @@ import shutil
 import sys
 import warnings
 import urllib2
+from ipdb import set_trace as db
 
 import coord
 from get_kpap import get_kpap
@@ -29,14 +30,21 @@ index (apf107.dat) files. IRI 2016 initialization is required only
 once per session.
 """
 __INIT_IRI16 = False
-__version__ = '1.0'
+__version__ = '1.1'
 
 DIR_FILE = os.path.dirname(__file__)
 
 
 class Point(object):
 
-    def __init__(self, dn, lat, lon, alt, user_ind=False):
+    def __init__(
+        self,
+        dn,
+        lat,
+        lon,
+        alt,
+        user_ind=False,
+    ):
         """
         An instance of Point is the fundamental data object
         for running each climatological model.
@@ -123,7 +131,10 @@ class Point(object):
         self.ag6300 = nan
         self.ag7774 = nan
 
-        if not user_ind:
+        # Flag for user indices:
+        self.user_ind = user_ind
+
+        if not self.user_ind:
             # Call the indice models:
             self.get_indices()
             self.apmsis = get_apmsis(self.dn)
@@ -237,11 +248,30 @@ class Point(object):
             jf[8] = 0
             oarr[1] = hmF2
 
+        if self.user_ind:
+            # Set jf(25) switch to false (in Fortran)
+            #   which is jf[24] in Python
+            jf[24] = 0
+
+            # Store user indice for F10.7 in oarr:
+            oarr[40] = self.f107
+            oarr[45] = self.f107a
+
+            # Reference:
+            # https://github.com/timduly4/pyglow/issues/34#issuecomment-340645358
+
+        # Get current directory:
         my_pwd = os.getcwd()
 
-        iri_data_path = os.path.join(DIR_FILE, iri_data_stub)
+        # IRI data path.  We need to change directories
+        # into where the IRI data are located in order
+        # to run IRI:
+        iri_data_path = os.path.join(
+            DIR_FILE,
+            iri_data_stub,
+        )
         if debug:
-            print("Changing directory to {}\n".format(iri_data_path))
+            print("Changing directory to {}".format(iri_data_path))
 
         os.chdir(iri_data_path)
         init_iri()
