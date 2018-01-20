@@ -8,7 +8,6 @@ import shutil
 import sys
 import warnings
 import urllib2
-from ipdb import set_trace as db
 
 import coord
 from get_kpap import get_kpap
