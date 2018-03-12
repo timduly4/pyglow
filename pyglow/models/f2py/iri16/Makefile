@@ -19,6 +19,9 @@ test_gfortran:
 	make patch_irisub;
 	gfortran $(f77flags) -o test_gfortran.x simple_iri_driver.for $(fortran_files)
 
+patch_iridreg:
+	patch iridreg.for -i iridreg.patch
+
 patch_iriflip:
 	python delete_iriflip_comments.py
 
@@ -33,6 +36,7 @@ mod:
 	f2py -c sig_file_patched.pyf $(fortran_files) --fcompiler=gfortran --f77flags="$(f77flags)" | tee out2
 
 compile:
+	make patch_iridreg;
 	make patch_iriflip;
 	make sig;
 	make patch_sig;
