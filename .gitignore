@@ -1,5 +1,5 @@
 build/
-pyglow/models/
+pyglow/models/dl_models/
 pyglow/ae/
 pyglow/dst/
 pyglow/kpap/
