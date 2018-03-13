@@ -33,6 +33,7 @@ setup(
         ('pyglow_trash',['pyglow/models/f2py/iri12/delete_iriflip_comments.py']),
         ('pyglow_trash',['pyglow/models/f2py/iri12/Makefile']),
         ('pyglow_trash',['pyglow/models/f2py/iri12/sig.patch']),
+        ('pyglow_trash',['pyglow/models/f2py/iri12/iridreg.patch']),
         ('pyglow_trash',['pyglow/models/f2py/msis/Makefile']),
         ('pyglow_trash',['pyglow/models/f2py/msis/nrlmsise00_sub.patch']),
         ('pyglow_trash',['pyglow/models/f2py/msis/sig.patch']),
@@ -292,4 +293,3 @@ setup(
 )
 
 print("... All done!")
-

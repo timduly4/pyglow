@@ -3,7 +3,7 @@ only = iri_sub
 mod = iri12py
 
 clean:
-	rm *~ *.x *.mod *.pyf *.so 
+	rm *~ *.x *.mod *.pyf *.so
 	#iriflip_modified.for
 
 test_gfortran:
@@ -18,7 +18,8 @@ test_ifort:
 #test_f77:
 #	f77 -o test_gfortran.x tims_iri11_driver.for irisub.for irifun.for iritec.for iridreg.for igrf.for cira.for iriflip.for
 
-
+patch_iridreg:
+	patch iridreg.for -i iridreg.patch
 
 patch_iriflip:
 	python delete_iriflip_comments.py
@@ -32,15 +33,16 @@ patch_sig:
 
 mod:
 #	f2py -c sig_file_patched.pyf $(fortran_files) --fcompiler=f77 --f77flags="-fPIC -fexceptions" | tee out2
-	# I KNOW THIS ONE WORKS: 
+	# I KNOW THIS ONE WORKS:
 	#f2py -c sig_file_patched.pyf $(fortran_files) --fcompiler=gfortran --f77flags="-std=legacy" | tee out2
 	# BUT THIS ONE WORKS BETTER [1]
 	f2py -c sig_file_patched.pyf $(fortran_files) --fcompiler=gfortran --f77flags="-std=legacy -w -O2 -fbacktrace -fno-automatic -fPIC" | tee out2
 
 
 compile:
+	make patch_iridreg
 	make patch_iriflip;
-	make sig; 
+	make sig;
 	make patch_sig;
 	make mod;
 
@@ -50,18 +52,12 @@ install:
 
 
 #   [1]  I had a huge bug where iri was not repeating itself on python calls. I found
-# this github https://github.com/sdelarquier/iri and the compiler options 
+# this github https://github.com/sdelarquier/iri and the compiler options
 #   	f2py --overwrite-signature irisub.for -m ${MODULE} -h iri.pyf
 #   	gfortran -w -O2 -fbacktrace -fno-automatic -fPIC -c *.for
 # 	    f2py --f77flags="-w" -c iri.pyf *.for
-# makes it so it works! I need to look into these compiler options and 
+# makes it so it works! I need to look into these compiler options and
 # how they relate to IRI
 
 #remove_comments:
 #	perl -pi -e 's/![\.|-].*$//g' iriflip.for
-
-
-
-
-
-
