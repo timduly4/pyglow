@@ -1,4 +1,4 @@
-fortran_files = cira.for igrf.for iridreg.for irifun.for irisub.for iritec.for iriflip.for
+fortran_files = cira.for igrf.for iridreg_modified.for irifun.for irisub.for iritec.for iriflip.for
 only = iri_sub
 mod = iri12py
 
@@ -19,7 +19,7 @@ test_ifort:
 #	f77 -o test_gfortran.x tims_iri11_driver.for irisub.for irifun.for iritec.for iridreg.for igrf.for cira.for iriflip.for
 
 patch_iridreg:
-	patch iridreg.for -i iridreg.patch
+	patch iridreg.for -i iridreg.patch -o iridreg_modified.for
 
 patch_iriflip:
 	python delete_iriflip_comments.py
