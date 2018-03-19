@@ -51,13 +51,13 @@ class Point(object):
         Instantation of a Point initializes member variables,
         and also grabs the corresponding geophysical indices.
 
-        :param dn: datetime.datetime object 
+        :param dn: datetime.datetime object
         :param lat: Latitude [degrees]
         :param lon: Longitude [degrees]
         :param alt: Altitude [km]
         :param user_ind: (optional) Boolean switch to calculate
                          geophysical indices. If True, then it
-                         is up to the user to assign geophysical 
+                         is up to the user to assign geophysical
                          indices to the Point
         """
 
@@ -252,8 +252,14 @@ class Point(object):
             #   which is jf[24] in Python
             jf[24] = 0
 
+            # Set jf(32) switch to false (in Fortran)
+            #   which is jf[31] in Python
+            jf[31] = 0
+
             # Store user indice for F10.7 in oarr:
             oarr[40] = self.f107
+
+            # Store user index for F10.7 81 day average in oarr:
             oarr[45] = self.f107a
 
             # Reference:
@@ -776,7 +782,7 @@ def update_kpap(years=None):
     '''
 
     # Load all data up until today
-    if years is None: 
+    if years is None:
         years = range(1932, date.today().year + 1)[::-1] # reverse
 
     pyglow_dir = os.path.join(DIR_FILE, "kpap/")
@@ -940,5 +946,3 @@ def update_indices(years=None):
     update_ae(years=years)
 
     return
-
-
