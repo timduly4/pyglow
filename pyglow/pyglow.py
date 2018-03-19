@@ -256,7 +256,7 @@ class Point(object):
             #   which is jf[31] in Python
             jf[31] = 0
 
-            # Store user index for F10.7 daily in oarr:
+            # Store user indice for F10.7 in oarr:
             oarr[40] = self.f107
 
             # Store user index for F10.7 81 day average in oarr:
