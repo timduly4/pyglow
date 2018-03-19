@@ -1,4 +1,13 @@
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import contextlib
 from datetime import date, timedelta
 import glob
@@ -7,11 +16,11 @@ import os
 import shutil
 import sys
 import warnings
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
-import coord
-from get_kpap import get_kpap
-from get_apmsis import get_apmsis
+from . import coord
+from .get_kpap import get_kpap
+from .get_apmsis import get_apmsis
 from hwm93py import gws5 as hwm93
 from hwm07py import hwmqt as hwm07
 from hwm14py import hwm14
@@ -568,8 +577,8 @@ class Point(object):
         N2 = self.nn['N2']  # N2 density [cm^-3]
         O  = self.nn['O']   # O density [cm^-3]
 
-        te = Te/300
-        ti = Ti/300
+        te = Te/300.
+        ti = Ti/300.
 
         # These coefs are from Link and Cogger, JGR 93(A9), 988309892, 1988
         K1_6300 = 3.23e-12*np.exp(3.72/ti - 1.87/ti**2)
@@ -610,7 +619,7 @@ class Point(object):
         V7774_ii_num = beta_7774 * K1_7774 * K2_7774 * O * Oplus * Ne
         V7774_ii_den = K2_7774 * Oplus + K3_7774 * O
 
-        self.ag7774 = V7774_rr + V7774_ii_num / V7774_ii_den
+        self.ag7774 = V7774_rr + V7774_ii_num / float(V7774_ii_den)
 
         return self
 
@@ -794,7 +803,7 @@ def update_kpap(years=None):
         des = pyglow_dir + "%4i" % (year,)
         print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
         try:
-            with contextlib.closing(urllib2.urlopen(src)) as r:
+            with contextlib.closing(urllib.request.urlopen(src)) as r:
                 with open(des, 'wb') as f:
                     shutil.copyfileobj(r, f)
         except IOError as e:
@@ -840,7 +849,7 @@ def update_dst(years=None):
         success = False
         for src in [src_final, src_provisional, src_realtime]:
             try:
-                with contextlib.closing(urllib2.urlopen(src)) as r:
+                with contextlib.closing(urllib.request.urlopen(src)) as r:
                     contents = r.read()
                     # If that succeeded, then the file exists
                     print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
@@ -848,14 +857,14 @@ def update_dst(years=None):
                         f.write(contents)
                     success = True
                     break
-            except urllib2.HTTPError:
+            except urllib.error.HTTPError:
                 pass
         return success
 
     # Read files from 2005 until today. Pre-2005
     # files are shipped with pyglow.
     if years is None:
-        years = range(2005, date.today().year + 1)[::-1] # reversed
+        years = list(range(2005, date.today().year + 1))[::-1] # reversed
     pyglow_dir = os.path.join(DIR_FILE, "dst/")
 
     for year in years:
@@ -904,7 +913,7 @@ def update_ae(years = None):
         success = False
         for src in [src_provisional, src_realtime]:
             try:
-                with contextlib.closing(urllib2.urlopen(src)) as r:
+                with contextlib.closing(urllib.request.urlopen(src)) as r:
                     contents = r.readlines()
                     # If that succeeded, then the file exists
                     print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
@@ -914,14 +923,14 @@ def update_ae(years = None):
                             f.write("%s%s%s\n"%(c[12:18],c[19:21],c[394:400]))
                     success = True
                     break
-            except urllib2.HTTPError:
+            except urllib.error.HTTPError:
                 pass
         return success
 
     # Read files from 2000 until today. Pre-2000
     # files are shipped with pyglow.
     if years is None:
-        years = range(2000, date.today().year + 1)[::-1] # reversed
+        years = list(range(2000, date.today().year + 1))[::-1] # reversed
     pyglow_dir = os.path.join(DIR_FILE, "ae/")
 
     for year in years:

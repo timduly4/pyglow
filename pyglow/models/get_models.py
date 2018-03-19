@@ -1,6 +1,9 @@
+from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
 import os
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import shutil
 from ipdb import set_trace as db
 
@@ -87,15 +90,15 @@ for model in [igrf11, igrf12, hwm07, iri12]:
     print("Downloading files for %s ..." % (model['name']))
     modelfile = None
     try:
-        modelfile = urllib2.urlopen(model['url'])
-    except urllib2.HTTPError as e:
+        modelfile = urllib.request.urlopen(model['url'])
+    except urllib.error.HTTPError as e:
         print("{} did not work, attempting backup urls...".format(model['url']))
         if model['url_backup']:
             for url_backup in model['url_backup']:
                 try:
                     print("Trying: {}".format(url_backup))
-                    modelfile = urllib2.urlopen(url_backup)
-                except urllib2.HTTPError as e:
+                    modelfile = urllib.request.urlopen(url_backup)
+                except urllib.error.HTTPError as e:
                     pass
                 if modelfile:
                     break
@@ -157,7 +160,7 @@ model_urls = [
 
 for model_url in model_urls:
     tar_file = model_url.split('/')[-1]
-    model_file = urllib2.urlopen(model_url)
+    model_file = urllib.request.urlopen(model_url)
     output = open("./dl_models/{}/{}".format(model_folder, tar_file), 'wb')
     output.write(model_file.read())
     output.close()
@@ -178,7 +181,7 @@ indice_urls = [
 # - - - - -
 for indice_url in indice_urls:
     dat_file = indice_url.split('/')[-1]
-    model_file = urllib2.urlopen(indice_url)
+    model_file = urllib.request.urlopen(indice_url)
     output = open(
         "./dl_models/{}/{}".format(model_folder, dat_file),
         'wb',

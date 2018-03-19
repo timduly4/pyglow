@@ -1,7 +1,10 @@
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 from datetime import datetime
 import numpy as np
 
-import generate_kpap
+from . import generate_kpap
 
 # Fetch geophysical indices:
 # (Global variable to make it fast)
@@ -36,10 +39,10 @@ def get_kpap(dn):
     f107  = GEOPHYSICAL_INDICES[16, day_index]
     f107a = GEOPHYSICAL_INDICES[17, day_index]
     f107p = GEOPHYSICAL_INDICES[16, day_index-1]
-    
+
     daily_kp = GEOPHYSICAL_INDICES[18, day_index]
     daily_ap = GEOPHYSICAL_INDICES[19, day_index]
-    
+
     dst = GEOPHYSICAL_INDICES[20+dn.hour, day_index]
     ae = GEOPHYSICAL_INDICES[44+dn.hour, day_index]
 
@@ -50,14 +53,12 @@ def test_get_kpap():
     print("getting first set:" )
     dn = datetime(2008,2,3,15,4)
     kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae = get_kpap(dn)
-    print(kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae)
+    print((kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae))
 
     print("getting second set:")
     kp, ap, f107, f107a, daily_kp, f107p, daily_ap, dst, ae = get_kpap(datetime(1932,1,1))
-    print(kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae)
+    print((kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae))
 
 
 if __name__ == '__main__':
     test_get_kpap()
-    
-    

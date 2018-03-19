@@ -1,4 +1,7 @@
+from __future__ import division
+from __future__ import print_function
 
+from past.utils import old_div
 from scipy import mat, cos, sin, arctan, sqrt, pi, arctan2
 import numpy as np
 
@@ -9,10 +12,10 @@ E = sqrt(1-(B**2)/(A**2));  # eccentricity of the earth = 0.08181919035596
 LAT_ACCURACY_THRESH = 1.57e-6; #  10 meter latitude accuracy
 
 def say_hello():
-    print "hello from coord.py!"
+    print("hello from coord.py!")
 
 def ecef2lla(xyz):
-    # TODO 
+    # TODO
     # [ ] make it vectorizable ?
     """
     Function: ecef2lla(xyz)
@@ -22,12 +25,12 @@ def ecef2lla(xyz):
     Inputs:
     -------
         xyz : 1x3 vector containing [X, Y, Z] coordinate
-        
+
 
     Outputs:
     --------
         lla : 1x3 vector containing the converted [lat, lon, alt]
-              (alt is in [m])  
+              (alt is in [m])
 
     Notes:
     ------
@@ -56,24 +59,24 @@ def ecef2lla(xyz):
         # Use initial latitude to estimate N:
         N = A**2 / sqrt(A**2 * (cos(lat0))**2+B**2*(sin(lat0))**2)
 
-        # Estimate altitude 
+        # Estimate altitude
         h = p/cos(lat0)-N
-    
+
         # Estimate new latitude using new height:
         lat1 = arctan(z/p*(1-((E**2*N)/(N+h)))**-1)
-        
+
         if abs(lat1-lat0) < LAT_ACCURACY_THRESH:
             run = 0
-        
+
         # Replace our guess latitude with most recent estimate:
         lat0 = lat1
 
     # load output array with best approximation of latitude (in degrees)
     # and altiude (in meters)
-    
+
     lla[0] = lat1*(180./pi)
     lla[2] = h
-    
+
     return lla
 
 
@@ -86,7 +89,7 @@ def lla2ecef(lla):
     Inputs:
     -------
         lla : 1x3 vector containing the converted [lat, lon, alt]
-              (alt is in [m])  
+              (alt is in [m])
 
     Outputs:
     --------
@@ -102,9 +105,9 @@ def lla2ecef(lla):
         9/11/12 Updated to include vectorization.
 
     """
-    # TODO 
+    # TODO
     # [x] make it vectorizable ?
-    
+
     # check for 1D case:
     dim = len(lla.shape)
     if dim == 1:
@@ -129,7 +132,7 @@ def lla2ecef(lla):
     xyz[:,2] = (N*(1-E**2)+alt)*sin(lat)
 
     return np.array(xyz)
-    
+
 
 def ven2ecef(lla,ven):
     """
@@ -140,7 +143,7 @@ def ven2ecef(lla,ven):
     Inputs:
     -------
         lla : 1x3 vector containing the converted [lat, lon, alt]
-              (alt is in [m])  
+              (alt is in [m])
         ven : 1x3 vector given [vertical, east, north] coordinates
 
     Outputs:
@@ -165,14 +168,14 @@ def ven2ecef(lla,ven):
     Xr = np.array(ecef[0][0])
     Yr = np.array(ecef[0][1])
     Zr = np.array(ecef[0][2])
-       
+
     # convert to radians:
     refLong = pi/180.*lla[1]
-  
+
     # calculate the geocentric latitude
     phiP = arctan2(Zr,sqrt(Xr**2+Yr**2))
 
-    # calculate the ECEF location of the point    
+    # calculate the ECEF location of the point
     X = -sin(refLong)*ven[1] - \
             cos(refLong)*sin(phiP)*ven[2]+cos(refLong)*cos(phiP)*ven[0]+Xr
     Y =  cos(refLong)*ven[1] - \
@@ -181,34 +184,32 @@ def ven2ecef(lla,ven):
 
     # Subtract out the reference location
     XYZ = np.array([float(X-Xr), float(Y-Yr), float(Z-Zr)])
-    
+
     return XYZ
 
 def ecef2enu(XYZr, XYZp, lat_r, lon_r):
 
     return lat_r
-    
+
 
 def test_coord():
     lat = 30.
     lon = -10.
     alt = 300.*1e3
 
-    print "ecef2lla( lla2ecef([%3.1f, %3.1f, %3.0e]) ) =" % (lat, lon, alt)
-    print ecef2lla( lla2ecef([lat, lon, alt]) )
-    
+    print("ecef2lla( lla2ecef([%3.1f, %3.1f, %3.0e]) ) =" % (lat, lon, alt))
+    print(ecef2lla( lla2ecef([lat, lon, alt]) ))
+
     xyz = np.array([-3197773.77194971,  -563853.79419661, -5587079.67459298])
-    print "\nlla2ecef( ecef2lla([%3.6e, %3.6e, %3.6e]) ) =" % tuple(xyz)
-    print lla2ecef( ecef2lla(xyz) ) 
+    print("\nlla2ecef( ecef2lla([%3.6e, %3.6e, %3.6e]) ) =" % tuple(xyz))
+    print(lla2ecef( ecef2lla(xyz) ))
 
     lla = [0,0,300e3]
     ven = [0,0,200e3]
-    print "\ntesting ven2ecef()..."
-    print ecef2lla(lla2ecef(lla) + ven2ecef(lla,ven))
-    
+    print("\ntesting ven2ecef()...")
+    print(ecef2lla(lla2ecef(lla) + ven2ecef(lla,ven)))
+
 
 
 if __name__ == '__main__':
     test_coord()
-
-
