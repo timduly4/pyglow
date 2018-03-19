@@ -1,5 +1,11 @@
+from __future__ import division
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
 from datetime import datetime, timedelta, date
-from cPickle import load, dump
+from pickle import load, dump
 import numpy as np
 import os
 from numpy import nanmean
@@ -139,7 +145,7 @@ def update_required():
         with open(MTIME_TABLE_FNAME) as fid:
             mtime_table = load(fid)
         new_mtime_table = get_mtime_table()
-        for key, val in new_mtime_table.iteritems():
+        for key, val in new_mtime_table.items():
             try:
                 if mtime_table[key] != new_mtime_table[key]:
                     return True
@@ -355,7 +361,7 @@ def generate_kpap():
 
 
 def fetch():
-    """ 
+    """
     Main interface to retrieve geophysical indices
 
     :return geophysical_indices: data structure containing geophysical indices
@@ -373,6 +379,3 @@ def fetch():
         geophysical_indices = np.load(GEOPHYSICAL_INDICES_FNAME)
 
     return geophysical_indices
-
-
-
