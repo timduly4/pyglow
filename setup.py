@@ -2,6 +2,10 @@
 
 from numpy.distutils.core import setup
 
+
+import sys
+assert sys.platform == 'darwin'
+
 setup(
     name='pyglow',
     url='github.com/timduly4/pyglow',
@@ -37,14 +41,22 @@ setup(
         ('pyglow_trash',['pyglow/models/f2py/msis/Makefile']),
         ('pyglow_trash',['pyglow/models/f2py/msis/nrlmsise00_sub.patch']),
         ('pyglow_trash',['pyglow/models/f2py/msis/sig.patch']),
-        ('',['pyglow/models/dl_models/igrf11/igrf11py.so']),
-        ('',['pyglow/models/dl_models/igrf12/igrf12py.so']),
-        ('',['pyglow/models/dl_models/hwm93/hwm93py.so']),
-        ('',['pyglow/models/dl_models/msis/msis00py.so']),
-        ('',['pyglow/models/dl_models/hwm07/hwm07py.so']),
-        ('',['pyglow/models/dl_models/hwm14/hwm14py.so']),
-        ('',['pyglow/models/dl_models/iri12/iri12py.so']),
-        ('',['pyglow/models/dl_models/iri16/iri16py.so']),
+        # ('',['pyglow/models/dl_models/igrf11/igrf11py.so']),
+        # ('',['pyglow/models/dl_models/igrf12/igrf12py.so']),
+        # ('',['pyglow/models/dl_models/hwm93/hwm93py.so']),
+        # ('',['pyglow/models/dl_models/msis/msis00py.so']),
+        # ('',['pyglow/models/dl_models/hwm07/hwm07py.so']),
+        # ('',['pyglow/models/dl_models/hwm14/hwm14py.so']),
+        # ('',['pyglow/models/dl_models/iri12/iri12py.so']),
+        # ('',['pyglow/models/dl_models/iri16/iri16py.so']),
+        ('',['pyglow/models/dl_models/igrf11/igrf11py.cpython-36m-darwin.so']),
+        ('',['pyglow/models/dl_models/igrf12/igrf12py.cpython-36m-darwin.so']),
+        ('',['pyglow/models/dl_models/hwm93/hwm93py.cpython-36m-darwin.so']),
+        ('',['pyglow/models/dl_models/msis/msis00py.cpython-36m-darwin.so']),
+        ('',['pyglow/models/dl_models/hwm07/hwm07py.cpython-36m-darwin.so']),
+        ('',['pyglow/models/dl_models/hwm14/hwm14py.cpython-36m-darwin.so']),
+        ('',['pyglow/models/dl_models/iri12/iri12py.cpython-36m-darwin.so']),
+        ('',['pyglow/models/dl_models/iri16/iri16py.cpython-36m-darwin.so']),
         ('pyglow/hwm07_data/',[
             'pyglow/models/dl_models/hwm07/apexgrid.dat',
             'pyglow/models/dl_models/hwm07/dwm07b_104i.dat',
