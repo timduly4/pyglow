@@ -20,7 +20,7 @@ ne_2016 = []
 
 # Calculate for both IRI model year 2012 and 2016:
 for alt in alts:
-    print "Computing alt=%3.1f km..." % (alt)
+    print("Computing alt=%3.1f km..." % (alt))
     pt = pyglow.Point(dn, lat, lon, alt)
 
     pt.run_iri() # default year is 2016

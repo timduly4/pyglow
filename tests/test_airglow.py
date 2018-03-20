@@ -21,7 +21,7 @@ dn = datetime(2015, 3, 23, 15, 30)
 ag6300 = []
 ag7774 = []
 for alt in alts:
-    print "Computing alt={:3.1f} km...".format(alt)
+    print("Computing alt={:3.1f} km...".format(alt))
     pt = pyglow.Point(dn, lat, lon, alt)
     pt.run_airglow()
     ag6300.append(pt.ag6300)
