@@ -850,10 +850,10 @@ def update_dst(years=None):
         for src in [src_final, src_provisional, src_realtime]:
             try:
                 with contextlib.closing(urllib.request.urlopen(src)) as r:
-                    contents = r.read()
+                    contents = r.read().decode('utf8')
                     # If that succeeded, then the file exists
                     print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
-                    with open(des, 'wb') as f:
+                    with open(des, 'w') as f:
                         f.write(contents)
                     success = True
                     break
@@ -920,6 +920,7 @@ def update_ae(years = None):
                     with open(des,'w') as f:
                         # this shrinks the filesize to hourly
                         for c in contents:
+                            c = c.decode('utf8')
                             f.write("%s%s%s\n"%(c[12:18],c[19:21],c[394:400]))
                     success = True
                     break
