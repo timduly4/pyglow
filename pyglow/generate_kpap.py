@@ -142,7 +142,7 @@ def update_required():
     if not os.path.isfile(MTIME_TABLE_FNAME):
         return True
     else:
-        with open(MTIME_TABLE_FNAME) as fid:
+        with open(MTIME_TABLE_FNAME, 'rb') as fid:
             mtime_table = load(fid)
         new_mtime_table = get_mtime_table()
         for key, val in new_mtime_table.items():
@@ -352,7 +352,7 @@ def generate_kpap():
         i = i + 1
 
     # Update file cache:
-    with open(MTIME_TABLE_FNAME, 'w') as fid:
+    with open(MTIME_TABLE_FNAME, 'wb') as fid:
         dump(mtime_table, fid, -1)
     np.save(GEOPHYSICAL_INDICES_FNAME, geophysical_indices)
     print("[generate_kpap.py] Generated: {}".format(GEOPHYSICAL_INDICES_FNAME))
