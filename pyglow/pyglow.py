@@ -853,7 +853,7 @@ def update_dst(years=None):
                     contents = r.read()
                     # If that succeeded, then the file exists
                     print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
-                    with open(des,'w') as f:
+                    with open(des, 'wb') as f:
                         f.write(contents)
                     success = True
                     break
