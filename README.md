@@ -25,6 +25,13 @@ pyglow also provides access to the the following geophysical indices:
 
 `pyglow` offers access to these models & indices in a convenient, high-level object-oriented interface within Python.
 
+# Prerequisites
+
+`pyglow` requires the following packages for installation:
+
+1. `gfortran` (`$ sudo apt-get install gfortran`)
+2. `ipdb` (`$ pip install ipdb --user`)
+
 # Installation
 
 ### I'm Feeling Lucky:
