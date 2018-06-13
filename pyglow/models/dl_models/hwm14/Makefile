@@ -12,8 +12,10 @@ sig:
 mod:
 	f2py -c sig_file.pyf $(fortran_files) --f77flags="-std=legacy" | tee out2
 
-compile:
+source:
 	make sig;
+
+compile: source
 	make mod;
 
 

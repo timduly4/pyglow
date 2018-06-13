@@ -25,10 +25,12 @@ patch_sig:
 mod:
 	f2py -c sig_file_patched.pyf $(fortran_files) | tee out2
 
-compile:
+source:
 	make patch_igrf11;	
 	make sig;
 	make patch_sig;
+
+compile:
 	make mod;
 
 install:
