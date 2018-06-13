@@ -133,7 +133,7 @@ msis00 = Extension(
 ext_modules = [igrf11,
                igrf12,
                hwm93,
-               hwm07,  # until encoding issue is resolved
+               hwm07,
                hwm14,
                iri12,
                iri16,
