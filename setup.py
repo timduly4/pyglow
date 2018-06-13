@@ -1,10 +1,144 @@
 #!/usr/bin/env python
 
-from numpy.distutils.core import setup
+import os
+from io import open  # For Python 2 compatibility
+from numpy.distutils.core import setup, Extension
 
 
-import sys
-assert sys.platform == 'darwin'
+DL_MODELS = 'pyglow/models/dl_models'
+
+
+igrf11 = Extension(
+    name='igrf11py',
+    sources=['/'.join((DL_MODELS, 'igrf11', fname)) for fname in [
+        'igrf11_modified.f',
+        'sig_file_patched.pyf',
+    ]],
+)
+
+
+igrf12 = Extension(
+    name='igrf12py',
+    sources=['/'.join((DL_MODELS, 'igrf12', fname)) for fname in [
+        'igrf12_modified.f',
+        'sig_file_patched.pyf',
+    ]],
+)
+
+
+hwm93 = Extension(
+    name='hwm93py',
+    sources=['/'.join((DL_MODELS, 'hwm93', fname)) for fname in [
+        'hwm93_modified.f',
+        'sig_file_patched.pyf',
+    ]],
+    extra_f77_compile_args=['-std=legacy'],
+)
+
+
+# Remove invalid unicode characters that appear in the comments
+def reencode(dosfile, target='utf-8'):
+    with open(dosfile, 'r', encoding=target, errors='ignore') as f:
+        content = f.read()
+    with open(dosfile, 'w', encoding=target) as f:
+        f.write(content)
+
+hwm07_sources = ['/'.join((DL_MODELS, 'hwm07', fname)) for fname in [
+    'hwm07e_modified.f90',
+    'apexcord.f90',
+]]
+
+for source in hwm07_sources:
+    reencode(source)
+
+
+# Use the makefile to generate a signature
+os.system('make -Cpyglow/models/dl_models/hwm07 sig')
+
+
+hwm07 = Extension(
+    name='hwm07py',
+    sources=hwm07_sources + ['/'.join((DL_MODELS, 'hwm07', 'sig_file.pyf'))],
+    # f2py_options=['only: hwmqt :'],  # where is the right place to put this?
+)
+
+
+hwm14 = Extension(
+    name='hwm14py',
+    sources=['/'.join((DL_MODELS, 'hwm14', fname)) for fname in [
+        'hwm14.f90',
+        'sig_file.pyf',
+    ]],
+    extra_f77_compile_args=['-std=legacy'],
+)
+
+
+iri12 = Extension(
+    name='iri12py',
+    sources=['/'.join((DL_MODELS, 'iri12', fname)) for fname in [
+        'cira.for',
+        'igrf.for',
+        'iridreg_modified.for',
+        'irifun.for',
+        'irisub.for',
+        'iritec.for',
+        'iriflip.for',
+        'sig_file_patched.pyf',
+    ]],
+    extra_f77_compile_args=[
+        '-std=legacy',
+        '-w',
+        '-O2',
+        '-fbacktrace',
+        '-fno-automatic',
+        '-fPIC',
+    ],
+)
+
+
+iri16 = Extension(
+    name='iri16py',
+    sources=['/'.join((DL_MODELS, 'iri16', fname)) for fname in [
+        'cira.for',
+        'igrf.for',
+        'iridreg_modified.for',
+        'irifun.for',
+        'irisub_modified.for',
+        'iritec.for',
+        'iriflip_modified.for',
+        'cosd_sind.for',
+        'sig_file_patched.pyf',
+    ]],
+    extra_f77_compile_args=[
+        '-std=legacy',
+        '-w',
+        '-O2',
+        '-fbacktrace',
+        '-fno-automatic',
+        '-fPIC',
+    ],
+)
+
+
+msis00 = Extension(
+    name='msis00py',
+    sources=['/'.join((DL_MODELS, 'msis', fname)) for fname in [
+        'nrlmsise00_sub_patched.for',
+        'sig_file_patched.pyf'
+    ]],
+    extra_f77_compile_args=['-std=legacy'],
+)
+
+
+ext_modules = [igrf11,
+               igrf12,
+               hwm93,
+               hwm07,  # until encoding issue is resolved
+               hwm14,
+               iri12,
+               iri16,
+               msis00]
+
 
 setup(
     name='pyglow',
@@ -12,6 +146,7 @@ setup(
     author='Timothy M. Duly',
     author_email='timduly4@gmail.com',
     packages=['pyglow', ],
+    ext_modules=ext_modules,
     data_files=[
         ('pyglow_trash',['pyglow/models/Makefile']),
         ('pyglow_trash',['pyglow/models/get_models.py']),
@@ -41,22 +176,6 @@ setup(
         ('pyglow_trash',['pyglow/models/f2py/msis/Makefile']),
         ('pyglow_trash',['pyglow/models/f2py/msis/nrlmsise00_sub.patch']),
         ('pyglow_trash',['pyglow/models/f2py/msis/sig.patch']),
-        # ('',['pyglow/models/dl_models/igrf11/igrf11py.so']),
-        # ('',['pyglow/models/dl_models/igrf12/igrf12py.so']),
-        # ('',['pyglow/models/dl_models/hwm93/hwm93py.so']),
-        # ('',['pyglow/models/dl_models/msis/msis00py.so']),
-        # ('',['pyglow/models/dl_models/hwm07/hwm07py.so']),
-        # ('',['pyglow/models/dl_models/hwm14/hwm14py.so']),
-        # ('',['pyglow/models/dl_models/iri12/iri12py.so']),
-        # ('',['pyglow/models/dl_models/iri16/iri16py.so']),
-        ('',['pyglow/models/dl_models/igrf11/igrf11py.cpython-36m-darwin.so']),
-        ('',['pyglow/models/dl_models/igrf12/igrf12py.cpython-36m-darwin.so']),
-        ('',['pyglow/models/dl_models/hwm93/hwm93py.cpython-36m-darwin.so']),
-        ('',['pyglow/models/dl_models/msis/msis00py.cpython-36m-darwin.so']),
-        ('',['pyglow/models/dl_models/hwm07/hwm07py.cpython-36m-darwin.so']),
-        ('',['pyglow/models/dl_models/hwm14/hwm14py.cpython-36m-darwin.so']),
-        ('',['pyglow/models/dl_models/iri12/iri12py.cpython-36m-darwin.so']),
-        ('',['pyglow/models/dl_models/iri16/iri16py.cpython-36m-darwin.so']),
         ('pyglow/hwm07_data/',[
             'pyglow/models/dl_models/hwm07/apexgrid.dat',
             'pyglow/models/dl_models/hwm07/dwm07b_104i.dat',
