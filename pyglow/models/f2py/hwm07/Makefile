@@ -16,7 +16,7 @@ checkhwm07_g95:
 	g95 -cpp checkhwm07.f90 hwm07e.f90 dwm07b.f90 apexcord.f90 -o checkhwm.x
 
 patch_hwm07e:
-	perl -p -e 's/\r//' < hwm07e.f90 > hwm07e_unix.f90
+	# perl -p -e 's/\r//' < hwm07e.f90 > hwm07e_unix.f90
 	patch hwm07e_unix.f90 -i hwm07e.patch -o hwm07e_modified.f90
 
 sig:

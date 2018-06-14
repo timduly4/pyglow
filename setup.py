@@ -38,7 +38,7 @@ hwm93 = Extension(
 
 # Remove invalid unicode characters that appear in the comments
 def reencode(dosfile, target='utf-8'):
-    with open(dosfile, 'r', encoding=target, errors='ignore') as f:
+    with open(dosfile, 'r', encoding='cp1251', errors='ignore') as f:
         content = f.read()
     with open(dosfile, 'w', encoding=target) as f:
         f.write(content)
