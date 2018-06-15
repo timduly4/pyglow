@@ -30,7 +30,7 @@ source:
 	make sig;
 	make patch_sig;
 
-compile: souce
+compile: source
 	make mod;
 
 install:
