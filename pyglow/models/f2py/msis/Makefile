@@ -26,7 +26,7 @@ source:
 	make sig;
 	make patch_sig;
 
-compile:
+compile: source
 	make mod;
 
 install:

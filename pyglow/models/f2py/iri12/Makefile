@@ -46,8 +46,7 @@ source:
 	make patch_sig;
 
 
-compile:
-	make source;
+compile: source
 	make mod;
 
 install:

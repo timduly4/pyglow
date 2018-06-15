@@ -29,7 +29,7 @@ source:
 	make patch_hwm07e;
 	make sig; 
 
-compile:
+compile: source
 	make mod;
 
 install:
