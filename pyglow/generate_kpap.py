@@ -242,7 +242,7 @@ def generate_kpap():
             dt = timedelta(dday)
             try:
                 f107_81values.append(f107[dn+dt])
-            except IndexError:
+            except KeyError:
                 f107_81values.append(float('NaN'))
         f107a[dn] = np.nan if all(np.isnan(f107_81values)) else \
             np.nanmean(f107_81values)

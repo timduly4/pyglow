@@ -19,7 +19,7 @@ all: source
 download:
 	python get_models.py
 
-source: download
+source: clean download
 	cp ./f2py/igrf11/* ./dl_models/igrf11/
 	cd ./dl_models/igrf11/; make source
 
