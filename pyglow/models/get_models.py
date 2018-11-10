@@ -5,7 +5,6 @@ standard_library.install_aliases()
 import os
 import urllib.request, urllib.error, urllib.parse
 import shutil
-from ipdb import set_trace as db
 
 # IRI 2012:
 iri12 = {
@@ -141,7 +140,7 @@ for model in [igrf11, igrf12, hwm07, iri12]:
                 folder=model['folder'],
             )
         )
-            
+
         # Remove folder:
         os.system('rm -rf ./{}'.format(model['zip_folder']))
 
@@ -188,5 +187,3 @@ for indice_url in indice_urls:
     )
     output.write(model_file.read())
     output.close()
-
-
