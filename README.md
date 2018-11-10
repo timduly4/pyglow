@@ -35,10 +35,11 @@ First, checkout the repository:
     $ git clone git://github.com/timduly4/pyglow.git pyglow
 ```
 
-Change directories into the repository folder and run the installation script:
+Change directories into the repository folder, compile the f2py bindings, then install:
 ```
     $ cd pyglow/
-    $ ./pyglow_install.sh
+    $ make -C pyglow/models source
+    $ python setup.py install --user
 ```
 
 ### Individual installation steps:
@@ -108,8 +109,7 @@ update_indices() # grabs all indices starting from 1932 to the current year
   * Only need to run this function when you would like to update the indices.
 
 
-# Uninstallation 
+# Uninstallation
 
 1. The install directory for pyglow is outputted when you run the `python ./setup.py install` command.  For example, on a mac this is usually in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.  You can also retrieve the library location with `python -c "import pyglow; print(pyglow.__file__)"`
 2.  Simply remove the `*.so` climatological models in this directory, as well as the `pyglow` and `pyglow_trash` folders.
-

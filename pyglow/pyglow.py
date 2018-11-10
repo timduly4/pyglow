@@ -38,7 +38,7 @@ index (apf107.dat) files. IRI 2016 initialization is required only
 once per session.
 """
 __INIT_IRI16 = False
-__version__ = '1.1'
+__version__ = '1.2'
 
 DIR_FILE = os.path.dirname(__file__)
 
