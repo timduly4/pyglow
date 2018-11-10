@@ -3,7 +3,7 @@ mod = msis00py
 only = gtd7
 
 clean:
-	rm *~ *.x *.mod *.pyf out* *.so
+	rm -f *~ *.x *.mod *.pyf out* *.so
 
 msis_test:
 	gfortran -std=legacy -fno-automatic -O2 msis00_driver.f nrlmsise00.f -o msis_test.x
@@ -21,10 +21,12 @@ mod:
 	f2py -c sig_file_patched.pyf $(fortran_files) --f77flags="-std=legacy" | tee out2
 
 
-compile:
+source:
 	make patch_msis;
 	make sig;
 	make patch_sig;
+
+compile: source
 	make mod;
 
 install:

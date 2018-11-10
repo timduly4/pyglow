@@ -1,8 +1,10 @@
+from __future__ import print_function
+from __future__ import absolute_import
 
 import numpy as np
 from datetime import datetime, timedelta
 from numpy import nanmean
-from get_kpap import get_kpap
+from .get_kpap import get_kpap
 
 def get_apmsis(dn):
     """
