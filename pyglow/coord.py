@@ -2,17 +2,19 @@ from __future__ import division
 from __future__ import print_function
 
 from past.utils import old_div
-from scipy import mat, cos, sin, arctan, sqrt, pi, arctan2
+from scipy import cos, sin, arctan, sqrt, pi, arctan2
 import numpy as np
 
 """ GPS Constants"""
-A = 6378137;                # semi-major axis of the earth [m]
-B = 6356752.3145;           # semi-minor axis of the earth [m]
-E = sqrt(1-(B**2)/(A**2));  # eccentricity of the earth = 0.08181919035596
-LAT_ACCURACY_THRESH = 1.57e-6; #  10 meter latitude accuracy
+A = 6378137  # semi-major axis of the earth [m]
+B = 6356752.3145  # semi-minor axis of the earth [m]
+E = sqrt(1-(B**2)/(A**2))  # eccentricity of the earth = 0.08181919035596
+LAT_ACCURACY_THRESH = 1.57e-6  # 10 meter latitude accuracy
+
 
 def say_hello():
     print("hello from coord.py!")
+
 
 def ecef2lla(xyz):
     # TODO
@@ -48,8 +50,9 @@ def ecef2lla(xyz):
     run = 1
 
     lla = np.array(np.zeros(xyz.size))
+
     # Compute longitude:
-    lla[1] = arctan2(y,x)*(180./pi)
+    lla[1] = arctan2(y, x)*(180./pi)
 
     # guess iniital latitude (assume you're on surface, h=0)
     p = sqrt(x**2+y**2)
@@ -111,30 +114,30 @@ def lla2ecef(lla):
     # check for 1D case:
     dim = len(lla.shape)
     if dim == 1:
-        lla = np.reshape(lla,(1,3))
+        lla = np.reshape(lla, (1, 3))
 
     # convert lat and lon to radians
-    lat = lla[:,0]/180.*pi
-    lon = lla[:,1]/180.*pi
-    alt = lla[:,2];
+    lat = lla[:, 0]/180.*pi
+    lon = lla[:, 1]/180.*pi
+    alt = lla[:, 2]
 
     xyz = np.array(np.zeros(lla.shape))
 
     N = A**2/sqrt((A*cos(lat))**2+(B*sin(lat))**2)
 
     # Calculate the X-coordinate
-    xyz[:,0] = (N+alt)*cos(lat)*cos(lon)
+    xyz[:, 0] = (N+alt)*cos(lat)*cos(lon)
 
     # Calculate the Y-coordinate
-    xyz[:,1] = (N+alt)*sin(lon)*cos(lat)
+    xyz[:, 1] = (N+alt)*sin(lon)*cos(lat)
 
     # Calculate the Z-coordinate
-    xyz[:,2] = (N*(1-E**2)+alt)*sin(lat)
+    xyz[:, 2] = (N*(1-E**2)+alt)*sin(lat)
 
     return np.array(xyz)
 
 
-def ven2ecef(lla,ven):
+def ven2ecef(lla, ven):
     """
     Function: ven2ecef(lla,ven)
     ---------------------
@@ -163,8 +166,6 @@ def ven2ecef(lla,ven):
     # convert reference location to ECEF:
     ecef = lla2ecef(lla)
 
-
-    #print ecef
     Xr = np.array(ecef[0][0])
     Yr = np.array(ecef[0][1])
     Zr = np.array(ecef[0][2])
@@ -173,19 +174,20 @@ def ven2ecef(lla,ven):
     refLong = pi/180.*lla[1]
 
     # calculate the geocentric latitude
-    phiP = arctan2(Zr,sqrt(Xr**2+Yr**2))
+    phiP = arctan2(Zr, sqrt(Xr**2+Yr**2))
 
     # calculate the ECEF location of the point
     X = -sin(refLong)*ven[1] - \
-            cos(refLong)*sin(phiP)*ven[2]+cos(refLong)*cos(phiP)*ven[0]+Xr
-    Y =  cos(refLong)*ven[1] - \
-            sin(refLong)*sin(phiP)*ven[2]+cos(phiP)*sin(refLong)*ven[0]+Yr
+        cos(refLong)*sin(phiP)*ven[2]+cos(refLong)*cos(phiP)*ven[0]+Xr
+    Y = cos(refLong)*ven[1] - \
+        sin(refLong)*sin(phiP)*ven[2]+cos(phiP)*sin(refLong)*ven[0]+Yr
     Z = cos(phiP)*ven[2]+sin(phiP)*ven[0]+Zr
 
     # Subtract out the reference location
     XYZ = np.array([float(X-Xr), float(Y-Yr), float(Z-Zr)])
 
     return XYZ
+
 
 def ecef2enu(XYZr, XYZp, lat_r, lon_r):
 
@@ -198,17 +200,16 @@ def test_coord():
     alt = 300.*1e3
 
     print("ecef2lla( lla2ecef([%3.1f, %3.1f, %3.0e]) ) =" % (lat, lon, alt))
-    print(ecef2lla( lla2ecef([lat, lon, alt]) ))
+    print(ecef2lla(lla2ecef([lat, lon, alt])))
 
     xyz = np.array([-3197773.77194971,  -563853.79419661, -5587079.67459298])
     print("\nlla2ecef( ecef2lla([%3.6e, %3.6e, %3.6e]) ) =" % tuple(xyz))
-    print(lla2ecef( ecef2lla(xyz) ))
+    print(lla2ecef(ecef2lla(xyz)))
 
-    lla = [0,0,300e3]
-    ven = [0,0,200e3]
+    lla = [0, 0, 300e3]
+    ven = [0, 0, 200e3]
     print("\ntesting ven2ecef()...")
-    print(ecef2lla(lla2ecef(lla) + ven2ecef(lla,ven)))
-
+    print(ecef2lla(lla2ecef(lla) + ven2ecef(lla, ven)))
 
 
 if __name__ == '__main__':

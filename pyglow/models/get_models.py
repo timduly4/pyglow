@@ -13,8 +13,8 @@ iri12 = {
     #'url' : 'ftp://nssdcftp.gsfc.nasa.gov/models/ionospheric/iri/iri2012/00_iri2012.tar',
     'url' : 'http://spdf.gsfc.nasa.gov/pub/models/iri/iri2012/00_iri2012.tar',
     'url_backup': [
-        'https://github.com/timduly4/pyglow/raw/url-backup/static/00_iri2012.tar',
         'https://github.com/timduly4/pyglow/raw/master/static/00_iri2012.tar',
+        'https://github.com/timduly4/pyglow/raw/url-backup/static/00_iri2012.tar',
     ],
     'filename' : '00_iri2012.tar',
     'tar' : True,

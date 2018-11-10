@@ -103,7 +103,7 @@ iri16 = Extension(
         'igrf.for',
         'iridreg_modified.for',
         'irifun.for',
-        'irisub_modified.for',
+        'irisub.for',
         'iritec.for',
         'iriflip_modified.for',
         'cosd_sind.for',
