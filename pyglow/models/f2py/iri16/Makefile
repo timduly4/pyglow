@@ -39,12 +39,14 @@ mod:
 	# This works well [1]
 	f2py -c sig_file_patched.pyf $(fortran_files) --fcompiler=gfortran --f77flags="$(f77flags)" | tee out2
 
-compile:
+source:
 	make patch_iridreg;
 	make patch_irisub;
 	make patch_iriflip;
 	make sig;
 	make patch_sig;
+
+compile: source
 	make mod;
 
 install:
