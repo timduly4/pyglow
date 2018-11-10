@@ -30,7 +30,6 @@ pyglow also provides access to the the following geophysical indices:
 `pyglow` requires the following packages for installation:
 
 1. `gfortran` (`$ sudo apt-get install gfortran`)
-2. `ipdb` (`$ pip install ipdb --user`)
 
 # Installation
 

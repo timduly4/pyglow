@@ -10,6 +10,7 @@ from . import generate_kpap
 # (Global variable to make it fast)
 GEOPHYSICAL_INDICES = generate_kpap.fetch()
 
+
 def get_kpap(dn):
     """
     Function: get_kpap(dn)
@@ -33,10 +34,9 @@ def get_kpap(dn):
     day_index = (dn_floor - generate_kpap.EPOCH).days
     hour_index = int(np.floor(dn.hour/3.))
 
-
     kp = GEOPHYSICAL_INDICES[hour_index, day_index]
     ap = GEOPHYSICAL_INDICES[hour_index+8, day_index]
-    f107  = GEOPHYSICAL_INDICES[16, day_index]
+    f107 = GEOPHYSICAL_INDICES[16, day_index]
     f107a = GEOPHYSICAL_INDICES[17, day_index]
     f107p = GEOPHYSICAL_INDICES[16, day_index-1]
 
@@ -48,15 +48,18 @@ def get_kpap(dn):
 
     return kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae
 
+
 def test_get_kpap():
     # Test it out:
-    print("getting first set:" )
-    dn = datetime(2008,2,3,15,4)
+    print("getting first set:")
+    dn = datetime(2008, 2, 3, 15, 4)
     kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae = get_kpap(dn)
     print((kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae))
 
     print("getting second set:")
-    kp, ap, f107, f107a, daily_kp, f107p, daily_ap, dst, ae = get_kpap(datetime(1932,1,1))
+    kp, ap, f107, f107a, daily_kp, f107p, daily_ap, dst, ae = get_kpap(
+        datetime(1932, 1, 1)
+    )
     print((kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae))
 
 

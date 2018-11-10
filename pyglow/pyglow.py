@@ -87,24 +87,24 @@ class Point(object):
         self.utc_sec = self.dn.hour*3600. + self.dn.minute*60.
         self.utc_hour = self.dn.hour
         self.slt_hour = np.mod(self.utc_sec/3600. + self.lon/15., 24)
-        self.iyd = np.mod(self.dn.year,100)*1000 + self.doy
+        self.iyd = np.mod(self.dn.year, 100)*1000 + self.doy
 
         # For kp, ap function
-        self.kp       = nan
-        self.ap       = nan
-        self.f107     = nan
-        self.f107a    = nan
-        self.f107p    = nan # previous day's F10.7
+        self.kp = nan
+        self.ap = nan
+        self.f107 = nan
+        self.f107a = nan
+        self.f107p = nan  # previous day's F10.7
         self.kp_daily = nan
         self.ap_daily = nan
-        self.apmsis   = [nan,]*7
-        self.dst      = nan
-        self.ae       = nan
+        self.apmsis = [nan, ] * 7
+        self.dst = nan
+        self.ae = nan
 
         # For iri:
         self.ne = nan
         ions = ['O+', 'H+', 'HE+', 'O2+', 'NO+']
-        self.ni={}
+        self.ni = {}
         for ion in ions:
             self.ni[ion] = nan
 
@@ -118,7 +118,7 @@ class Point(object):
         # For msis:
         self.Tn_msis = nan
         self.nn = {}
-        for neutral in ['HE','O','N2','O2','AR','H','N','O_anomalous']:
+        for neutral in ['HE', 'O', 'N2', 'O2', 'AR', 'H', 'N', 'O_anomalous']:
             self.nn[neutral] = nan
         self.rho = nan
 
@@ -128,10 +128,10 @@ class Point(object):
         self.hwm_version = nan
 
         # For igrf:
-        self.Bx  = nan
-        self.By  = nan
-        self.Bz  = nan
-        self.B   = nan
+        self.Bx = nan
+        self.By = nan
+        self.Bz = nan
+        self.B = nan
         self.dip = nan
         self.dec = nan
 
@@ -147,16 +147,14 @@ class Point(object):
             self.get_indices()
             self.apmsis = get_apmsis(self.dn)
 
-
     def get_indices(self):
         """
         Retreives geophysical indices.
         """
         self.kp, self.ap, self.f107, self.f107a, self.f107p, \
-                self.kp_daily, self.ap_daily, self.dst, self.ae  \
-                        = get_kpap(self.dn)
+            self.kp_daily, self.ap_daily, self.dst, self.ae  \
+            = get_kpap(self.dn)
         return self
-
 
     @staticmethod
     def init_iri16():
@@ -172,7 +170,6 @@ class Point(object):
             return True
         else:
             return False
-
 
     def run_iri(
         self,
@@ -197,43 +194,43 @@ class Point(object):
         reduce run time) or set to `NaN`.
         """
 
-        if version==2016:
+        if version == 2016:
             iri_data_stub = 'iri16_data/'
             iri = iri16
             init_iri = Point.init_iri16
-        elif version==2012:
+        elif version == 2012:
             iri_data_stub = 'iri12_data/'
             iri = iri12
             init_iri = lambda: False
         else:
             raise ValueError(
-                "Invalid version of {} for IRI.\n".format(version) + \
-                        "Either 2016 (default) or 2012 is valid."
+                "Invalid version of {} for IRI.\n".format(version) +
+                "Either 2016 (default) or 2012 is valid."
             )
 
         if debug:
             print("Version = {}".format(version))
 
-        jf = np.ones((50,)) # JF switches
+        jf = np.ones((50,))  # JF switches
         # Standard IRI model flags
         #             | FORTRAN Index
         #             |
         #             V
-        jf[3]  = 0 #  4 B0,B1 other model-31
-        jf[4]  = 0 #  5  foF2 - URSI
-        jf[5]  = 0 #  6  Ni - RBV-10 & TTS-03
-        jf[20] = 0 # 21 ion drift not computed
-        jf[22] = 0 # 23 Te_topside (TBT-2011)
-        jf[27] = 0 # 28 spreadF prob not computed
-        jf[28] = 0 # 29 (29,30) => NeQuick
-        jf[29] = 0 # 30
-        jf[32] = 0 # 33 Auroral boundary model off
-                   #    (Brian found a case that stalled IRI when on)
-        jf[34] = 0 # 35 no foE storm update
+        jf[3] = 0  # 4 B0,B1 other model-31
+        jf[4] = 0  # 5  foF2 - URSI
+        jf[5] = 0  # 6  Ni - RBV-10 & TTS-03
+        jf[20] = 0  # 21 ion drift not computed
+        jf[22] = 0  # 23 Te_topside (TBT-2011)
+        jf[27] = 0  # 28 spreadF prob not computed
+        jf[28] = 0  # 29 (29,30) => NeQuick
+        jf[29] = 0  # 30
+        # (Brian found a case that stalled IRI when on):
+        jf[32] = 0  # 33 Auroral boundary model off
+        jf[34] = 0  # 35 no foE storm update
 
         # Not standard, but outputs same as values as standard so not an issue
-        jf[21] = 0 # 22 ion densities in m^-3 (not %)
-        jf[33] = 0 # 34 turn messages off
+        jf[21] = 0  # 22 ion densities in m^-3 (not %)
+        jf[33] = 0  # 34 turn messages off
 
         if not compute_Ne:
             jf[0] = 0
@@ -305,102 +302,99 @@ class Point(object):
         os.chdir(my_pwd)
 
         if compute_Te_Ti:
-            self.Te = outf[3,0] # Electron temperature from IRI (K)
-            self.Ti = outf[2,0] # Ion temperature from IRI (K)
+            self.Te = outf[3, 0]  # Electron temperature from IRI (K)
+            self.Ti = outf[2, 0]  # Ion temperature from IRI (K)
         else:
             self.Te = float('NaN')
             self.Ti = float('NaN')
 
-        self.Tn_iri = outf[1,0] # Neutral temperature from IRI (K)
+        self.Tn_iri = outf[1, 0]  # Neutral temperature from IRI (K)
 
-        self.ne        = outf[0,0] # Electron density (m^-3)
-        self.ni['O+']  = outf[4,0] # O+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['H+']  = outf[5,0] # H+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['HE+'] = outf[6,0] # HE+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['O2+'] = outf[7,0] # O2+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['NO+'] = outf[8,0] # NO+ Density (%, or m^-3 with JF(22) = 0)
+        self.ne = outf[0, 0]  # Electron density (m^-3)
+        self.ni['O+'] = outf[4, 0]  # O+ Density (%, or m^-3 with JF(22) = 0)
+        self.ni['H+'] = outf[5, 0]  # H+ Density (%, or m^-3 with JF(22) = 0)
+        self.ni['HE+'] = outf[6, 0]  # HE+ Density (%, or m^-3 with JF(22) = 0)
+        self.ni['O2+'] = outf[7, 0]  # O2+ Density (%, or m^-3 with JF(22) = 0)
+        self.ni['NO+'] = outf[8, 0]  # NO+ Density (%, or m^-3 with JF(22) = 0)
 
         self.NmF2 = oarr[0]
         self.hmF2 = oarr[1]
 
         if compute_Ne:
-            self.ne    = outf[0,0] # Electron density (m^-3)
+            self.ne = outf[0, 0]  # Electron density (m^-3)
         else:
-            self.ne    = float('NaN')
+            self.ne = float('NaN')
 
         # Densities are now in cm^-3:
-        self.ne        = self.ne        / 100.**3 # [items/cm^3]
-        self.ni['O+']  = self.ni['O+']  / 100.**3 # [items/cm^3]
-        self.ni['H+']  = self.ni['H+']  / 100.**3 # [items/cm^3]
-        self.ni['HE+'] = self.ni['HE+'] / 100.**3 # [items/cm^3]
-        self.ni['O2+'] = self.ni['O2+'] / 100.**3 # [items/cm^3]
-        self.ni['NO+'] = self.ni['NO+'] / 100.**3 # [items/cm^3]
-        self.NmF2      = self.NmF2      / 100.**3 # [items/cm^3]
+        self.ne = self.ne / 100.**3  # [items/cm^3]
+        self.ni['O+'] = self.ni['O+'] / 100.**3  # [items/cm^3]
+        self.ni['H+'] = self.ni['H+'] / 100.**3  # [items/cm^3]
+        self.ni['HE+'] = self.ni['HE+'] / 100.**3  # [items/cm^3]
+        self.ni['O2+'] = self.ni['O2+'] / 100.**3  # [items/cm^3]
+        self.ni['NO+'] = self.ni['NO+'] / 100.**3  # [items/cm^3]
+        self.NmF2 = self.NmF2 / 100.**3  # [items/cm^3]
 
         return self
-
 
     def run_msis(self, version=2000):
         """
         Method to call MSIS model
         """
 
-        if version==2000:
+        if version == 2000:
             msis = msis00
         else:
             raise ValueError(
-                "Invalid version of '{}' for MSIS.\n".format(version) + \
-                        "2000 (default) is valid."
+                "Invalid version of '{}' for MSIS.\n".format(version) +
+                "2000 (default) is valid."
             )
 
-        [d,t] = msis(
+        [d, t] = msis(
             self.doy,
             self.utc_sec,
             self.alt,
             self.lat,
-            np.mod(self.lon,360),
+            np.mod(self.lon, 360),
             self.slt_hour,
             self.f107a,
             self.f107p,
             self.apmsis,
             48,
         )
-        self.Tn_msis = t[1] # neutral temperature from MSIS (K)
+        self.Tn_msis = t[1]  # neutral temperature from MSIS (K)
 
         self.nn = {}
-        self.nn['HE'] = d[0] # [items/cm^3]
-        self.nn['O']  = d[1] # [items/cm^3]
-        self.nn['N2'] = d[2] # [items/cm^3]
-        self.nn['O2'] = d[3] # [items/cm^3]
-        self.nn['AR'] = d[4] # [items/cm^3]
+        self.nn['HE'] = d[0]  # [items/cm^3]
+        self.nn['O'] = d[1]  # [items/cm^3]
+        self.nn['N2'] = d[2]  # [items/cm^3]
+        self.nn['O2'] = d[3]  # [items/cm^3]
+        self.nn['AR'] = d[4]  # [items/cm^3]
         # [5] is below
-        self.nn['H']  = d[6] # [items/cm^3]
-        self.nn['N']  = d[7] # [items/cm^3]
-        self.nn['O_anomalous'] = d[8] # [items/cm^3]
+        self.nn['H'] = d[6]  # [items/cm^3]
+        self.nn['N'] = d[7]  # [items/cm^3]
+        self.nn['O_anomalous'] = d[8]  # [items/cm^3]
 
-        self.rho = d[5] # total mass density [grams/cm^3]
+        self.rho = d[5]  # total mass density [grams/cm^3]
 
         return self
-
 
     def run_hwm(self, version=2014):
         """
         Wrapper to call various HWM models
         """
-        if version==2014:
+        if version == 2014:
             self._run_hwm14()
-        elif version==2007:
+        elif version == 2007:
             self._run_hwm07()
-        elif version==1993:
+        elif version == 1993:
             self._run_hwm93()
         else:
             raise ValueError(
-                "Invalid version of {} for HWM.\n".format(version) +\
-                        "Either 2014 (default), 2007, or 1993 is valid."
+                "Invalid version of {} for HWM.\n".format(version) +
+                "Either 2014 (default), 2007, or 1993 is valid."
             )
 
         return self
-
 
     def _run_hwm93(self):
         """
@@ -425,7 +419,6 @@ class Point(object):
 
         return self
 
-
     def _run_hwm07(self):
         """
         HWM 2007 Climatological model.
@@ -443,7 +436,7 @@ class Point(object):
             self.utc_sec,
             self.alt,
             self.lat,
-            np.mod(self.lon,360),
+            np.mod(self.lon, 360),
             self.slt_hour,
             self.f107a,
             self.f107,
@@ -457,7 +450,6 @@ class Point(object):
         self.hwm_version = '07'
 
         return self
-
 
     def _run_hwm14(self):
         """
@@ -480,7 +472,7 @@ class Point(object):
             np.nan,
             np.nan,
             np.nan,
-            [np.nan,self.ap],
+            [np.nan, self.ap],
         )
 
         # Change back to original directory:
@@ -491,20 +483,19 @@ class Point(object):
 
         return self
 
-
     def run_igrf(self, version=12):
         """
         Run the IGRF climatological model
         """
 
-        if version==12:
-            igrf=igrf12
-        elif version==11:
-            igrf=igrf11
+        if version == 12:
+            igrf = igrf12
+        elif version == 11:
+            igrf = igrf11
         else:
             raise ValueError(
-                "Invalid version of {} for IGRF.\n".format(version) + \
-                        "Version 12 (default) and 11 are valid."
+                "Invalid version of {} for IGRF.\n".format(version) +
+                "Version 12 (default) and 11 are valid."
             )
 
         x, y, z, f = igrf(
@@ -517,8 +508,8 @@ class Point(object):
         )
 
         h = np.sqrt(x**2 + y**2)
-        dip = 180./np.pi * np.arctan2(z,h)
-        dec = 180./np.pi * np.arctan2(y,x)
+        dip = 180./np.pi * np.arctan2(z ,h)
+        dec = 180./np.pi * np.arctan2(y, x)
 
         # Note that the changes here match
         # coordinate convention with other models
@@ -527,21 +518,20 @@ class Point(object):
         #
         # IGRF gives (x -> north, y -> east, z -> down)
         warnings.warn(
-            "Caution: IGRF coordinates have been recently changed to\n" + \
-                    "Bx -> positive eastward\n" + \
-                    "By -> positive northward\n" + \
-                    " Bz -> positive upward\n"
+            "Caution: IGRF coordinates have been recently changed to\n" +
+            "Bx -> positive eastward\n" +
+            "By -> positive northward\n" +
+            " Bz -> positive upward\n"
         )
-        self.Bx  =  y/1e9 # [T] (positive eastward) (note x/y switch here)
-        self.By  =  x/1e9 # [T] (positive northward) (note x/y switch here)
-        self.Bz  = -z/1e9 # [T] (positive upward) (note negation here)
-        self.B   =  f/1e9 # [T]
+        self.Bx = y/1e9  # [T] (positive eastward) (note x/y switch here)
+        self.By = x/1e9  # [T] (positive northward) (note x/y switch here)
+        self.Bz = -z/1e9  # [T] (positive upward) (note negation here)
+        self.B = f/1e9  # [T]
 
         self.dip = dip
         self.dec = dec
 
         return self
-
 
     def run_airglow(self):
         """
@@ -575,7 +565,7 @@ class Point(object):
         Te = self.Te        # electron temperature [K]
         O2 = self.nn['O2']  # O2 density [cm^-3]
         N2 = self.nn['N2']  # N2 density [cm^-3]
-        O  = self.nn['O']   # O density [cm^-3]
+        O = self.nn['O']   # O density [cm^-3]
 
         te = Te/300.
         ti = Ti/300.
@@ -587,10 +577,11 @@ class Point(object):
         K4_6300 = 2.9e-11*np.exp(67.5/Tn)
         K5_6300 = 1.6e-12*Te**0.91
         b6300 = 1.1
-        a1D = 7.45e-3    # Corrected value form Link and Cogger, JGR, 94(A2), 1989
-        a6300 = 5.63e-3  # Corrected value form Link and Cogger, JGR, 94(A2), 1989
+        a1D = 7.45e-3  # Corr. value from Link and Cogger, JGR, 94(A2), 1989
+        a6300 = 5.63e-3  # Corr. value form Link and Cogger, JGR, 94(A2), 1989
 
-        # Calculate O+ assuming mixture of ions (also from Link and Cogger, 1988)
+        # Calculate O+ assuming mixture of ions
+        # (also from Link and Cogger, 1988):
         a1 = 1.95e-7*te**-0.7
         a2 = 4.00e-7*te**-0.9
         Oplus = Ne/(1.+K2_6300*N2/a2/Ne + K1_6300*O2/a1/Ne)
@@ -623,12 +614,10 @@ class Point(object):
 
         return self
 
-# ---------
 
 def _igrf_tracefield(dn, lat, lon, alt, target_ht, step):
     """
     Helper function to trace along a magnetic field line using IGRF
-
 
     :param dn: datetime.datetime object of requested trace
     :param lat: Latitude [degrees]
@@ -643,15 +632,32 @@ def _igrf_tracefield(dn, lat, lon, alt, target_ht, step):
     """
 
     # Go North:
-    lla_north = _igrf_tracefield_hemis(dn, lat, lon, alt,\
-            target_ht, step)
+    lla_north = _igrf_tracefield_hemis(
+        dn,
+        lat,
+        lon,
+        alt,
+        target_ht,
+        step,
+    )
 
     # Go South:
-    lla_south = _igrf_tracefield_hemis(dn, lat, lon, alt,\
-            target_ht, -step)
+    lla_south = _igrf_tracefield_hemis(
+        dn,
+        lat,
+        lon,
+        alt,
+        target_ht,
+        -step,
+    )
 
     # Stack them together:
-    lla = np.vstack( [ np.flipud(lla_north)[:-1,:], lla_south ])
+    lla = np.vstack(
+        [
+            np.flipud(lla_north)[:-1, :],
+            lla_south,
+        ]
+    )
 
     return lla
 
@@ -687,7 +693,7 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
     lla_field = lla
 
     """ Step 1: trace the field along a given direction """
-    TOLERANCE = 10 # [m]
+    TOLERANCE = 10  # [m]
     i = 0
     while (lla[2] > target_ht):
         # convert to ECEF:
@@ -700,13 +706,13 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
         # coordinates follow pyglow's convention:
         # (x -> east, y -> north, z -> up)
 
-        N = p.By # North
-        E = p.Bx # East
-        D = -p.Bz # Down
-        A = p.B  # Total
+        N = p.By  # North
+        E = p.Bx  # East
+        D = -p.Bz  # Down
+        A = p.B   # Total
 
         # Step along the field line
-        ecef_new =  ecef + coord.ven2ecef(
+        ecef_new = ecef + coord.ven2ecef(
             lla,
             [-D/A*step, E/A*step, N/A*step],
         )
@@ -721,8 +727,6 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
     """ Step 2: Make the last point close to target_ht """
     while (abs(lla[2]-target_ht) > TOLERANCE):
 
-        my_error = lla[2]-target_ht
-        old_step = step
         # Find out how much we need to step by:
         step = -np.sign(step)*abs(lla[2]-target_ht)
 
@@ -731,10 +735,10 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
         p = Point(dn, lla[0], lla[1], lla[2]/1e3)
         p.run_igrf()
 
-        N = p.Bx # North
-        E = p.By # East
-        D = p.Bz # Down
-        A = p.B  # Total
+        N = p.Bx  # North
+        E = p.By  # East
+        D = p.Bz  # Down
+        A = p.B   # Total
 
         # Trace the field, but use the modified step:
         ecef_new = ecef + coord.ven2ecef(
@@ -746,9 +750,10 @@ def _igrf_tracefield_hemis(dn, lat, lon, alt, target_ht, step):
         lla = coord.ecef2lla(ecef_new)
 
     # replace last entry with the point close to target_ht:
-    lla_field[-1,:] = lla
+    lla_field[-1, :] = lla
 
     return lla_field
+
 
 def Line(dn, lat, lon, alt, target_ht=90., step=15.):
     """
@@ -761,8 +766,8 @@ def Line(dn, lat, lon, alt, target_ht=90., step=15.):
     :param lat: Latitude [degrees]
     :param lon: Longitude [degrees]
     :param alt: Altitude [km]
-    :param target_ht: Altitude to stop trace [km]
-    :param step: Step size of trace [km]
+    :param target_ht: (optional) Altitude to stop trace [km]
+    :param step: (optional) Step size of trace [km]
 
     """
     llas = _igrf_tracefield(dn, lat, lon, alt, target_ht, step)
@@ -792,7 +797,7 @@ def update_kpap(years=None):
 
     # Load all data up until today
     if years is None:
-        years = range(1932, date.today().year + 1)[::-1] # reverse
+        years = range(1932, date.today().year + 1)[::-1]  # reverse
 
     pyglow_dir = os.path.join(DIR_FILE, "kpap/")
 
@@ -808,7 +813,11 @@ def update_kpap(years=None):
                     shutil.copyfileobj(r, f)
         except IOError as e:
             print(
-                'Failed downloading data for year {}. File does not exist'.format(year)
+                "Failed downloading data for year {}."
+                "File does not exist ({})".format(
+                    year,
+                    str(e),
+                ),
             )
 
 
@@ -827,7 +836,6 @@ def update_dst(years=None):
             files are shipped with pyglow.
     """
 
-
     def download_dst(year, month, des):
         """
         Helper function to earch for the appropriate location
@@ -841,10 +849,14 @@ def update_dst(years=None):
         # 2) Provisional
         # 3) Realtime
         year_month = '%i%02i' % (year, month)
-        wgdc_fn = 'dst%s%02i.for.request' % (str(year)[2:],month)
-        src_final       = 'http://wdc.kugi.kyoto-u.ac.jp/dst_final/%s/%s' % (year_month, wgdc_fn)
-        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/dst_provisional/%s/%s' % (year_month, wgdc_fn)
-        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/dst_realtime/%s/%s' % (year_month, wgdc_fn)
+        wgdc_fn = 'dst%s%02i.for.request' % (str(year)[2:], month)
+        src_final = 'http://wdc.kugi.kyoto-u.ac.jp/dst_final/%s/%s' % \
+            (year_month, wgdc_fn)
+        src_provisional = \
+            'http://wdc.kugi.kyoto-u.ac.jp/dst_provisional/%s/%s' % \
+            (year_month, wgdc_fn)
+        src_realtime = 'http://wdc.kugi.kyoto-u.ac.jp/dst_realtime/%s/%s' % \
+            (year_month, wgdc_fn)
 
         success = False
         for src in [src_final, src_provisional, src_realtime]:
@@ -852,7 +864,12 @@ def update_dst(years=None):
                 with contextlib.closing(urllib.request.urlopen(src)) as r:
                     contents = r.read().decode('utf8')
                     # If that succeeded, then the file exists
-                    print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
+                    print(
+                        "\nDownloading\n{src}\nto\n{des}".format(
+                            src=src,
+                            des=des
+                        )
+                    )
                     with open(des, 'w') as f:
                         f.write(contents)
                     success = True
@@ -864,18 +881,18 @@ def update_dst(years=None):
     # Read files from 2005 until today. Pre-2005
     # files are shipped with pyglow.
     if years is None:
-        years = list(range(2005, date.today().year + 1))[::-1] # reversed
+        years = list(range(2005, date.today().year + 1))[::-1]  # reversed
     pyglow_dir = os.path.join(DIR_FILE, "dst/")
 
     for year in years:
         for month in range(1, 13):
-            des = '%s%i%02i' % (pyglow_dir,year,month)
+            des = '%s%i%02i' % (pyglow_dir, year, month)
             download_dst(year, month, des)
 
     return
 
 
-def update_ae(years = None):
+def update_ae(years=None):
     '''
     Update the AE index files used in pyglow.
     The files will be downloaded from WDC Kyoto
@@ -903,12 +920,12 @@ def update_ae(years = None):
         # 2) Provisional
         # 3) Realtime
         year_month = '%i%02i' % (year, month)
-        wgdc_fn = 'ae%s%02i.for.request' % (str(year)[2:],month)
-        #src_final       = 'http://wdc.kugi.kyoto-u.ac.jp/ae_final/%s/%s' % (year_month, wgdc_fn)
-        src_provisional = 'http://wdc.kugi.kyoto-u.ac.jp/ae_provisional/%s/%s' %\
-                (year_month, wgdc_fn)
-        src_realtime    = 'http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/%s/%s' %\
-                (year_month, wgdc_fn)
+        wgdc_fn = 'ae%s%02i.for.request' % (str(year)[2:], month)
+        src_provisional = \
+            'http://wdc.kugi.kyoto-u.ac.jp/ae_provisional/%s/%s' % \
+            (year_month, wgdc_fn)
+        src_realtime = 'http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/%s/%s' % \
+            (year_month, wgdc_fn)
 
         success = False
         for src in [src_provisional, src_realtime]:
@@ -916,12 +933,19 @@ def update_ae(years = None):
                 with contextlib.closing(urllib.request.urlopen(src)) as r:
                     contents = r.readlines()
                     # If that succeeded, then the file exists
-                    print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
-                    with open(des,'w') as f:
+                    print(
+                        "\nDownloading\n{src}\nto\n{des}".format(
+                            src=src,
+                            des=des,
+                        )
+                    )
+                    with open(des, 'w') as f:
                         # this shrinks the filesize to hourly
                         for c in contents:
                             c = c.decode('utf8')
-                            f.write("%s%s%s\n"%(c[12:18],c[19:21],c[394:400]))
+                            f.write(
+                                "%s%s%s\n" % (c[12:18], c[19:21], c[394:400])
+                            )
                     success = True
                     break
             except urllib.error.HTTPError:
@@ -931,12 +955,12 @@ def update_ae(years = None):
     # Read files from 2000 until today. Pre-2000
     # files are shipped with pyglow.
     if years is None:
-        years = list(range(2000, date.today().year + 1))[::-1] # reversed
+        years = list(range(2000, date.today().year + 1))[::-1]  # reversed
     pyglow_dir = os.path.join(DIR_FILE, "ae/")
 
     for year in years:
-        for month in range(1,13):
-            des = '%s%i%02i' % (pyglow_dir,year,month)
+        for month in range(1, 13):
+            des = '%s%i%02i' % (pyglow_dir, year, month)
             download_ae(year, month, des)
 
 

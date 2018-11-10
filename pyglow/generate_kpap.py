@@ -67,7 +67,11 @@ An easy way to grab the yearly data, in Python of course:
 
 import os
 for y in range(1932, END_YEAR):
-    os.system('wget ftp://ftp.ngdc.noaa.gov/STP/GEOMAGNETIC_DATA/INDICES/KP_AP/%4i ./kpap/' % y)
+    os.system(
+        'wget
+        ftp://ftp.ngdc.noaa.gov/STP/GEOMAGNETIC_DATA/INDICES/KP_AP/%4i ./kpap/'
+        % y
+    )
 
 --------
 History:
@@ -90,7 +94,7 @@ History:
 END_YEAR = date.today().year + 1
 EPOCH = datetime(1932, 1, 1)
 PYGLOW_PATH = os.path.dirname(__file__)
-if not PYGLOW_PATH: # Corner case: we are in the installation directory
+if not PYGLOW_PATH:  # Corner case: we are in the installation directory
     PYGLOW_PATH = './'
 
 # File to store table of index file modification times:
@@ -116,17 +120,19 @@ def get_mtime_table():
             mtime_table[fn] = os.path.getmtime(fn)
 
     # dst files:
-    oldies = ['1957_1969','1970_1989','1990_2004']
+    oldies = ['1957_1969', '1970_1989', '1990_2004']
     dst_path = '%s/dst/' % PYGLOW_PATH
-    files = glob.glob('%s??????' % dst_path) # files like 201407
-    old_files = ['%s%s' % (dst_path, old) for old in oldies] # older files listed above
-    files.extend(old_files) # a list of every dst file
+    files = glob.glob('%s??????' % dst_path)  # files like 201407
+    old_files = [
+        '%s%s' % (dst_path, old) for old in oldies
+    ]  # older files listed above
+    files.extend(old_files)  # a list of every dst file
     for fn in files:
         mtime_table[fn] = os.path.getmtime(fn)
 
     # ae files:
     ae_path = '%s/ae/' % PYGLOW_PATH
-    files = glob.glob('%s*' % ae_path) # find files like 1975
+    files = glob.glob('%s*' % ae_path)  # find files like 1975
     for fn in files:
         mtime_table[fn] = os.path.getmtime(fn)
 
@@ -180,112 +186,108 @@ def generate_kpap():
     ae = {}
 
     for y in range(1932, END_YEAR):
-        #f = open(os.getcwd() + "/kpap/%4i" % y)
-        #f = open('/Users/duly/Dropbox/research/f2py/model_atmosphere/kpap/%4i' % y)
-        # PYGLOW_PATH = '/'.join(pyglow.__file__.split("/")[:-1])
         fn = PYGLOW_PATH + "/kpap/%4i" % y
-        if os.path.isfile(fn): # If the file has been downloaded
+        if os.path.isfile(fn):  # If the file has been downloaded
             f = open(fn)
             for x in f.readlines():
-                year = int(x[0:2]) # parse the line for the year, only last 2 digits
+                # parse the line for the year, only last 2 digits:
+                year = int(x[0:2])
 
-                if year < 30: # need to change this is 2030....
+                if year < 30:  # need to change this is 2030....
                     year = year + 2000
                 else:
                     year = year + 1900
 
-                month = int(x[2:4]) # parse the line for month
-                day = int(x[4:6])   # ... and the days
+                month = int(x[2:4])  # parse the line for month
+                day = int(x[4:6])  # ... and the days
 
                 # Parse the values for kp, ap, daily_kp, and daily_ap:
-                kp[ datetime(year,month,day,0)  ] = int(x[12:14])/10.
-                kp[ datetime(year,month,day,3)  ] = int(x[14:16])/10.
-                kp[ datetime(year,month,day,6)  ] = int(x[16:18])/10.
-                kp[ datetime(year,month,day,9)  ] = int(x[18:20])/10.
-                kp[ datetime(year,month,day,12) ] = int(x[20:22])/10.
-                kp[ datetime(year,month,day,15) ] = int(x[22:24])/10.
-                kp[ datetime(year,month,day,18) ] = int(x[24:26])/10.
-                kp[ datetime(year,month,day,21) ] = int(x[26:28])/10.
+                kp[datetime(year, month, day, 0)] = int(x[12:14])/10.
+                kp[datetime(year, month, day, 3)] = int(x[14:16])/10.
+                kp[datetime(year, month, day, 6)] = int(x[16:18])/10.
+                kp[datetime(year, month, day, 9)] = int(x[18:20])/10.
+                kp[datetime(year, month, day, 12)] = int(x[20:22])/10.
+                kp[datetime(year, month, day, 15)] = int(x[22:24])/10.
+                kp[datetime(year, month, day, 18)] = int(x[24:26])/10.
+                kp[datetime(year, month, day, 21)] = int(x[26:28])/10.
 
-                ap[ datetime(year,month,day,0)  ] = int(x[31:34])
-                ap[ datetime(year,month,day,3)  ] = int(x[34:37])
-                ap[ datetime(year,month,day,6)  ] = int(x[37:40])
-                ap[ datetime(year,month,day,9)  ] = int(x[40:43])
-                ap[ datetime(year,month,day,12) ] = int(x[43:46])
-                ap[ datetime(year,month,day,15) ] = int(x[46:49])
-                ap[ datetime(year,month,day,18) ] = int(x[49:52])
-                ap[ datetime(year,month,day,21) ] = int(x[52:55])
+                ap[datetime(year, month, day, 0)] = int(x[31:34])
+                ap[datetime(year, month, day, 3)] = int(x[34:37])
+                ap[datetime(year, month, day, 6)] = int(x[37:40])
+                ap[datetime(year, month, day, 9)] = int(x[40:43])
+                ap[datetime(year, month, day, 12)] = int(x[43:46])
+                ap[datetime(year, month, day, 15)] = int(x[46:49])
+                ap[datetime(year, month, day, 18)] = int(x[49:52])
+                ap[datetime(year, month, day, 21)] = int(x[52:55])
 
-                daily_kp[ datetime(year,month,day) ] = int(x[28:31])
-                daily_ap[ datetime(year,month,day) ] = int(x[55:58])
+                daily_kp[datetime(year, month, day)] = int(x[28:31])
+                daily_ap[datetime(year, month, day)] = int(x[55:58])
 
                 try:
-                    temp = float(x[65:70]) # f107
-                except:
-                    temp = float('NaN') # if the string is empty, just use NaN
+                    temp = float(x[65:70])  # f107
+                except ValueError:
+                    temp = float('NaN')  # If the string is empty, just use NaN
 
-                if temp == 0.: # replace 0's of f107 with NaN
+                if temp == 0.:  # Replace 0's of f107 with NaN
                     temp = float('NaN')
 
-                f107[ datetime(year,month,day) ]  = temp
-
+                f107[datetime(year, month, day)] = temp
 
             f.close()
 
     # Caculate f107a:
     for dn, value in f107.items():
         f107_81values = []
-        for dday in range(-40,41): # 81 day sliding window
+        for dday in range(-40, 41):  # 81 day sliding window
             dt = timedelta(dday)
             try:
                 f107_81values.append(f107[dn+dt])
-            except:
+            except IndexError:
                 f107_81values.append(float('NaN'))
         f107a[dn] = np.nan if all(np.isnan(f107_81values)) else \
-                np.nanmean(f107_81values)
+            np.nanmean(f107_81values)
 
     # Read in DST values.
     # (1) Read old files that were shipped with pyglow.
     # (2) Search the dst/ folder for all new files, and read them.
-    oldies = ['1957_1969','1970_1989','1990_2004']
+    oldies = ['1957_1969', '1970_1989', '1990_2004']
     dst_path = '%s/dst/' % PYGLOW_PATH
-    files = glob.glob('%s??????' % dst_path) # files like 201407
-    old_files = ['%s%s' % (dst_path, old) for old in oldies] # older files listed above
-    files.extend(old_files) # a list of every dst file
+    files = glob.glob('%s??????' % dst_path)  # files like 201407
+    # Older files listed above:
+    old_files = ['%s%s' % (dst_path, old) for old in oldies]
+    files.extend(old_files)  # a list of every dst file
     for fn in files:
-        with open(fn,'r') as f:
+        with open(fn, 'r') as f:
             s = f.readlines()
         for x in s:
             if len(x) <= 1:
-                break # reached last line. Done with this file.
-            yr23 = x[3:5] # 3rd and 4th digits of year
+                break  # reached last line. Done with this file.
+            yr23 = x[3:5]  # 3rd and 4th digits of year
             month = int(x[5:7])
-            day   = int(x[8:10])
-            yr12  = x[14:16] # 1st and 2nd digits of year
-            base  = int(x[16:20]) # "Base value, unit 100 nT"
-            year = int('%02s%02s' % (yr12,yr23))
+            day = int(x[8:10])
+            yr12 = x[14:16]  # 1st and 2nd digits of year
+            base = int(x[16:20])  # "Base value, unit 100 nT"
+            year = int('%02s%02s' % (yr12, yr23))
             dst_per_hour = np.zeros(24)
             for i in range(24):
                 dsthr = base*100 + int(x[20+4*i:24+4*i])
-                if dsthr==9999:
+                if dsthr == 9999:
                     dsthr = np.nan
                 dst_per_hour[i] = dsthr
-            dst[datetime(year,month,day)] = dst_per_hour
-
+            dst[datetime(year, month, day)] = dst_per_hour
 
     # Read in AE values.
-    # PYGLOW_PATH = '/'.join(pyglow.__file__.split("/")[:-1])
     ae_path = '%s/ae/' % PYGLOW_PATH
-    files = glob.glob('%s*' % ae_path) # find files like 1975
+    files = glob.glob('%s*' % ae_path)  # find files like 1975
     for fn in files:
-        with open(fn,'r') as f:
+        with open(fn, 'r') as f:
             s = f.readlines()
         for x in s:
             if len(x) <= 1:
-                break # reached last line. Done with this file.
-            yr23 = int(x[0:2]) # 3rd and 4th digits of year
+                break  # reached last line. Done with this file.
+            yr23 = int(x[0:2])  # 3rd and 4th digits of year
             month = int(x[2:4])
-            day   = int(x[4:6])
+            day = int(x[4:6])
             year = int(fn.split("/")[-1][:4])
             # in case file contains an extra day:
             if yr23 != int(str(year)[2:4]):
@@ -294,10 +296,10 @@ def generate_kpap():
             if hour == 0:
                 ae_per_hour = np.zeros(24)
             aehr = int(x[8:14])
-            if aehr==99999:
+            if aehr == 99999:
                 aehr = np.nan
             ae_per_hour[hour] = aehr
-            ae[datetime(year,month,day)] = ae_per_hour
+            ae[datetime(year, month, day)] = ae_per_hour
 
     """ Part 2: placing indices in 'geophysical_indices' array """
     # time to put the values into a numpy array, geophysical_indices
@@ -306,46 +308,67 @@ def generate_kpap():
     geophysical_indices = np.zeros((68, total_days))*float('nan')
 
     i = 0
-    while i < total_days: # Try every day. Some will be NaN.
-        dn = EPOCH + timedelta(i) # Increment a day
+    while i < total_days:  # Try every day. Some will be NaN.
+        dn = EPOCH + timedelta(i)  # Increment a day
 
-        try: # This will fail if kp/ap data doesn't exist on this day
-            geophysical_indices[0,i]  = kp[ datetime(dn.year, dn.month, dn.day, 0)]
-            geophysical_indices[1,i]  = kp[ datetime(dn.year, dn.month, dn.day, 3)]
-            geophysical_indices[2,i]  = kp[ datetime(dn.year, dn.month, dn.day, 6)]
-            geophysical_indices[3,i]  = kp[ datetime(dn.year, dn.month, dn.day, 9)]
-            geophysical_indices[4,i]  = kp[ datetime(dn.year, dn.month, dn.day, 12)]
-            geophysical_indices[5,i]  = kp[ datetime(dn.year, dn.month, dn.day, 15)]
-            geophysical_indices[6,i]  = kp[ datetime(dn.year, dn.month, dn.day, 18)]
-            geophysical_indices[7,i]  = kp[ datetime(dn.year, dn.month, dn.day, 21)]
+        try:  # This will fail if kp/ap data doesn't exist on this day:
+            geophysical_indices[0, i] = \
+                kp[datetime(dn.year, dn.month, dn.day, 0)]
+            geophysical_indices[1, i] = \
+                kp[datetime(dn.year, dn.month, dn.day, 3)]
+            geophysical_indices[2, i] = \
+                kp[datetime(dn.year, dn.month, dn.day, 6)]
+            geophysical_indices[3, i] = \
+                kp[datetime(dn.year, dn.month, dn.day, 9)]
+            geophysical_indices[4, i] = \
+                kp[datetime(dn.year, dn.month, dn.day, 12)]
+            geophysical_indices[5, i] = \
+                kp[datetime(dn.year, dn.month, dn.day, 15)]
+            geophysical_indices[6, i] = \
+                kp[datetime(dn.year, dn.month, dn.day, 18)]
+            geophysical_indices[7, i] = \
+                kp[datetime(dn.year, dn.month, dn.day, 21)]
 
-            geophysical_indices[8,i]  = ap[ datetime(dn.year, dn.month, dn.day, 0)]
-            geophysical_indices[9,i]  = ap[ datetime(dn.year, dn.month, dn.day, 3)]
-            geophysical_indices[10,i] = ap[ datetime(dn.year, dn.month, dn.day, 6)]
-            geophysical_indices[11,i] = ap[ datetime(dn.year, dn.month, dn.day, 9)]
-            geophysical_indices[12,i] = ap[ datetime(dn.year, dn.month, dn.day, 12)]
-            geophysical_indices[13,i] = ap[ datetime(dn.year, dn.month, dn.day, 15)]
-            geophysical_indices[14,i] = ap[ datetime(dn.year, dn.month, dn.day, 18)]
-            geophysical_indices[15,i] = ap[ datetime(dn.year, dn.month, dn.day, 21)]
+            geophysical_indices[8, i] = \
+                ap[datetime(dn.year, dn.month, dn.day, 0)]
+            geophysical_indices[9, i] = \
+                ap[datetime(dn.year, dn.month, dn.day, 3)]
+            geophysical_indices[10, i] = \
+                ap[datetime(dn.year, dn.month, dn.day, 6)]
+            geophysical_indices[11, i] = \
+                ap[datetime(dn.year, dn.month, dn.day, 9)]
+            geophysical_indices[12, i] = \
+                ap[datetime(dn.year, dn.month, dn.day, 12)]
+            geophysical_indices[13, i] = \
+                ap[datetime(dn.year, dn.month, dn.day, 15)]
+            geophysical_indices[14, i] = \
+                ap[datetime(dn.year, dn.month, dn.day, 18)]
+            geophysical_indices[15, i] = \
+                ap[datetime(dn.year, dn.month, dn.day, 21)]
 
-            geophysical_indices[18,i] = daily_kp[ datetime(dn.year, dn.month, dn.day)]
-            geophysical_indices[19,i] = daily_ap[ datetime(dn.year, dn.month, dn.day)]
+            geophysical_indices[18, i] = \
+                daily_kp[datetime(dn.year, dn.month, dn.day)]
+            geophysical_indices[19, i] = \
+                daily_ap[datetime(dn.year, dn.month, dn.day)]
+
         except KeyError:
             pass
 
-        try: # This will fail if no f10.7 data are available on this day
-            geophysical_indices[16,i] = f107[ datetime(dn.year, dn.month, dn.day)]
-            geophysical_indices[17,i] = f107a[ datetime(dn.year, dn.month, dn.day)]
+        try:  # This will fail if no f10.7 data are available on this day
+            geophysical_indices[16, i] = \
+                f107[datetime(dn.year, dn.month, dn.day)]
+            geophysical_indices[17, i] = \
+                f107a[datetime(dn.year, dn.month, dn.day)]
         except KeyError:
             pass
 
-        try: # This will fail if no dst data are available on this day
-            geophysical_indices[20:44,i] = dst[dn]
+        try:  # This will fail if no dst data are available on this day
+            geophysical_indices[20:44, i] = dst[dn]
         except KeyError:
             pass
 
-        try: # This will fail if no ae data are available on this day
-            geophysical_indices[44:68,i] = ae[dn]
+        try:  # This will fail if no ae data are available on this day
+            geophysical_indices[44:68, i] = ae[dn]
         except KeyError:
             pass
 
