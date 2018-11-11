@@ -114,7 +114,7 @@ See example scripts located in `./tests` for example calls to `pyglow`.
 ~ $ python -c "import pyglow; pyglow.update_indices()"
 ```
 
-  * Only need to run this function when you would like to update the indices.
+  * Note: you only need to run this function when you would like to update the indices.
 
 
 # Uninstallation
