@@ -103,19 +103,28 @@ See example scripts located in `./tests` for example calls to `pyglow`.
 1. Use tab completion in ipython to view the full set of member data and variables available in the Point class.
   * For example, in the test code, run `pt.<TAB><TAB>` and class information will be listed.
 
-### Updating geophysical indices with `update_indices()`
+### Updating geophysical indices with `pyglow.update_indices()`
 1. You'll need to download the geophysical indices as they become available.  The `update_indices()` function is available in pyglow that enables you do this:
 
 ```
-from pyglow.pyglow import update_indices
-update_indices([2012, 2013]) # grabs indices for 2012 and 2013
-update_indices() # grabs all indices starting from 1932 to the current year
+# Grabs indices for 2017 and 2018:
+~ $ python -c "import pyglow; pyglow.update_indices([2017, 2018])"
+
+# Grabs all indices starting from 1932 to the current year:
+~ $ python -c "import pyglow; pyglow.update_indices()"
 ```
 
-  * Only need to run this function when you would like to update the indices.
+  * Note: you only need to run this function when you would like to update the indices.
 
 
 # Uninstallation
 
-1. The install directory for pyglow is outputted when you run the `python ./setup.py install` command.  For example, on a mac this is usually in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.  You can also retrieve the library location with `python -c "import pyglow; print(pyglow.__file__)"`
-2.  Simply remove the `*.so` climatological models in this directory, as well as the `pyglow` and `pyglow_trash` folders.
+The install directory for pyglow can be outputted via `python -c "import pyglow; print(pyglow.__file__)"`.  For example:
+```
+~ $ python -c "import pyglow; print(pyglow.__file__)"
+/Users/duly/Library/Python/2.7/lib/python/site-packages/pyglow/__init__.pyc
+```
+This tells you the installation location, and then you can remove the package with:
+```
+~ $ rm -rf /Users/duly/Library/Python/2.7/lib/python/site-packages/pyglow
+```
