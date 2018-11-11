@@ -44,7 +44,7 @@ First, checkout the repository:
 Change directories into the repository folder, compile the f2py bindings, then install:
 ```
     $ cd pyglow/
-    $ make -C pyglow/models source
+    $ make -C src/pyglow/models source
     $ python setup.py install --user
 ```
 
@@ -60,7 +60,7 @@ If you have troubles, follow the individual installation steps:
 
 (2) Download the climatological models and wrap them with f2py:
 ```
-    $ cd ./pyglow/models/
+    $ cd ./src/pyglow/models/
     $ make all
 ```
   * If successful, there should be a `*.so` file in each of the `./models/dl_models/<model>/` directories:
@@ -79,7 +79,7 @@ If you have troubles, follow the individual installation steps:
 
 (3) Install the python package
 ```
-    $ cd ../../   # get back to root directory
+    $ cd ../../../   # get back to root directory
     $ python setup.py install --user --prefix=
 ```
   * On a mac, the folder `pyglow` and `*.so` files from `./models/dl_models/<model>/` should be in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`

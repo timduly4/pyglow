@@ -2,7 +2,7 @@
 mtime_table.pkl
 geophysical_indices.npy
 build/
-pyglow/models/dl_models/
-pyglow/ae/
-pyglow/dst/
-pyglow/kpap/
+src/pyglow/models/dl_models/
+src/pyglow/ae/
+src/pyglow/dst/
+src/pyglow/kpap/
