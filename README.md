@@ -107,9 +107,11 @@ See example scripts located in `./tests` for example calls to `pyglow`.
 1. You'll need to download the geophysical indices as they become available.  The `update_indices()` function is available in pyglow that enables you do this:
 
 ```
-from pyglow.pyglow import update_indices
-update_indices([2012, 2013]) # grabs indices for 2012 and 2013
-update_indices() # grabs all indices starting from 1932 to the current year
+# grabs indices for 2017 and 2018:
+~ $ python -c "import pyglow; pyglow.update_indices([2017, 2018])"
+
+# grabs all indices starting from 1932 to the current year
+~ $ python -c "import pyglow; pyglow.update_indices()"
 ```
 
   * Only need to run this function when you would like to update the indices.
