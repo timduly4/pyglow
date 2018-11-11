@@ -31,16 +31,18 @@ from iri16py import iri_sub as iri16
 from iri16py import read_ig_rz, readapf107
 from msis00py import gtd7 as msis00
 
-"""
-Global variable indicating if IRI 2016 has been initialized with
-the contents of the ionosphere global index (ig_rz.dat) and Ap/F10.7
-index (apf107.dat) files. IRI 2016 initialization is required only
-once per session.
-"""
-__INIT_IRI16 = False
-__version__ = '1.2'
+# Pyglow version:
+VERSION = '1.3'
 
+# Global variable indicating if IRI 2016 has been initialized with the contents
+# of the ionosphere global index (ig_rz.dat) and Ap/F10.7 index (apf107.dat)
+# files. IRI 2016 initialization is required only once per session.
+__INIT_IRI16 = False
+
+# Directory of pyglow files:
 DIR_FILE = os.path.dirname(__file__)
+
+__version__ = VERSION
 
 
 class Point(object):
