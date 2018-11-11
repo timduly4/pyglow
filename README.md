@@ -119,5 +119,12 @@ See example scripts located in `./tests` for example calls to `pyglow`.
 
 # Uninstallation
 
-1. The install directory for pyglow is outputted when you run the `python ./setup.py install` command.  For example, on a mac this is usually in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`.  You can also retrieve the library location with `python -c "import pyglow; print(pyglow.__file__)"`
-2.  Simply remove the `*.so` climatological models in this directory, as well as the `pyglow` and `pyglow_trash` folders.
+1. The install directory for pyglow can be outputted via `python -c "import pyglow; print(pyglow.__file__)"`.  For example:
+```
+~ $ python -c "import pyglow; print(pyglow.__file__)"
+/Users/duly/Library/Python/2.7/lib/python/site-packages/pyglow/__init__.pyc
+```
+This tells you the installation location, and then you can remove the package with:
+```
+~ $ rm -rf /Users/duly/Library/Python/2.7/lib/python/site-packages/pyglow
+```
