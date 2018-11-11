@@ -119,7 +119,7 @@ See example scripts located in `./tests` for example calls to `pyglow`.
 
 # Uninstallation
 
-1. The install directory for pyglow can be outputted via `python -c "import pyglow; print(pyglow.__file__)"`.  For example:
+The install directory for pyglow can be outputted via `python -c "import pyglow; print(pyglow.__file__)"`.  For example:
 ```
 ~ $ python -c "import pyglow; print(pyglow.__file__)"
 /Users/duly/Library/Python/2.7/lib/python/site-packages/pyglow/__init__.pyc
