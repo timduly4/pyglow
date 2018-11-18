@@ -45,7 +45,7 @@ source: clean download
 
 clean:
 	rm -rf *~
-	make -Cdl_models/hwm93 clean
+	rm -rf ./dl_models/hwm93/*
 	rm -rf ./dl_models/hwm07/*
 	rm -rf ./dl_models/hwm14/*.pyf
 	rm -rf ./dl_models/hwm14/out*
@@ -54,7 +54,7 @@ clean:
 	rm -rf ./dl_models/igrf12/*
 	rm -rf ./dl_models/iri12/*
 	rm -rf ./dl_models/iri16/*
-	make -Cdl_models/msis clean
+	rm -rf ./dl_models/msis/*
 	touch ./dl_models/hwm07/dummy.txt
 	touch ./dl_models/hwm93/dummy.txt
 	touch ./dl_models/igrf11/dummy.txt
