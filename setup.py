@@ -138,7 +138,8 @@ setup(
     url='https://github.com/timduly4/pyglow',
     author='Timothy M. Duly',
     author_email='timduly4@gmail.com',
-    packages=['src/pyglow'],
+    packages=['pyglow'],
+    package_dir={'pyglow': 'src/pyglow'},
     ext_modules=[
         igrf11,
         igrf12,

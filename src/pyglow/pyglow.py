@@ -32,7 +32,7 @@ from iri16py import read_ig_rz, readapf107
 from msis00py import gtd7 as msis00
 
 # Pyglow version:
-VERSION = '1.3'
+VERSION = '1.4'
 
 # Global variable indicating if IRI 2016 has been initialized with the contents
 # of the ionosphere global index (ig_rz.dat) and Ap/F10.7 index (apf107.dat)
@@ -148,6 +148,31 @@ class Point(object):
             # Call the indice models:
             self.get_indices()
             self.apmsis = get_apmsis(self.dn)
+
+    def __str__(self):
+        """ String representation of pyglow class """
+
+        pyglow_str = "pyglow.Point: dn = {dn}, lat = {lat:3.2f} [deg], "\
+                     "lon = {lon:3.2f} [deg], alt = {alt:3.2f} [km]".format(
+                        dn=self.dn.strftime("%Y-%m-%d %H:%M:%S"),
+                        lat=self.lat,
+                        lon=self.lon,
+                        alt=self.alt,
+                     )
+
+        return pyglow_str
+
+    def __repr__(self):
+        """ Representation value of pyglow class """
+
+        pyglow_repr = "pyglow.Point({dn}, {lat}, {lon}, {alt})".format(
+                        dn=self.dn.__repr__(),
+                        lat=self.lat,
+                        lon=self.lon,
+                        alt=self.alt,
+                     )
+
+        return pyglow_repr
 
     def get_indices(self):
         """
