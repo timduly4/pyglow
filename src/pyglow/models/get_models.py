@@ -13,6 +13,9 @@ INDICE_URLS = [
     'http://irimodel.org/indices/ig_rz.dat',
 ]
 
+FN_MSIS = 'nrlmsise00_sub.for'
+FN_HWM93 = 'hwm93.f'
+
 # Note on  MSIS00: the model does not seem to be available from any URL.
 # We will now include the model as part of the pyglow code base.
 
@@ -71,8 +74,34 @@ hwm07 = {
     'zip_folder': 'HWM07',
 }
 
+# HWM 93:
+hwm93 = {
+    'folder': 'hwm93',
+    'name': 'hwm93',
+    'url': "{}/{}/{}".format(GITHUB_BASE, 'master/static', FN_HWM93),
+    'url_backup': [
+        "{}/{}/{}".format(GITHUB_BASE, 'msis-fix/static', FN_HWM93),
+    ],
+    'tar': False,
+    'zip': False,
+    'filename': FN_HWM93,
+}
+
+# MSIS:
+msis = {
+    'folder': 'msis',
+    'name': 'msis',
+    'url': "{}/{}/{}".format(GITHUB_BASE, 'master/static', FN_MSIS),
+    'url_backup': [
+        "{}/{}/{}".format(GITHUB_BASE, 'msis-fix/static', FN_MSIS),
+    ],
+    'tar': False,
+    'zip': False,
+    'filename': FN_MSIS,
+}
+
 # Download each model:
-for model in [igrf11, igrf12, hwm07, iri12]:
+for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
 
     # Parse model name:
     model_name = model['name']
