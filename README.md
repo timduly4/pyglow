@@ -30,7 +30,7 @@ pyglow also provides access to the the following geophysical indices:
 `pyglow` requires the following packages for installation:
 
 1. `gfortran` (`$ sudo apt-get install gfortran`)
-2. `f2py` (`$ pip install python-numpy`)
+2. `f2py` (`$ pip install numpy --upgrade`)
 
 # Installation
 
