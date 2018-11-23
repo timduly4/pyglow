@@ -24,8 +24,10 @@ sig:
 
 mod:
 	f2py -c sig_file.pyf $(fortran_files)  --fcompiler=gfortran | tee out2
-
+remove_decode_errors:
+	python remove_decode_errors.py
 source:
+	make remove_decode_errors;
 	make patch_hwm07e;
 	make sig;
 
