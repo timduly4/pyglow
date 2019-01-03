@@ -4,45 +4,37 @@ from __future__ import absolute_import
 
 from future import standard_library
 standard_library.install_aliases()
-from builtins import str
-from builtins import range
-from builtins import object
-from past.utils import old_div
-import contextlib
-from datetime import date, timedelta
-import glob
-import numpy as np
-import os
-import shutil
-import sys
-import warnings
-import urllib.request, urllib.error, urllib.parse
+from builtins import str  # noqa E402
+from builtins import range  # noqa E402
+from builtins import object  # noqa E402
+from past.utils import old_div  # noqa E402
+import contextlib  # noqa E402
+from datetime import date, timedelta  # noqa E402
+import glob  # noqa E402
+import numpy as np  # noqa E402
+import os  # noqa E402
+import shutil  # noqa E402
+import sys  # noqa E402
+import warnings  # noqa E402
+import urllib.request, urllib.error, urllib.parse  # noqa E402
 
-from . import coord
-from .get_kpap import get_kpap
-from .get_apmsis import get_apmsis
-from hwm93py import gws5 as hwm93
-from hwm07py import hwmqt as hwm07
-from hwm14py import hwm14
-from igrf11py import igrf11syn as igrf11
-from igrf12py import igrf12syn as igrf12
-from iri12py import iri_sub as iri12
-from iri16py import iri_sub as iri16
-from iri16py import read_ig_rz, readapf107
-from msis00py import gtd7 as msis00
+from ipdb import set_trace as db  # noqa E402
 
-# Pyglow version:
-VERSION = '1.4'
+from . import coord  # noqa E402
+from .get_kpap import get_kpap  # noqa E402
+from .get_apmsis import get_apmsis  # noqa E402
+from hwm93py import gws5 as hwm93  # noqa E402
+from hwm07py import hwmqt as hwm07  # noqa E402
+from hwm14py import hwm14  # noqa E402
+from igrf11py import igrf11syn as igrf11  # noqa E402
+from igrf12py import igrf12syn as igrf12  # noqa E402
+from msis00py import gtd7 as msis00  # noqa E402
+from .location_time import LocationTime  # noqa E402
+from . import constants  # noqa E402
+from .iri import IRI  # noqa E402
 
-# Global variable indicating if IRI 2016 has been initialized with the contents
-# of the ionosphere global index (ig_rz.dat) and Ap/F10.7 index (apf107.dat)
-# files. IRI 2016 initialization is required only once per session.
-__INIT_IRI16 = False
-
-# Directory of pyglow files:
-DIR_FILE = os.path.dirname(__file__)
-
-__version__ = VERSION
+# Code version:
+__version__ = constants.VERSION
 
 
 class Point(object):
@@ -80,16 +72,22 @@ class Point(object):
         self.lon = lon
         self.alt = alt
 
-        # Error if date is too early
+        # Error if date is too early:
         if self.dn.year < 1932:
             raise ValueError('Date cannot be before 1932!')
 
-        # Time variables:
-        self.doy = self.dn.timetuple().tm_yday
-        self.utc_sec = self.dn.hour*3600. + self.dn.minute*60.
-        self.utc_hour = self.dn.hour
-        self.slt_hour = np.mod(self.utc_sec/3600. + self.lon/15., 24)
-        self.iyd = np.mod(self.dn.year, 100)*1000 + self.doy
+        # Form location/time data structure:
+        self.location_time = LocationTime(dn, lat, lon, alt)
+
+        # Initialize IRI:
+        self.iri = IRI()
+        self.ne = self.iri.ne
+        self.ni = self.iri.ni
+        self.Ti = self.iri.Ti
+        self.Te = self.iri.Te
+        self.Tn_iri = self.iri.Tn
+        self.NmF2 = self.iri.NmF2
+        self.hmF2 = self.iri.hmF2
 
         # For kp, ap function
         self.kp = nan
@@ -102,20 +100,6 @@ class Point(object):
         self.apmsis = [nan, ] * 7
         self.dst = nan
         self.ae = nan
-
-        # For iri:
-        self.ne = nan
-        ions = ['O+', 'H+', 'HE+', 'O2+', 'NO+']
-        self.ni = {}
-        for ion in ions:
-            self.ni[ion] = nan
-
-        self.Ti = nan
-        self.Te = nan
-        self.Tn_iri = nan
-
-        self.NmF2 = nan
-        self.hmF2 = nan
 
         # For msis:
         self.Tn_msis = nan
@@ -183,183 +167,59 @@ class Point(object):
             = get_kpap(self.dn)
         return self
 
-    @staticmethod
-    def init_iri16():
-        """
-        If required (depending on the global variable *__INIT_IRI16*),
-        initialize IRI 2016. Return `True` if the model was
-        initialized and `False` otherwise.
-        """
-        if not globals()['__INIT_IRI16']:
-            read_ig_rz()
-            readapf107()
-            globals()['__INIT_IRI16'] = True
-            return True
-        else:
-            return False
-
     def run_iri(
         self,
+        version=2016,
         NmF2=None,
         hmF2=None,
-        version=2016,
         compute_Ne=True,
         compute_Te_Ti=True,
         compute_Ni=True,
-        debug=False,
     ):
         """
-        Run IRI model at point time/location and update the object state
-        accordingly. If *NmF2* (in [cm^{-3}}]) or *hmF2* (in [km]) are
-        specified, input them to the model (see documentation for
-        IRI_SUB)). Override the model with *version* --- valid options
-        are currently 2016 or 2012. Output debugging information if
-        *debug* is true. The toggles *compute_Ne*, *compute_Te_Ti*,
-        and *compute_Ni* control, respectively, whether electron
-        density, electron and ion temperatures, and ion density are
-        computed (restricting the model to only what is required can
-        reduce run time) or set to `NaN`.
+        Executes IRI and assigns results to instance.
+
+        :param version: Version of IRI to run
+        :param NmF2: User-specified NmF2 [cm^-3]
+        :param hmF2: User-specified hmF2 [km]
+        :param compute_Ne: Switch to compute Ne
+        :param compute_Te_Ti: Switch to compute Te and Ti
+        :param compute_Ni: Switch to compute Ni
         """
 
-        if version == 2016:
-            iri_data_stub = 'iri16_data/'
-            iri = iri16
-            init_iri = Point.init_iri16
-        elif version == 2012:
-            iri_data_stub = 'iri12_data/'
-            iri = iri12
-            init_iri = lambda: False
-        else:
-            raise ValueError(
-                "Invalid version of {} for IRI.\n".format(version) +
-                "Either 2016 (default) or 2012 is valid."
-            )
-
-        if debug:
-            print("Version = {}".format(version))
-
-        jf = np.ones((50,))  # JF switches
-        # Standard IRI model flags
-        #             | FORTRAN Index
-        #             |
-        #             V
-        jf[3] = 0  # 4 B0,B1 other model-31
-        jf[4] = 0  # 5  foF2 - URSI
-        jf[5] = 0  # 6  Ni - RBV-10 & TTS-03
-        jf[20] = 0  # 21 ion drift not computed
-        jf[22] = 0  # 23 Te_topside (TBT-2011)
-        jf[27] = 0  # 28 spreadF prob not computed
-        jf[28] = 0  # 29 (29,30) => NeQuick
-        jf[29] = 0  # 30
-        # (Brian found a case that stalled IRI when on):
-        jf[32] = 0  # 33 Auroral boundary model off
-        jf[34] = 0  # 35 no foE storm update
-
-        # Not standard, but outputs same as values as standard so not an issue
-        jf[21] = 0  # 22 ion densities in m^-3 (not %)
-        jf[33] = 0  # 34 turn messages off
-
-        if not compute_Ne:
-            jf[0] = 0
-
-        if not compute_Te_Ti:
-            jf[1] = 0
-
-        if not compute_Ni:
-            jf[2] = 0
-
-        oarr = np.zeros((100,))
-
-        if NmF2 is not None:
-            # use specified F2 peak density
-            jf[7] = 0
-            oarr[0] = NmF2 * 100.**3  # IRI expects [m^{-3}]
-
-        if hmF2 is not None:
-            # use specified F2 peak height
-            jf[8] = 0
-            oarr[1] = hmF2
-
+        # Check if user supplies indices:
         if self.user_ind:
-            # Set jf(25) switch to false (in Fortran)
-            #   which is jf[24] in Python
-            jf[24] = 0
-
-            # Set jf(32) switch to false (in Fortran)
-            #   which is jf[31] in Python
-            jf[31] = 0
-
-            # Store user indice for F10.7 in oarr:
-            oarr[40] = self.f107
-
-            # Store user index for F10.7 81 day average in oarr:
-            oarr[45] = self.f107a
-
-            # Reference:
-            # https://github.com/timduly4/pyglow/issues/34#issuecomment-340645358
-
-        # Get current directory:
-        my_pwd = os.getcwd()
-
-        # IRI data path.  We need to change directories
-        # into where the IRI data are located in order
-        # to run IRI:
-        iri_data_path = os.path.join(
-            DIR_FILE,
-            iri_data_stub,
-        )
-        if debug:
-            print("Changing directory to {}".format(iri_data_path))
-
-        os.chdir(iri_data_path)
-        init_iri()
-        outf = iri(
-            jf,
-            0,
-            self.lat,
-            self.lon,
-            int(self.dn.year),
-            -self.doy,
-            (self.utc_sec/3600.+25.),
-            self.alt,
-            self.alt+1,
-            1,
-            oarr,
-        )
-        os.chdir(my_pwd)
-
-        if compute_Te_Ti:
-            self.Te = outf[3, 0]  # Electron temperature from IRI (K)
-            self.Ti = outf[2, 0]  # Ion temperature from IRI (K)
+            f107 = self.f107
+            f107a = self.f107a
+            if np.isnan(f107) or np.isnan(f107a):
+                raise ValueError(
+                    "Cannot assign f107 or f017a with NaN when executing IRI"
+                )
         else:
-            self.Te = float('NaN')
-            self.Ti = float('NaN')
+            f107 = None
+            f107a = None
 
-        self.Tn_iri = outf[1, 0]  # Neutral temperature from IRI (K)
+        # Execute IRI:
+        self.iri.run(
+            self.location_time,
+            version=version,
+            NmF2=NmF2,
+            hmF2=hmF2,
+            compute_Ne=compute_Ne,
+            compute_Te_Ti=compute_Te_Ti,
+            compute_Ni=compute_Ni,
+            f107=f107,
+            f107a=f107a,
+        )
 
-        self.ne = outf[0, 0]  # Electron density (m^-3)
-        self.ni['O+'] = outf[4, 0]  # O+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['H+'] = outf[5, 0]  # H+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['HE+'] = outf[6, 0]  # HE+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['O2+'] = outf[7, 0]  # O2+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['NO+'] = outf[8, 0]  # NO+ Density (%, or m^-3 with JF(22) = 0)
-
-        self.NmF2 = oarr[0]
-        self.hmF2 = oarr[1]
-
-        if compute_Ne:
-            self.ne = outf[0, 0]  # Electron density (m^-3)
-        else:
-            self.ne = float('NaN')
-
-        # Densities are now in cm^-3:
-        self.ne = self.ne / 100.**3  # [items/cm^3]
-        self.ni['O+'] = self.ni['O+'] / 100.**3  # [items/cm^3]
-        self.ni['H+'] = self.ni['H+'] / 100.**3  # [items/cm^3]
-        self.ni['HE+'] = self.ni['HE+'] / 100.**3  # [items/cm^3]
-        self.ni['O2+'] = self.ni['O2+'] / 100.**3  # [items/cm^3]
-        self.ni['NO+'] = self.ni['NO+'] / 100.**3  # [items/cm^3]
-        self.NmF2 = self.NmF2 / 100.**3  # [items/cm^3]
+        # Assign output of IRI:
+        self.ne = self.iri.ne
+        self.ni = self.iri.ni
+        self.Ti = self.iri.Ti
+        self.Te = self.iri.Te
+        self.Tn_iri = self.iri.Tn
+        self.NmF2 = self.iri.NmF2
+        self.hmF2 = self.iri.hmF2
 
         return self
 
@@ -377,12 +237,12 @@ class Point(object):
             )
 
         [d, t] = msis(
-            self.doy,
-            self.utc_sec,
+            self.location_time.doy,
+            self.location_time.utc_sec,
             self.alt,
             self.lat,
             np.mod(self.lon, 360),
-            self.slt_hour,
+            self.location_time.slt_hour,
             self.f107a,
             self.f107p,
             self.apmsis,
@@ -430,12 +290,12 @@ class Point(object):
         """
 
         w = hwm93(
-            self.iyd,
-            self.utc_sec,
+            self.location_time.iyd,
+            self.location_time.utc_sec,
             self.alt,
             self.lat,
             np.mod(self.lon, 360),
-            self.slt_hour,
+            self.location_time.slt_hour,
             self.f107a,
             self.f107,
             self.ap_daily,
@@ -454,17 +314,17 @@ class Point(object):
 
         my_pwd = os.getcwd()
 
-        hwm07_data_path = os.path.join(DIR_FILE, "hwm07_data/")
+        hwm07_data_path = os.path.join(constants.DIR_FILE, "hwm07_data/")
 
         os.chdir(hwm07_data_path)
         aphwm07 = [float('NaN'), self.ap]
         w = hwm07(
-            self.iyd,
-            self.utc_sec,
+            self.location_time.iyd,
+            self.location_time.utc_sec,
             self.alt,
             self.lat,
             np.mod(self.lon, 360),
-            self.slt_hour,
+            self.location_time.slt_hour,
             self.f107a,
             self.f107,
             aphwm07,
@@ -486,13 +346,13 @@ class Point(object):
 
         my_pwd = os.getcwd()
 
-        hwm14_data_path = os.path.join(DIR_FILE, "hwm14_data/")
+        hwm14_data_path = os.path.join(constants.DIR_FILE, "hwm14_data/")
 
         os.chdir(hwm14_data_path)
 
         v, u = hwm14(
-            self.iyd,
-            self.utc_sec,
+            self.location_time.iyd,
+            self.location_time.utc_sec,
             self.alt,
             self.lat,
             np.mod(self.lon, 360),
@@ -535,7 +395,7 @@ class Point(object):
         )
 
         h = np.sqrt(x**2 + y**2)
-        dip = 180./np.pi * np.arctan2(z ,h)
+        dip = 180./np.pi * np.arctan2(z, h)
         dec = 180./np.pi * np.arctan2(y, x)
 
         # Note that the changes here match
@@ -578,8 +438,8 @@ class Point(object):
         9/13/16 -- added 7774 calculation
         """
 
-        # Let's see if IRI and MSIS have been executed.
-        # If not, run the appropriate models:
+        # Let's see if IRI and MSIS have been executed. If not, run the
+        # appropriate models:
         if np.isnan(self.ne):
             self.run_iri()
         if np.isnan(self.nn['O2']):
@@ -826,7 +686,7 @@ def update_kpap(years=None):
     if years is None:
         years = range(1932, date.today().year + 1)[::-1]  # reverse
 
-    pyglow_dir = os.path.join(DIR_FILE, "kpap/")
+    pyglow_dir = os.path.join(constants.DIR_FILE, "kpap/")
 
     for year in years:
         src = 'ftp://ftp.ngdc.noaa.gov/'\
@@ -909,7 +769,7 @@ def update_dst(years=None):
     # files are shipped with pyglow.
     if years is None:
         years = list(range(2005, date.today().year + 1))[::-1]  # reversed
-    pyglow_dir = os.path.join(DIR_FILE, "dst/")
+    pyglow_dir = os.path.join(constants.DIR_FILE, "dst/")
 
     for year in years:
         for month in range(1, 13):
@@ -983,7 +843,7 @@ def update_ae(years=None):
     # files are shipped with pyglow.
     if years is None:
         years = list(range(2000, date.today().year + 1))[::-1]  # reversed
-    pyglow_dir = os.path.join(DIR_FILE, "ae/")
+    pyglow_dir = os.path.join(constants.DIR_FILE, "ae/")
 
     for year in years:
         for month in range(1, 13):
