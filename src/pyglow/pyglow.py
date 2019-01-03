@@ -26,18 +26,11 @@ from hwm07py import hwmqt as hwm07
 from hwm14py import hwm14
 from igrf11py import igrf11syn as igrf11
 from igrf12py import igrf12syn as igrf12
-from iri12py import iri_sub as iri12
-from iri16py import iri_sub as iri16
-from iri16py import read_ig_rz, readapf107
 from msis00py import gtd7 as msis00
+from .location_time import LocationTime
 
 # Pyglow version:
-VERSION = '1.4'
-
-# Global variable indicating if IRI 2016 has been initialized with the contents
-# of the ionosphere global index (ig_rz.dat) and Ap/F10.7 index (apf107.dat)
-# files. IRI 2016 initialization is required only once per session.
-__INIT_IRI16 = False
+VERSION = '1.5'
 
 # Directory of pyglow files:
 DIR_FILE = os.path.dirname(__file__)
@@ -80,16 +73,11 @@ class Point(object):
         self.lon = lon
         self.alt = alt
 
-        # Error if date is too early
+        self.location_time = LocationTime(dn, lat, lon, alt)
+
+        # Error if date is too early:
         if self.dn.year < 1932:
             raise ValueError('Date cannot be before 1932!')
-
-        # Time variables:
-        self.doy = self.dn.timetuple().tm_yday
-        self.utc_sec = self.dn.hour*3600. + self.dn.minute*60.
-        self.utc_hour = self.dn.hour
-        self.slt_hour = np.mod(self.utc_sec/3600. + self.lon/15., 24)
-        self.iyd = np.mod(self.dn.year, 100)*1000 + self.doy
 
         # For kp, ap function
         self.kp = nan
@@ -102,20 +90,6 @@ class Point(object):
         self.apmsis = [nan, ] * 7
         self.dst = nan
         self.ae = nan
-
-        # For iri:
-        self.ne = nan
-        ions = ['O+', 'H+', 'HE+', 'O2+', 'NO+']
-        self.ni = {}
-        for ion in ions:
-            self.ni[ion] = nan
-
-        self.Ti = nan
-        self.Te = nan
-        self.Tn_iri = nan
-
-        self.NmF2 = nan
-        self.hmF2 = nan
 
         # For msis:
         self.Tn_msis = nan
@@ -183,21 +157,6 @@ class Point(object):
             = get_kpap(self.dn)
         return self
 
-    @staticmethod
-    def init_iri16():
-        """
-        If required (depending on the global variable *__INIT_IRI16*),
-        initialize IRI 2016. Return `True` if the model was
-        initialized and `False` otherwise.
-        """
-        if not globals()['__INIT_IRI16']:
-            read_ig_rz()
-            readapf107()
-            globals()['__INIT_IRI16'] = True
-            return True
-        else:
-            return False
-
     def run_iri(
         self,
         NmF2=None,
@@ -209,157 +168,29 @@ class Point(object):
         debug=False,
     ):
         """
-        Run IRI model at point time/location and update the object state
-        accordingly. If *NmF2* (in [cm^{-3}}]) or *hmF2* (in [km]) are
-        specified, input them to the model (see documentation for
-        IRI_SUB)). Override the model with *version* --- valid options
-        are currently 2016 or 2012. Output debugging information if
-        *debug* is true. The toggles *compute_Ne*, *compute_Te_Ti*,
-        and *compute_Ni* control, respectively, whether electron
-        density, electron and ion temperatures, and ion density are
-        computed (restricting the model to only what is required can
-        reduce run time) or set to `NaN`.
+        Runs IRI
+
         """
 
-        if version == 2016:
-            iri_data_stub = 'iri16_data/'
-            iri = iri16
-            init_iri = Point.init_iri16
-        elif version == 2012:
-            iri_data_stub = 'iri12_data/'
-            iri = iri12
-            init_iri = lambda: False
-        else:
-            raise ValueError(
-                "Invalid version of {} for IRI.\n".format(version) +
-                "Either 2016 (default) or 2012 is valid."
-            )
-
-        if debug:
-            print("Version = {}".format(version))
-
-        jf = np.ones((50,))  # JF switches
-        # Standard IRI model flags
-        #             | FORTRAN Index
-        #             |
-        #             V
-        jf[3] = 0  # 4 B0,B1 other model-31
-        jf[4] = 0  # 5  foF2 - URSI
-        jf[5] = 0  # 6  Ni - RBV-10 & TTS-03
-        jf[20] = 0  # 21 ion drift not computed
-        jf[22] = 0  # 23 Te_topside (TBT-2011)
-        jf[27] = 0  # 28 spreadF prob not computed
-        jf[28] = 0  # 29 (29,30) => NeQuick
-        jf[29] = 0  # 30
-        # (Brian found a case that stalled IRI when on):
-        jf[32] = 0  # 33 Auroral boundary model off
-        jf[34] = 0  # 35 no foE storm update
-
-        # Not standard, but outputs same as values as standard so not an issue
-        jf[21] = 0  # 22 ion densities in m^-3 (not %)
-        jf[33] = 0  # 34 turn messages off
-
-        if not compute_Ne:
-            jf[0] = 0
-
-        if not compute_Te_Ti:
-            jf[1] = 0
-
-        if not compute_Ni:
-            jf[2] = 0
-
-        oarr = np.zeros((100,))
-
-        if NmF2 is not None:
-            # use specified F2 peak density
-            jf[7] = 0
-            oarr[0] = NmF2 * 100.**3  # IRI expects [m^{-3}]
-
-        if hmF2 is not None:
-            # use specified F2 peak height
-            jf[8] = 0
-            oarr[1] = hmF2
-
-        if self.user_ind:
-            # Set jf(25) switch to false (in Fortran)
-            #   which is jf[24] in Python
-            jf[24] = 0
-
-            # Set jf(32) switch to false (in Fortran)
-            #   which is jf[31] in Python
-            jf[31] = 0
-
-            # Store user indice for F10.7 in oarr:
-            oarr[40] = self.f107
-
-            # Store user index for F10.7 81 day average in oarr:
-            oarr[45] = self.f107a
-
-            # Reference:
-            # https://github.com/timduly4/pyglow/issues/34#issuecomment-340645358
-
-        # Get current directory:
-        my_pwd = os.getcwd()
-
-        # IRI data path.  We need to change directories
-        # into where the IRI data are located in order
-        # to run IRI:
-        iri_data_path = os.path.join(
-            DIR_FILE,
-            iri_data_stub,
+        # Execute IRI:
+        self.iri.run(
+            NmF2=NmF2,
+            hmF2=hmF2,
+            version=version,
+            compute_Ne=compute_Ne,
+            compute_Te_Ti=compute_Te_Ti,
+            compute_Ni=compute_Ni,
+            debug=debug,
         )
-        if debug:
-            print("Changing directory to {}".format(iri_data_path))
 
-        os.chdir(iri_data_path)
-        init_iri()
-        outf = iri(
-            jf,
-            0,
-            self.lat,
-            self.lon,
-            int(self.dn.year),
-            -self.doy,
-            (self.utc_sec/3600.+25.),
-            self.alt,
-            self.alt+1,
-            1,
-            oarr,
-        )
-        os.chdir(my_pwd)
-
-        if compute_Te_Ti:
-            self.Te = outf[3, 0]  # Electron temperature from IRI (K)
-            self.Ti = outf[2, 0]  # Ion temperature from IRI (K)
-        else:
-            self.Te = float('NaN')
-            self.Ti = float('NaN')
-
-        self.Tn_iri = outf[1, 0]  # Neutral temperature from IRI (K)
-
-        self.ne = outf[0, 0]  # Electron density (m^-3)
-        self.ni['O+'] = outf[4, 0]  # O+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['H+'] = outf[5, 0]  # H+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['HE+'] = outf[6, 0]  # HE+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['O2+'] = outf[7, 0]  # O2+ Density (%, or m^-3 with JF(22) = 0)
-        self.ni['NO+'] = outf[8, 0]  # NO+ Density (%, or m^-3 with JF(22) = 0)
-
-        self.NmF2 = oarr[0]
-        self.hmF2 = oarr[1]
-
-        if compute_Ne:
-            self.ne = outf[0, 0]  # Electron density (m^-3)
-        else:
-            self.ne = float('NaN')
-
-        # Densities are now in cm^-3:
-        self.ne = self.ne / 100.**3  # [items/cm^3]
-        self.ni['O+'] = self.ni['O+'] / 100.**3  # [items/cm^3]
-        self.ni['H+'] = self.ni['H+'] / 100.**3  # [items/cm^3]
-        self.ni['HE+'] = self.ni['HE+'] / 100.**3  # [items/cm^3]
-        self.ni['O2+'] = self.ni['O2+'] / 100.**3  # [items/cm^3]
-        self.ni['NO+'] = self.ni['NO+'] / 100.**3  # [items/cm^3]
-        self.NmF2 = self.NmF2 / 100.**3  # [items/cm^3]
+        # Assign output of IRI:
+        self.ne = self.iri.ne
+        self.ni = self.iri.ni
+        self.Ti = self.iri.Ti
+        self.Te = self.iri.Te
+        self.Tn_iri = self.iri.Tn_iri
+        self.NmF2 = self.iri.NmF2
+        self.hmF2 = self.iri.hmF2
 
         return self
 
