@@ -2,9 +2,13 @@ from __future__ import print_function
 
 from future import standard_library
 standard_library.install_aliases()
-import os
-import urllib.request, urllib.error, urllib.parse
-import shutil
+import os  # noqa E402
+import urllib.request  # noqa E402
+import urllib.error  # noqa E402
+import urllib.parse  # noqa E402
+import shutil  # noqa E402
+
+from ipdb import set_trace as db
 
 GITHUB_BASE = "https://github.com/timduly4/pyglow/raw"
 
@@ -30,7 +34,6 @@ iri12 = {
     'url': 'http://spdf.gsfc.nasa.gov/pub/models/iri/iri2012/00_iri2012.tar',
     'url_backup': [
         "{}/{}".format(GITHUB_BASE, 'master/static/00_iri2012.tar'),
-        "{}/{}".format(GITHUB_BASE, 'url-backup/static/00_iri2012.tar'),
     ],
     'filename': '00_iri2012.tar',
     'tar': True,
@@ -43,6 +46,10 @@ igrf11 = {
     'folder': 'igrf11',
     'name': 'igrf11',
     'url': 'http://www.ngdc.noaa.gov/IAGA/vmod/igrf11.f',
+    'url_backup': [
+        "{}/{}".format(GITHUB_BASE, 'master/static/igrf11.f'),
+        "{}/{}".format(GITHUB_BASE, 'igrf-backup/static/igrf11.f'),
+    ],
     'filename': 'igrf11.f',
     'tar': False,
     'zip': False,
@@ -53,6 +60,10 @@ igrf12 = {
     'folder': 'igrf12',
     'name': 'igrf12',
     'url': 'http://www.ngdc.noaa.gov/IAGA/vmod/igrf12.f',
+    'url_backup': [
+        "{}/{}".format(GITHUB_BASE, 'master/static/igrf12.f'),
+        "{}/{}".format(GITHUB_BASE, 'igrf-backup/static/igrf12.f'),
+    ],
     'filename': 'igrf12.f',
     'tar': False,
     'zip': False,
@@ -109,9 +120,17 @@ for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
     # Download the tar or zip file:
     print("Downloading files for %s ..." % (model['name']))
     modelfile = None
+    modelfile_error = True
     try:
         modelfile = urllib.request.urlopen(model['url'])
-    except urllib.error.HTTPError as e:
+
+        # Make sure we have a legit file (can be spoofed due to govt shutdown):
+        if modelfile.getheader('Content-Type') == 'text/html':
+            raise ValueError("Received an HTML file")
+
+        modelfile_error = False
+
+    except (urllib.error.HTTPError, ValueError) as e:
 
         # Try backups:
         print(
@@ -122,24 +141,27 @@ for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
                 try:
                     print("Trying: {}".format(url_backup))
                     modelfile = urllib.request.urlopen(url_backup)
+                    modelfile_error = False
                 except urllib.error.HTTPError as e:
                     pass
-                if modelfile:
+                if not modelfile_error:
                     break
         else:
             raise e
 
     # Ensure that we downloaded the model:
-    if not modelfile:
+    if modelfile_error:
         raise ValueError("Unable to download: {}".format(model['name']))
 
     # Write data file:
-    output = open(
-        "./dl_models/{}/{}".format(model['folder'], model['filename']),
-        'wb',
+    fn = "./dl_models/{}/{}".format(
+        model['folder'],
+        model['filename'],
     )
+    output = open(fn, 'wb')
     output.write(modelfile.read())
     output.close()
+    print("Wrote: {}".format(fn))
 
     # Tar file?
     if model['tar']:
