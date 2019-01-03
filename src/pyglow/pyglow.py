@@ -177,14 +177,14 @@ class Point(object):
         compute_Ni=True,
     ):
         """
-        Executes IRI
+        Executes IRI and assigns results to instance.
 
-        :param version:
-        :param NmF2:
-        :param hmF2:
-        :param compute_Ne:
-        :param compute_Te_Ti:
-        :param compute_Ni:
+        :param version: Version of IRI to run
+        :param NmF2: User-specified NmF2 [cm^-3]
+        :param hmF2: User-specified hmF2 [km]
+        :param compute_Ne: Switch to compute Ne
+        :param compute_Te_Ti: Switch to compute Te and Ti
+        :param compute_Ni: Switch to compute Ni
         """
 
         # Check if user supplies indices:

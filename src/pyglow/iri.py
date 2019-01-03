@@ -65,16 +65,23 @@ class IRI(object):
         """
         Run IRI model at point time/location and update the object state
         accordingly. If *NmF2* (in [cm^{-3}}]) or *hmF2* (in [km]) are
-        specified, input them to the model (see documentation for
-        IRI_SUB)). Override the model with *version* --- valid options
-        are currently 2016 or 2012. Output debugging information if
-        *debug* is true. The toggles *compute_Ne*, *compute_Te_Ti*,
-        and *compute_Ni* control, respectively, whether electron
-        density, electron and ion temperatures, and ion density are
-        computed (restricting the model to only what is required can
-        reduce run time) or set to `NaN`.
+        specified, input them to the model (see documentation for IRI_SUB)).
+        Override the model with *version* --- valid options are currently 2016
+        or 2012. Output debugging information if *debug* is true. The toggles
+        *compute_Ne*, *compute_Te_Ti*, and *compute_Ni* control, respectively,
+        whether electron density, electron and ion temperatures, and ion
+        density are computed (restricting the model to only what is required
+        can reduce run time) or set to `NaN`.
 
         :param location_time: Instance of LocationTime
+        :param version: Version of IRI to run
+        :param NmF2: User-specified NmF2 [cm^-3]
+        :param hmF2: User-specified hmF2 [km]
+        :param compute_Ne: Switch to compute Ne
+        :param compute_Te_Ti: Switch to compute Te and Ti
+        :param compute_Ni: Switch to compute Ni
+        :param f107: User specified F107
+        :param f107a: User specified F107A
         """
 
         if version == 2016:
@@ -125,7 +132,7 @@ class IRI(object):
         if NmF2 is not None:
             # User specified F2 peak density
             jf[7] = 0
-            oarr[0] = NmF2 * 100.**3  # IRI expects [m^{-3}]
+            oarr[0] = NmF2 * 100.**3  # IRI expects [m^-3]
 
         if hmF2 is not None:
             # User specified F2 peak height
