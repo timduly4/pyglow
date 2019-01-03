@@ -4,38 +4,37 @@ from __future__ import absolute_import
 
 from future import standard_library
 standard_library.install_aliases()
-from builtins import str
-from builtins import range
-from builtins import object
-from past.utils import old_div
-import contextlib
-from datetime import date, timedelta
-import glob
-import numpy as np
-import os
-import shutil
-import sys
-import warnings
-import urllib.request, urllib.error, urllib.parse
+from builtins import str  # noqa E402
+from builtins import range  # noqa E402
+from builtins import object  # noqa E402
+from past.utils import old_div  # noqa E402
+import contextlib  # noqa E402
+from datetime import date, timedelta  # noqa E402
+import glob  # noqa E402
+import numpy as np  # noqa E402
+import os  # noqa E402
+import shutil  # noqa E402
+import sys  # noqa E402
+import warnings  # noqa E402
+import urllib.request, urllib.error, urllib.parse  # noqa E402
 
-from . import coord
-from .get_kpap import get_kpap
-from .get_apmsis import get_apmsis
-from hwm93py import gws5 as hwm93
-from hwm07py import hwmqt as hwm07
-from hwm14py import hwm14
-from igrf11py import igrf11syn as igrf11
-from igrf12py import igrf12syn as igrf12
-from msis00py import gtd7 as msis00
-from .location_time import LocationTime
+from ipdb import set_trace as db  # noqa E402
 
-# Pyglow version:
-VERSION = '1.5'
+from . import coord  # noqa E402
+from .get_kpap import get_kpap  # noqa E402
+from .get_apmsis import get_apmsis  # noqa E402
+from hwm93py import gws5 as hwm93  # noqa E402
+from hwm07py import hwmqt as hwm07  # noqa E402
+from hwm14py import hwm14  # noqa E402
+from igrf11py import igrf11syn as igrf11  # noqa E402
+from igrf12py import igrf12syn as igrf12  # noqa E402
+from msis00py import gtd7 as msis00  # noqa E402
+from .location_time import LocationTime  # noqa E402
+from . import constants  # noqa E402
+from .iri import IRI  # noqa E402
 
-# Directory of pyglow files:
-DIR_FILE = os.path.dirname(__file__)
-
-__version__ = VERSION
+# Code version:
+__version__ = constants.VERSION
 
 
 class Point(object):
@@ -73,11 +72,22 @@ class Point(object):
         self.lon = lon
         self.alt = alt
 
-        self.location_time = LocationTime(dn, lat, lon, alt)
-
         # Error if date is too early:
         if self.dn.year < 1932:
             raise ValueError('Date cannot be before 1932!')
+
+        # Form location/time data structure:
+        self.location_time = LocationTime(dn, lat, lon, alt)
+
+        # Initialize IRI:
+        self.iri = IRI()
+        self.ne = self.iri.ne
+        self.ni = self.iri.ni
+        self.Ti = self.iri.Ti
+        self.Te = self.iri.Te
+        self.Tn_iri = self.iri.Tn
+        self.NmF2 = self.iri.NmF2
+        self.hmF2 = self.iri.hmF2
 
         # For kp, ap function
         self.kp = nan
@@ -159,28 +169,47 @@ class Point(object):
 
     def run_iri(
         self,
+        version=2016,
         NmF2=None,
         hmF2=None,
-        version=2016,
         compute_Ne=True,
         compute_Te_Ti=True,
         compute_Ni=True,
-        debug=False,
     ):
         """
-        Runs IRI
+        Executes IRI
 
+        :param version:
+        :param NmF2:
+        :param hmF2:
+        :param compute_Ne:
+        :param compute_Te_Ti:
+        :param compute_Ni:
         """
+
+        # Check if user supplies indices:
+        if self.user_ind:
+            f107 = self.f107
+            f107a = self.f107a
+            if np.isnan(f107) or np.isnan(f107a):
+                raise ValueError(
+                    "Cannot assign f107 or f017a with NaN when executing IRI"
+                )
+        else:
+            f107 = None
+            f107a = None
 
         # Execute IRI:
         self.iri.run(
+            self.location_time,
+            version=version,
             NmF2=NmF2,
             hmF2=hmF2,
-            version=version,
             compute_Ne=compute_Ne,
             compute_Te_Ti=compute_Te_Ti,
             compute_Ni=compute_Ni,
-            debug=debug,
+            f107=f107,
+            f107a=f107a,
         )
 
         # Assign output of IRI:
@@ -188,7 +217,7 @@ class Point(object):
         self.ni = self.iri.ni
         self.Ti = self.iri.Ti
         self.Te = self.iri.Te
-        self.Tn_iri = self.iri.Tn_iri
+        self.Tn_iri = self.iri.Tn
         self.NmF2 = self.iri.NmF2
         self.hmF2 = self.iri.hmF2
 
@@ -285,7 +314,7 @@ class Point(object):
 
         my_pwd = os.getcwd()
 
-        hwm07_data_path = os.path.join(DIR_FILE, "hwm07_data/")
+        hwm07_data_path = os.path.join(constants.DIR_FILE, "hwm07_data/")
 
         os.chdir(hwm07_data_path)
         aphwm07 = [float('NaN'), self.ap]
@@ -317,7 +346,7 @@ class Point(object):
 
         my_pwd = os.getcwd()
 
-        hwm14_data_path = os.path.join(DIR_FILE, "hwm14_data/")
+        hwm14_data_path = os.path.join(constants.DIR_FILE, "hwm14_data/")
 
         os.chdir(hwm14_data_path)
 
@@ -366,7 +395,7 @@ class Point(object):
         )
 
         h = np.sqrt(x**2 + y**2)
-        dip = 180./np.pi * np.arctan2(z ,h)
+        dip = 180./np.pi * np.arctan2(z, h)
         dec = 180./np.pi * np.arctan2(y, x)
 
         # Note that the changes here match
@@ -409,8 +438,8 @@ class Point(object):
         9/13/16 -- added 7774 calculation
         """
 
-        # Let's see if IRI and MSIS have been executed.
-        # If not, run the appropriate models:
+        # Let's see if IRI and MSIS have been executed. If not, run the
+        # appropriate models:
         if np.isnan(self.ne):
             self.run_iri()
         if np.isnan(self.nn['O2']):
@@ -657,7 +686,7 @@ def update_kpap(years=None):
     if years is None:
         years = range(1932, date.today().year + 1)[::-1]  # reverse
 
-    pyglow_dir = os.path.join(DIR_FILE, "kpap/")
+    pyglow_dir = os.path.join(constants.DIR_FILE, "kpap/")
 
     for year in years:
         src = 'ftp://ftp.ngdc.noaa.gov/'\
@@ -740,7 +769,7 @@ def update_dst(years=None):
     # files are shipped with pyglow.
     if years is None:
         years = list(range(2005, date.today().year + 1))[::-1]  # reversed
-    pyglow_dir = os.path.join(DIR_FILE, "dst/")
+    pyglow_dir = os.path.join(constants.DIR_FILE, "dst/")
 
     for year in years:
         for month in range(1, 13):
@@ -814,7 +843,7 @@ def update_ae(years=None):
     # files are shipped with pyglow.
     if years is None:
         years = list(range(2000, date.today().year + 1))[::-1]  # reversed
-    pyglow_dir = os.path.join(DIR_FILE, "ae/")
+    pyglow_dir = os.path.join(constants.DIR_FILE, "ae/")
 
     for year in years:
         for month in range(1, 13):
