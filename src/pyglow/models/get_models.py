@@ -20,6 +20,9 @@ INDICE_URLS = [
 FN_MSIS = 'nrlmsise00_sub.for'
 FN_HWM93 = 'hwm93.f'
 
+# Timeout to download a file:
+TIMEOUT = 5  # [sec]
+
 # Note on  MSIS00: the model does not seem to be available from any URL.
 # We will now include the model as part of the pyglow code base.
 
@@ -118,11 +121,16 @@ for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
     model_name = model['name']
 
     # Download the tar or zip file:
-    print("Downloading files for %s ..." % (model['name']))
+    print(
+        "Downloading files for {} at {}".format(
+            model['name'],
+            model['url'],
+        )
+    )
     modelfile = None
     modelfile_error = True
     try:
-        modelfile = urllib.request.urlopen(model['url'])
+        modelfile = urllib.request.urlopen(model['url'], timeout=TIMEOUT)
 
         # Make sure we have a legit file (can be spoofed due to govt shutdown):
         if modelfile.getheader('Content-Type') == 'text/html':
@@ -130,7 +138,7 @@ for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
 
         modelfile_error = False
 
-    except (urllib.error.HTTPError, ValueError) as e:
+    except (urllib.error.HTTPError, urllib.error.URLError, ValueError) as e:
 
         # Try backups:
         print(
@@ -140,7 +148,10 @@ for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
             for url_backup in model['url_backup']:
                 try:
                     print("Trying: {}".format(url_backup))
-                    modelfile = urllib.request.urlopen(url_backup)
+                    modelfile = urllib.request.urlopen(
+                        url_backup,
+                        timeout=TIMEOUT,
+                    )
                     modelfile_error = False
                 except urllib.error.HTTPError as e:
                     pass
