@@ -237,12 +237,12 @@ class Point(object):
             )
 
         [d, t] = msis(
-            self.doy,
-            self.utc_sec,
+            self.location_time.doy,
+            self.location_time.utc_sec,
             self.alt,
             self.lat,
             np.mod(self.lon, 360),
-            self.slt_hour,
+            self.location_time.slt_hour,
             self.f107a,
             self.f107p,
             self.apmsis,
@@ -290,12 +290,12 @@ class Point(object):
         """
 
         w = hwm93(
-            self.iyd,
-            self.utc_sec,
+            self.location_time.iyd,
+            self.location_time.utc_sec,
             self.alt,
             self.lat,
             np.mod(self.lon, 360),
-            self.slt_hour,
+            self.location_time.slt_hour,
             self.f107a,
             self.f107,
             self.ap_daily,
@@ -319,12 +319,12 @@ class Point(object):
         os.chdir(hwm07_data_path)
         aphwm07 = [float('NaN'), self.ap]
         w = hwm07(
-            self.iyd,
-            self.utc_sec,
+            self.location_time.iyd,
+            self.location_time.utc_sec,
             self.alt,
             self.lat,
             np.mod(self.lon, 360),
-            self.slt_hour,
+            self.location_time.slt_hour,
             self.f107a,
             self.f107,
             aphwm07,
@@ -351,8 +351,8 @@ class Point(object):
         os.chdir(hwm14_data_path)
 
         v, u = hwm14(
-            self.iyd,
-            self.utc_sec,
+            self.location_time.iyd,
+            self.location_time.utc_sec,
             self.alt,
             self.lat,
             np.mod(self.lon, 360),
