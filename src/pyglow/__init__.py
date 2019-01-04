@@ -8,3 +8,4 @@ from .pyglow import update_indices  # noqa F401
 from .pyglow import __version__  # noqa F401
 from .iri import IRI  # noqa F401
 from .location_time import LocationTime  # noqa F401
+from .geophysical_indices import Indice

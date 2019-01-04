@@ -21,8 +21,6 @@ import urllib.request, urllib.error, urllib.parse  # noqa E402
 from ipdb import set_trace as db  # noqa E402
 
 from . import coord  # noqa E402
-from .get_kpap import get_kpap  # noqa E402
-from .get_apmsis import get_apmsis  # noqa E402
 from hwm93py import gws5 as hwm93  # noqa E402
 from hwm07py import hwmqt as hwm07  # noqa E402
 from hwm14py import hwm14  # noqa E402
@@ -32,6 +30,7 @@ from msis00py import gtd7 as msis00  # noqa E402
 from .location_time import LocationTime  # noqa E402
 from . import constants  # noqa E402
 from .iri import IRI  # noqa E402
+from .geophysical_indices import Indice  # noqa E402
 
 # Code version:
 __version__ = constants.VERSION
@@ -89,17 +88,26 @@ class Point(object):
         self.NmF2 = self.iri.NmF2
         self.hmF2 = self.iri.hmF2
 
-        # For kp, ap function
-        self.kp = nan
-        self.ap = nan
-        self.f107 = nan
-        self.f107a = nan
-        self.f107p = nan  # previous day's F10.7
-        self.kp_daily = nan
-        self.ap_daily = nan
-        self.apmsis = [nan, ] * 7
-        self.dst = nan
-        self.ae = nan
+        # Flag for user indices:
+        self.user_ind = user_ind
+
+        # Geophysical indices:
+        self.indice = Indice(dn)
+        if not self.user_ind:
+            # Call the indice models:
+            self.indice.run()
+
+        # Assign indice data:
+        self.kp = self.indice.kp
+        self.ap = self.indice.ap
+        self.f107 = self.indice.f107
+        self.f107a = self.indice.f107a
+        self.f107p = self.indice.f107p
+        self.kp_daily = self.indice.kp_daily
+        self.ap_daily = self.indice.ap_daily
+        self.dst = self.indice.dst
+        self.ae = self.indice.ae
+        self.apmsis = self.indice.apmsis
 
         # For msis:
         self.Tn_msis = nan
@@ -125,14 +133,6 @@ class Point(object):
         self.ag6300 = nan
         self.ag7774 = nan
 
-        # Flag for user indices:
-        self.user_ind = user_ind
-
-        if not self.user_ind:
-            # Call the indice models:
-            self.get_indices()
-            self.apmsis = get_apmsis(self.dn)
-
     def __str__(self):
         """ String representation of pyglow class """
 
@@ -157,15 +157,6 @@ class Point(object):
                      )
 
         return pyglow_repr
-
-    def get_indices(self):
-        """
-        Retreives geophysical indices.
-        """
-        self.kp, self.ap, self.f107, self.f107a, self.f107p, \
-            self.kp_daily, self.ap_daily, self.dst, self.ae  \
-            = get_kpap(self.dn)
-        return self
 
     def run_iri(
         self,

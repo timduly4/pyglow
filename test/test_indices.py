@@ -1,27 +1,40 @@
-#!/usr/bin/env python
 
-from datetime import datetime, timedelta
+from datetime import datetime
+import math
+import unittest
 
-import pyglow
+from ipdb import set_trace as db
 
-dns = [datetime(2010, 3, 23, 15, 30), 
-        datetime(2015, 3, 23, 15, 30)]
+from src.pyglow import Indice
+from src.pyglow.constants import DIR_FILE as pyglow_file
+print("pyglow file: {}".format(pyglow_file))
 
 
-for dn in dns:
-    kp, ap, f107, f107a, f107p, daily_kp, daily_ap, dst, ae = \
-            pyglow.get_kpap.get_kpap(dn)
-    
-    print("\n{}".format(dn))
-    print('-'*len(str(dn)))
-    
-    print("kp = {}".format(kp))
-    print("ap = {}".format(ap))
-    print("f107 = {}".format(f107))
-    print("f107a = {:3.2f}".format(f107a))
-    print("f107p = {:3.2f}".format(f107p))
-    print("daily_kp = {}".format(daily_kp))
-    print("daily_ap = {}".format(daily_ap))
-    print("dst = {}".format(dst))
-    print("ae = {}".format(ae))
+class TestIndice(unittest.TestCase):
 
+    def setUp(self):
+
+        # Instantiate indice data structure:
+        dn = datetime(2010, 3, 23, 15, 30)
+        self.indice = Indice(dn)
+
+    def tearDown(self):
+
+        pass
+
+    def test_run(self):
+        """ Retrieval of geophysical indices """
+
+        self.indice.run()
+        self.assertFalse(math.isnan(self.indice.f107))
+
+    def test_all_nan(self):
+
+        # Nominal case:
+        self.indice.run()
+        self.assertFalse(self.indice.all_nan())
+
+    def test_all_nan_not_run(self):
+
+        # Not running indices:
+        self.assertTrue(self.indice.all_nan())

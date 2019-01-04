@@ -2,10 +2,10 @@ from datetime import datetime
 import math
 import unittest
 
-from src import pyglow
 from src.pyglow import IRI
 from src.pyglow import LocationTime
-print("pyglow file: {}".format(pyglow.__file__))
+from src.pyglow.constants import DIR_FILE as pyglow_file
+print("pyglow file: {}".format(pyglow_file))
 
 
 class TestIri(unittest.TestCase):
