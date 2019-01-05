@@ -15,7 +15,7 @@ class TestPoint(unittest.TestCase):
 
     def setUp(self):
 
-        dn = datetime(2017, 3, 23, 12)
+        dn = datetime(2007, 3, 23, 12)
         lat = 40
         lon = -88
         alt = 250
@@ -79,3 +79,22 @@ class TestPoint(unittest.TestCase):
         self.assertFalse(math.isnan(pt.Tn_iri))
         self.assertFalse(math.isnan(pt.NmF2))
         self.assertFalse(math.isnan(pt.hmF2))
+
+    def test_run_hwm(self):
+        """ Interface to HWM """
+
+        # Nominal run:
+
+        # Execute IRI
+        for version in [1993, 2007, 2014]:
+            self.pt.run_hwm(version=version)
+
+            # Make sure we have an IRI result:
+            self.assert_hwm_result(self.pt)
+
+    def assert_hwm_result(self, pt):
+        """ Ensures that we have an hwm result """
+
+        self.assertFalse(math.isnan(pt.u))
+        self.assertFalse(math.isnan(pt.v))
+        self.assertTrue(pt.hwm_version)
