@@ -183,7 +183,7 @@ class Point(object):
             f107a = self.f107a
             if np.isnan(f107) or np.isnan(f107a):
                 raise ValueError(
-                    "Cannot assign f107 or f017a with NaN when executing IRI"
+                    "Cannot assign f107 or f017a to NaN when executing IRI"
                 )
         else:
             f107 = None
@@ -220,12 +220,17 @@ class Point(object):
         :param version: Version of HWM to run
         """
 
+        # Run HWM:
         self.hwm.run(
             self.location_time,
-            self.indice,
             version,
+            f107=self.f107,
+            f107a=self.f107a,
+            ap=self.ap,
+            ap_daily=self.ap_daily,
         )
 
+        # Assign output:
         self.u = self.hwm.u
         self.v = self.hwm.v
         self.hwm_version = self.hwm.hwm_version

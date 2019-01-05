@@ -4,7 +4,6 @@ import unittest
 
 from src.pyglow import HWM
 from src.pyglow import LocationTime
-from src.pyglow import Indice
 from src.pyglow.constants import DIR_FILE as pyglow_file
 print("pyglow file: {}".format(pyglow_file))
 
@@ -23,39 +22,27 @@ class TestHwm(unittest.TestCase):
         alt = 250
         self.location_time = LocationTime(dn, lat, lon, alt)
 
-        self.indice = Indice(dn)
-        # For simplicity, we can set the indices manually:
-        self.indice.ap = 2.0
-        self.indice.ap_daily = 1.0
-        self.indice.f107 = 80
-        self.indice.f107a = 80
+        # Geophysical indices:
+        self.ap = 2.0
+        self.ap_daily = 1.0
+        self.f107 = 80
+        self.f107a = 80
 
     def tearDown(self):
         pass
 
-    def test_run_93(self):
+    def test_run_all_versions(self):
         """ Simply HWM 93 run """
 
-        self.hwm.run(self.location_time, self.indice, 1993)
+        for version in [1993, 2007, 2014]:
 
-        # Make sure we have a result:
-        self.assert_hwm_result(self.hwm)
+            # Run HWM:
+            self.hwm.run(self.location_time, version,
+                         f107=self.f107, f107a=self.f107a,
+                         ap=self.ap, ap_daily=self.ap_daily)
 
-    def test_run_07(self):
-        """ Simply HWM 07 run """
-
-        self.hwm.run(self.location_time, self.indice, 2007)
-
-        # Make sure we have a result:
-        self.assert_hwm_result(self.hwm)
-
-    def test_run_14(self):
-        """ Simply HWM 14 run """
-
-        self.hwm.run(self.location_time, self.indice, 2014)
-
-        # Make sure we have a result:
-        self.assert_hwm_result(self.hwm)
+            # Make sure we have a result:
+            self.assert_hwm_result(self.hwm)
 
     def assert_hwm_result(self, hwm):
         """ Make sure we have a HWM result """
