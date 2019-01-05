@@ -21,15 +21,13 @@ import urllib.request, urllib.error, urllib.parse  # noqa E402
 from ipdb import set_trace as db  # noqa E402
 
 from . import coord  # noqa E402
-from hwm93py import gws5 as hwm93  # noqa E402
-from hwm07py import hwmqt as hwm07  # noqa E402
-from hwm14py import hwm14  # noqa E402
 from igrf11py import igrf11syn as igrf11  # noqa E402
 from igrf12py import igrf12syn as igrf12  # noqa E402
 from msis00py import gtd7 as msis00  # noqa E402
 from .location_time import LocationTime  # noqa E402
 from . import constants  # noqa E402
 from .iri import IRI  # noqa E402
+from .hwm import HWM  # noqa E402
 from .geophysical_indices import Indice  # noqa E402
 
 # Code version:
@@ -116,10 +114,11 @@ class Point(object):
             self.nn[neutral] = nan
         self.rho = nan
 
-        # For hwm 93/07:
-        self.u = nan
-        self.v = nan
-        self.hwm_version = nan
+        # For hwm 93/07/14:
+        self.hwm = HWM()
+        self.u = self.hwm.u
+        self.v = self.hwm.v
+        self.hwm_version = self.hwm.hwm_version
 
         # For igrf:
         self.Bx = nan
@@ -184,7 +183,7 @@ class Point(object):
             f107a = self.f107a
             if np.isnan(f107) or np.isnan(f107a):
                 raise ValueError(
-                    "Cannot assign f107 or f017a with NaN when executing IRI"
+                    "Cannot assign f107 or f017a to NaN when executing IRI"
                 )
         else:
             f107 = None
@@ -211,6 +210,30 @@ class Point(object):
         self.Tn_iri = self.iri.Tn
         self.NmF2 = self.iri.NmF2
         self.hmF2 = self.iri.hmF2
+
+        return self
+
+    def run_hwm(self, version=2014):
+        """
+        Executes HWM and assigns results to instance.
+
+        :param version: Version of HWM to run
+        """
+
+        # Run HWM:
+        self.hwm.run(
+            self.location_time,
+            version,
+            f107=self.f107,
+            f107a=self.f107a,
+            ap=self.ap,
+            ap_daily=self.ap_daily,
+        )
+
+        # Assign output:
+        self.u = self.hwm.u
+        self.v = self.hwm.v
+        self.hwm_version = self.hwm.hwm_version
 
         return self
 
@@ -253,111 +276,6 @@ class Point(object):
         self.nn['O_anomalous'] = d[8]  # [items/cm^3]
 
         self.rho = d[5]  # total mass density [grams/cm^3]
-
-        return self
-
-    def run_hwm(self, version=2014):
-        """
-        Wrapper to call various HWM models
-        """
-        if version == 2014:
-            self._run_hwm14()
-        elif version == 2007:
-            self._run_hwm07()
-        elif version == 1993:
-            self._run_hwm93()
-        else:
-            raise ValueError(
-                "Invalid version of {} for HWM.\n".format(version) +
-                "Either 2014 (default), 2007, or 1993 is valid."
-            )
-
-        return self
-
-    def _run_hwm93(self):
-        """
-        HWM 1993 Climatological model.
-
-        """
-
-        w = hwm93(
-            self.location_time.iyd,
-            self.location_time.utc_sec,
-            self.alt,
-            self.lat,
-            np.mod(self.lon, 360),
-            self.location_time.slt_hour,
-            self.f107a,
-            self.f107,
-            self.ap_daily,
-        )
-        self.v = w[0]
-        self.u = w[1]
-        self.hwm_version = '93'
-
-        return self
-
-    def _run_hwm07(self):
-        """
-        HWM 2007 Climatological model.
-
-        """
-
-        my_pwd = os.getcwd()
-
-        hwm07_data_path = os.path.join(constants.DIR_FILE, "hwm07_data/")
-
-        os.chdir(hwm07_data_path)
-        aphwm07 = [float('NaN'), self.ap]
-        w = hwm07(
-            self.location_time.iyd,
-            self.location_time.utc_sec,
-            self.alt,
-            self.lat,
-            np.mod(self.lon, 360),
-            self.location_time.slt_hour,
-            self.f107a,
-            self.f107,
-            aphwm07,
-        )
-
-        # Change back to original directory:
-        os.chdir(my_pwd)
-        self.v = w[0]
-        self.u = w[1]
-        self.hwm_version = '07'
-
-        return self
-
-    def _run_hwm14(self):
-        """
-        HWM 2014 Climatological model.
-
-        """
-
-        my_pwd = os.getcwd()
-
-        hwm14_data_path = os.path.join(constants.DIR_FILE, "hwm14_data/")
-
-        os.chdir(hwm14_data_path)
-
-        v, u = hwm14(
-            self.location_time.iyd,
-            self.location_time.utc_sec,
-            self.alt,
-            self.lat,
-            np.mod(self.lon, 360),
-            np.nan,
-            np.nan,
-            np.nan,
-            [np.nan, self.ap],
-        )
-
-        # Change back to original directory:
-        os.chdir(my_pwd)
-        self.v = v
-        self.u = u
-        self.hwm_version = '14'
 
         return self
 
