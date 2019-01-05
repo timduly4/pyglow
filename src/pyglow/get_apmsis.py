@@ -1,8 +1,8 @@
 from __future__ import print_function
 from __future__ import absolute_import
-
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import timedelta
+
 from .get_kpap import get_kpap
 
 
@@ -94,13 +94,3 @@ def get_apmsis(dn):
     out[6] = np.nan if all(np.isnan(temp)) else np.nanmean(temp)
 
     return out
-
-
-def test_get_apmsis():
-    dn = datetime(2000, 3, 23, 0)
-    out = get_apmsis(dn)
-    print("ap indices for msis are:\n{}".format(out))
-
-
-if __name__ == '__main__':
-    test_get_apmsis()

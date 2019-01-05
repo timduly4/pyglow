@@ -1,7 +1,7 @@
 import os
 
 # Pyglow version:
-VERSION = '1.6'
+VERSION = '1.7'
 
 # Directory of pyglow files:
 DIR_FILE = os.path.dirname(__file__)

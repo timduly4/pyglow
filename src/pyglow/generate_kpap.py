@@ -141,9 +141,7 @@ def get_mtime_table():
 
 def update_required():
     """
-    Determines if new data are available to index into
-    geophysical_indices.npy.
-
+    Determines if new data are available to index into geophysical_indices.npy
     """
     if not os.path.isfile(MTIME_TABLE_FNAME):
         return True
