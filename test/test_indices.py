@@ -3,8 +3,6 @@ from datetime import datetime
 import math
 import unittest
 
-from ipdb import set_trace as db
-
 from src.pyglow import Indice
 from src.pyglow.constants import DIR_FILE as pyglow_file
 print("pyglow file: {}".format(pyglow_file))
