@@ -23,11 +23,11 @@ from ipdb import set_trace as db  # noqa E402
 from . import coord  # noqa E402
 from igrf11py import igrf11syn as igrf11  # noqa E402
 from igrf12py import igrf12syn as igrf12  # noqa E402
-from msis00py import gtd7 as msis00  # noqa E402
 from .location_time import LocationTime  # noqa E402
 from . import constants  # noqa E402
 from .iri import IRI  # noqa E402
 from .hwm import HWM  # noqa E402
+from .msis import MSIS  # noqa E402
 from .geophysical_indices import Indice  # noqa E402
 
 # Code version:
@@ -108,11 +108,10 @@ class Point(object):
         self.apmsis = self.indice.apmsis
 
         # For msis:
-        self.Tn_msis = nan
-        self.nn = {}
-        for neutral in ['HE', 'O', 'N2', 'O2', 'AR', 'H', 'N', 'O_anomalous']:
-            self.nn[neutral] = nan
-        self.rho = nan
+        self.msis = MSIS()
+        self.Tn_msis = self.msis.Tn
+        self.nn = self.msis.nn
+        self.rho = self.msis.rho
 
         # For hwm 93/07/14:
         self.hwm = HWM()
@@ -239,43 +238,24 @@ class Point(object):
 
     def run_msis(self, version=2000):
         """
-        Method to call MSIS model
+        Run the MSIS climatological model
+
+        :param version: Version of MSIS to run
         """
 
-        if version == 2000:
-            msis = msis00
-        else:
-            raise ValueError(
-                "Invalid version of '{}' for MSIS.\n".format(version) +
-                "2000 (default) is valid."
-            )
-
-        [d, t] = msis(
-            self.location_time.doy,
-            self.location_time.utc_sec,
-            self.alt,
-            self.lat,
-            np.mod(self.lon, 360),
-            self.location_time.slt_hour,
+        # Run MSIS:
+        self.msis.run(
+            self.location_time,
             self.f107a,
             self.f107p,
             self.apmsis,
-            48,
-        )
-        self.Tn_msis = t[1]  # neutral temperature from MSIS (K)
+            version=version,
+            )
 
-        self.nn = {}
-        self.nn['HE'] = d[0]  # [items/cm^3]
-        self.nn['O'] = d[1]  # [items/cm^3]
-        self.nn['N2'] = d[2]  # [items/cm^3]
-        self.nn['O2'] = d[3]  # [items/cm^3]
-        self.nn['AR'] = d[4]  # [items/cm^3]
-        # [5] is below
-        self.nn['H'] = d[6]  # [items/cm^3]
-        self.nn['N'] = d[7]  # [items/cm^3]
-        self.nn['O_anomalous'] = d[8]  # [items/cm^3]
-
-        self.rho = d[5]  # total mass density [grams/cm^3]
+        # Assign output:
+        self.Tn_msis = self.msis.Tn
+        self.nn = self.msis.nn
+        self.rho = self.msis.rho
 
         return self
 

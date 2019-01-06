@@ -85,7 +85,7 @@ class TestPoint(unittest.TestCase):
 
         # Nominal run:
 
-        # Execute IRI
+        # Execute HWM
         for version in [1993, 2007, 2014]:
             self.pt.run_hwm(version=version)
 
@@ -98,3 +98,21 @@ class TestPoint(unittest.TestCase):
         self.assertFalse(math.isnan(pt.u))
         self.assertFalse(math.isnan(pt.v))
         self.assertTrue(pt.hwm_version)
+
+    def test_run_msis(self):
+        """ Interface to MSIS """
+
+        # Nominal run:
+
+        # Execute MSIS:
+        self.pt.run_msis()
+
+        # Make sure we have an IRI result:
+        self.assert_msis_result(self.pt)
+
+    def assert_msis_result(self, pt):
+
+        self.assertFalse(math.isnan(pt.Tn_msis))
+        for constituent in pt.nn:
+            self.assertFalse(math.isnan(pt.nn[constituent]))
+        self.assertFalse(math.isnan(pt.rho))

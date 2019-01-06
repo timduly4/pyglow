@@ -4,7 +4,6 @@ import os
 from iri12py import iri_sub as iri12
 from iri16py import iri_sub as iri16
 from iri16py import read_ig_rz, readapf107
-
 from .constants import DIR_FILE, nan
 
 IONS = ['O+', 'H+', 'HE+', 'O2+', 'NO+']
