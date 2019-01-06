@@ -4,11 +4,8 @@ from datetime import datetime
 import math
 import unittest
 
-from ipdb import set_trace as db
-from pprint import pprint
-
 from src import pyglow
-print("pyglow file: {}".format(pyglow.__file__))
+print("[{}] pyglow file: {}".format(pyglow.__version__, pyglow.__file__))
 
 
 class TestPoint(unittest.TestCase):
@@ -33,15 +30,15 @@ class TestPoint(unittest.TestCase):
 
         # Make sure we have a version associated with pyglow:
         version = pyglow.__version__
-        print("pyglow: v{}".format(version))
+        "pyglow: v{}".format(version)
 
         self.assertTrue(version)
 
     def test_string_representation(self):
         """ String representations of the Point class """
 
-        print("'str' representation = {}".format(self.pt))
-        print("'repr' representation = {}".format(self.pt.__repr__()))
+        "'str' representation = {}".format(self.pt)
+        "'repr' representation = {}".format(self.pt.__repr__())
 
     def test_run_iri(self):
         """ Interface to IRI """
@@ -107,7 +104,7 @@ class TestPoint(unittest.TestCase):
         # Execute MSIS:
         self.pt.run_msis()
 
-        # Make sure we have an IRI result:
+        # Make sure we have an MSIS result:
         self.assert_msis_result(self.pt)
 
     def assert_msis_result(self, pt):
@@ -116,3 +113,25 @@ class TestPoint(unittest.TestCase):
         for constituent in pt.nn:
             self.assertFalse(math.isnan(pt.nn[constituent]))
         self.assertFalse(math.isnan(pt.rho))
+
+    def test_run_igrf(self):
+        """ Interface to IGRF """
+
+        # Nominal run:
+        for version in [11, 12]:
+
+            # Execute IGRF:
+            self.pt.run_igrf(version=version)
+
+            # Make sure we have an IRI result:
+            self.assert_igrf_result(self.pt)
+
+    def assert_igrf_result(self, pt):
+        """ Ensures that we have an IGRF result """
+
+        self.assertFalse(math.isnan(pt.Bx))
+        self.assertFalse(math.isnan(pt.By))
+        self.assertFalse(math.isnan(pt.Bz))
+        self.assertFalse(math.isnan(pt.B))
+        self.assertFalse(math.isnan(pt.dip))
+        self.assertFalse(math.isnan(pt.dec))

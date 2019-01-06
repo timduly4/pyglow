@@ -90,7 +90,8 @@ class IRI(object):
         elif version == 2012:
             iri_data_stub = 'iri12_data/'
             iri = iri12
-            init_iri = lambda: False
+
+            def init_iri(): return False
         else:
             raise ValueError(
                 "Invalid version of {} for IRI.\n".format(version) +
