@@ -15,19 +15,17 @@ import numpy as np  # noqa E402
 import os  # noqa E402
 import shutil  # noqa E402
 import sys  # noqa E402
-import warnings  # noqa E402
 import urllib.request, urllib.error, urllib.parse  # noqa E402
 
 from ipdb import set_trace as db  # noqa E402
 
 from . import coord  # noqa E402
-from igrf11py import igrf11syn as igrf11  # noqa E402
-from igrf12py import igrf12syn as igrf12  # noqa E402
 from .location_time import LocationTime  # noqa E402
 from . import constants  # noqa E402
 from .iri import IRI  # noqa E402
 from .hwm import HWM  # noqa E402
 from .msis import MSIS  # noqa E402
+from .igrf import IGRF  # noqa E402
 from .geophysical_indices import Indice  # noqa E402
 
 # Code version:
@@ -120,16 +118,19 @@ class Point(object):
         self.hwm_version = self.hwm.hwm_version
 
         # For igrf:
-        self.Bx = nan
-        self.By = nan
-        self.Bz = nan
-        self.B = nan
-        self.dip = nan
-        self.dec = nan
+        self.igrf = IGRF()
+        self.Bx = self.igrf.Bx
+        self.By = self.igrf.By
+        self.Bz = self.igrf.Bz
+        self.B = self.igrf.B
+        self.dip = self.igrf.dip
+        self.dec = self.igrf.dec
 
         # For run_airglow:
         self.ag6300 = nan
         self.ag7774 = nan
+
+        return
 
     def __str__(self):
         """ String representation of pyglow class """
@@ -262,50 +263,20 @@ class Point(object):
     def run_igrf(self, version=12):
         """
         Run the IGRF climatological model
+
+        :param version: Version of IGRF to run
         """
 
-        if version == 12:
-            igrf = igrf12
-        elif version == 11:
-            igrf = igrf11
-        else:
-            raise ValueError(
-                "Invalid version of {} for IGRF.\n".format(version) +
-                "Version 12 (default) and 11 are valid."
-            )
+        # Run IGRF:
+        self.igrf.run(self.location_time, version)
 
-        x, y, z, f = igrf(
-            0,
-            self.dn.year,
-            1,
-            self.alt,
-            90.-self.lat,
-            np.mod(self.lon, 360),
-        )
-
-        h = np.sqrt(x**2 + y**2)
-        dip = 180./np.pi * np.arctan2(z, h)
-        dec = 180./np.pi * np.arctan2(y, x)
-
-        # Note that the changes here match
-        # coordinate convention with other models
-        # (i.e., HWM), that is:
-        # (x -> east, y -> north, z -> up)
-        #
-        # IGRF gives (x -> north, y -> east, z -> down)
-        warnings.warn(
-            "Caution: IGRF coordinates have been recently changed to\n" +
-            "Bx -> positive eastward\n" +
-            "By -> positive northward\n" +
-            " Bz -> positive upward\n"
-        )
-        self.Bx = y/1e9  # [T] (positive eastward) (note x/y switch here)
-        self.By = x/1e9  # [T] (positive northward) (note x/y switch here)
-        self.Bz = -z/1e9  # [T] (positive upward) (note negation here)
-        self.B = f/1e9  # [T]
-
-        self.dip = dip
-        self.dec = dec
+        # Assign output:
+        self.Bx = self.igrf.Bx
+        self.By = self.igrf.By
+        self.Bz = self.igrf.Bz
+        self.B = self.igrf.B
+        self.dip = self.igrf.dip
+        self.dec = self.igrf.dec
 
         return self
 
@@ -341,7 +312,7 @@ class Point(object):
         Te = self.Te        # electron temperature [K]
         O2 = self.nn['O2']  # O2 density [cm^-3]
         N2 = self.nn['N2']  # N2 density [cm^-3]
-        O = self.nn['O']   # O density [cm^-3]
+        O_density = self.nn['O']   # O density [cm^-3]
 
         te = Te/300.
         ti = Ti/300.
@@ -383,8 +354,8 @@ class Point(object):
         # have Oplus at hand, we use it in the calculation.
         V7774_rr = alpha1_7774 * Oplus * Ne
 
-        V7774_ii_num = beta_7774 * K1_7774 * K2_7774 * O * Oplus * Ne
-        V7774_ii_den = K2_7774 * Oplus + K3_7774 * O
+        V7774_ii_num = beta_7774 * K1_7774 * K2_7774 * O_density * Oplus * Ne
+        V7774_ii_den = K2_7774 * Oplus + K3_7774 * O_density
 
         self.ag7774 = V7774_rr + V7774_ii_num / float(V7774_ii_den)
 
