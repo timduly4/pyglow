@@ -96,7 +96,13 @@ If you have troubles, follow the individual installation steps:
 
 # Testing / Examples
 
-See unit tests in `./tests` (e.g., `$ python -m unittest test.test_suite_pyglow`). See example scripts located in `./examples` for example calls to `pyglow`.
+See unit tests in `./test`.  For example, run the unittest suite with:
+
+`$ python -m unittest test.test_suite_pyglow`)
+
+(However, be sure that the f2py modules have been compiled via `$ make -C src/pyglow/models source`, first.)
+
+See example scripts located in `./examples` for example calls to `pyglow`.
 
 # Hints
 
