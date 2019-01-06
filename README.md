@@ -96,7 +96,7 @@ If you have troubles, follow the individual installation steps:
 
 # Testing / Examples
 
-See example scripts located in `./tests` for example calls to `pyglow`.
+See unit tests in `./tests` (e.g., `$ python -m unittest test.test_suite_pyglow`). See example scripts located in `./examples` for example calls to `pyglow`.
 
 # Hints
 
