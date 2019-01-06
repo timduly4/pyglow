@@ -93,14 +93,15 @@ If you have troubles, follow the individual installation steps:
 	$ python -c "import pyglow; pyglow.update_indices()"
 ```
 
-
-# Testing / Examples
+# Unit tests
 
 See unit tests in `./test`.  For example, run the unittest suite with:
 
 `$ python -m unittest test.test_suite_pyglow`)
 
 (However, be sure that the f2py modules have been compiled via `$ make -C src/pyglow/models source`, first.)
+
+# Examples
 
 See example scripts located in `./examples` for example calls to `pyglow`.
 
