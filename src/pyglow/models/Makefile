@@ -1,20 +1,20 @@
 
 all: source
-	cd ./dl_models/igrf11/; make compile
+	cd ./dl_models/igrf11/; make compile;cp igrf11py.*.so igrf11py.so;
 
-	cd ./dl_models/igrf12/; make compile
+	cd ./dl_models/igrf12/; make compile;cp igrf12py.*.so igrf12py.so;
 
-	cd ./dl_models/msis/; make compile;
+	cd ./dl_models/msis/; make compile;cp msis00py.*.so msis00py.so;
 
-	cd ./dl_models/hwm93/; make compile;
+	cd ./dl_models/hwm93/; make compile;cp hwm93py.*.so hwm93py.so;
 
-	cd ./dl_models/iri12/; make compile;
+	cd ./dl_models/iri12/; make compile;cp iri12py.*.so iri12py.so;
 
-	cd ./dl_models/iri16/; make compile;
+	cd ./dl_models/iri16/; make compile;cp iri16py.*.so iri16py.so;
 
-	cd ./dl_models/hwm07/; make compile;
+	cd ./dl_models/hwm07/; make compile;cp hwm07py.*.so hwm07py.so;
 
-	cd ./dl_models/hwm14/; make compile;
+	cd ./dl_models/hwm14/; make compile;cp hwm14py.*.so hwm14py.so;
 
 download:
 	python get_models.py
