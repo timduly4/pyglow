@@ -224,6 +224,7 @@ def check_stored_indices(date0, date1):
     print("  to")
     print("  {}".format(dn1.strftime("%Y-%m-%d")))
 
+    have_all = True
     for dn in dns:
 
         # Instantiate indice class:
@@ -236,6 +237,7 @@ def check_stored_indices(date0, date1):
         if indice.all_nan():
             status = "--- FAIL ---"
             failed = True
+            have_all = False
         else:
             failed = False
             status = "OK"
@@ -243,5 +245,12 @@ def check_stored_indices(date0, date1):
         # Report:
         if failed:
             print("{}: {}".format(dn.strftime("%Y-%m-%d"), status))
+
+    # Report only if there were no issues:
+    if have_all:
+        print(
+            ">> We have all of the geophysical indices files between these "
+            "dates."
+        )
 
     return

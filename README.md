@@ -112,20 +112,25 @@ See example scripts located in `./examples` for example calls to `pyglow`.
   * For example, in the test code, run `pt.<TAB><TAB>` and class information will be listed.
 
 ### Updating geophysical indices with `pyglow.update_indices()`
-1. You'll need to download the geophysical indices as they become available.  The `update_indices()` function is available in pyglow that enables you do this:
+You'll need to download the geophysical indices as they become available.  The `update_indices()` function is available in pyglow that enables you do this:
 
 ```
 # Grabs indices between 2016 and 2018:
 $ python -c "import pyglow; pyglow.update_indices(2016, 2018)"
 ```
 
-  * Note: you only need to run this function when you would like to update the indices.
+Note: you only need to run this function when you would like to update the indices.
 
-  You can check if you have geophysical indices between dates with:
-  ```
-  $ python -c "import pyglow;  pyglow.check_stored_indices('2015-07-01', '2019-01-01')"
-  ```
+You can check if you have geophysical indices between dates with:
+```
+$ python -c "import pyglow;  pyglow.check_stored_indices('2015-01-01', '2019-01-01')"
 
+Checking: input date range:
+  2015-01-01
+  to
+  2019-01-01
+>> We have all of the geophysical indices files between these dates.
+```
 
 # Uninstallation
 
