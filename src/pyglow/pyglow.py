@@ -9,6 +9,7 @@ from builtins import range  # noqa E402
 from builtins import object  # noqa E402
 from past.utils import old_div  # noqa E402
 import numpy as np  # noqa E402
+import warnings  # noqa E402
 
 from ipdb import set_trace as db  # noqa E402
 
@@ -85,6 +86,13 @@ class Point(object):
         if not self.user_ind:
             # Call the indice models:
             self.indice.run()
+
+            # Post warning if all the indices are NaN:
+            if self.indice.all_nan():
+                warnings.warn(
+                    "All geophysical indices are NaN. "
+                    "Consider updating the indices."
+                )
 
         # Assign indice data:
         self.kp = self.indice.kp
