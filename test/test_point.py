@@ -4,6 +4,8 @@ from datetime import datetime
 import math
 import unittest
 
+from ipdb import set_trace as db
+
 from src import pyglow
 print("[{}] pyglow file: {}".format(pyglow.__version__, pyglow.__file__))
 
@@ -12,15 +14,15 @@ class TestPoint(unittest.TestCase):
 
     def setUp(self):
 
-        dn = datetime(2007, 3, 23, 12)
-        lat = 40
-        lon = -88
+        dn = datetime(2000, 1, 1)
+        lat = 30
+        lon = -10
         alt = 250
         self.pt = pyglow.Point(dn, lat, lon, alt)
 
         self.pt_user_ind = pyglow.Point(dn, lat, lon, alt, user_ind=True)
-        self.pt_user_ind.f107 = 100
-        self.pt_user_ind.f107a = 100
+        self.pt_user_ind.f107 = 125.6
+        self.pt_user_ind.f107a = 160.55
 
     def tearDown(self):
         pass
@@ -53,6 +55,7 @@ class TestPoint(unittest.TestCase):
 
         # User specified indices:
         self.pt_user_ind.run_iri()
+        db()
 
         # Make sure we have an IRI result:
         self.assert_iri_result(self.pt_user_ind)

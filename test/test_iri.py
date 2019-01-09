@@ -15,11 +15,15 @@ class TestIri(unittest.TestCase):
         self.iri = IRI()
 
         # Set up LocationTime instance:
-        dn = datetime(2010, 3, 23, 15, 30)
+        dn = datetime(2000, 1, 1)
         lat = 30
-        lon = -80
+        lon = -10
         alt = 250
         self.location_time = LocationTime(dn, lat, lon, alt)
+
+        # For running user indices:
+        self.f107 = 125.6
+        self.f107a = 160.55
 
     def tearDown(self):
 
@@ -92,6 +96,13 @@ class TestIri(unittest.TestCase):
         ions = self.iri.ni.keys()
         for ion in ions:
             self.assertTrue(math.isnan(self.iri.ni[ion]))
+
+    def test_iri_f107_indices(self):
+        """ f107, f107a swithecs """
+
+        self.iri.run(self.location_time, f107=self.f107, f107a=self.f107a)
+
+        print("[test_iri_f107_indices] ne = {}".format(self.iri.ne))
 
     def assert_iri_result(self, iri):
         """ Ensures that we have an IRI result """
