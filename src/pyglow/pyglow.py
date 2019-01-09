@@ -11,8 +11,6 @@ from past.utils import old_div  # noqa E402
 import numpy as np  # noqa E402
 import warnings  # noqa E402
 
-from ipdb import set_trace as db  # noqa E402
-
 from . import coord  # noqa E402
 from .location_time import LocationTime  # noqa E402
 from . import constants  # noqa E402
