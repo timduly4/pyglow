@@ -1,7 +1,5 @@
 import numpy as np
 
-# from ipdb import set_trace as db
-
 from .get_kpap import get_kpap
 from .get_apmsis import get_apmsis
 from .constants import nan

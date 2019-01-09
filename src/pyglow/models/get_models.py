@@ -8,8 +8,6 @@ import urllib.error  # noqa E402
 import urllib.parse  # noqa E402
 import shutil  # noqa E402
 
-from ipdb import set_trace as db
-
 GITHUB_BASE = "https://github.com/timduly4/pyglow/raw"
 
 INDICE_URLS = [
