@@ -1,4 +1,4 @@
-![](https://raw.github.com/timduly4/pyglow/master/logo.png)
+![](./logo.png)
 
 [_(airglow viewed aboard the ISS)_](http://en.wikipedia.org/wiki/File:Cupola_above_the_darkened_Earth.jpg)
 
