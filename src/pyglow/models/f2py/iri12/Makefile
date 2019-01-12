@@ -42,6 +42,7 @@ mod:
 source:
 	make patch_iridreg;
 	make patch_iriflip;
+	sed -i 's/cm-3//g' iriflip.for
 	make sig;
 	make patch_sig;
 
