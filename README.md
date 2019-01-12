@@ -1,5 +1,4 @@
-# ![alt text](https://raw.github.com/timduly4/pyglow/master/logo.png "pyglow" | width=100)
-![](https://raw.github.com/timduly4/pyglow/master/logo.png =250x)
+![](https://raw.github.com/timduly4/pyglow/master/logo.png)
 
 [_(airglow viewed aboard the ISS)_](http://en.wikipedia.org/wiki/File:Cupola_above_the_darkened_Earth.jpg)
 
