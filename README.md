@@ -1,4 +1,7 @@
-![alt text](https://raw.github.com/timduly4/pyglow/master/logo.png "pyglow")
+[![Build Status](https://semaphoreci.com/api/v1/timduly4/pyglow/branches/master/badge.svg)](https://semaphoreci.com/timduly4/pyglow)
+
+<img src="./logo.png" width="400">
+
 [_(airglow viewed aboard the ISS)_](http://en.wikipedia.org/wiki/File:Cupola_above_the_darkened_Earth.jpg)
 
 # Overview
@@ -7,13 +10,13 @@
 
 It includes the following upper atmospheric models:
 
-  * HWM 2014
-  * HWM 2007
   * HWM 1993
-  * IGRF 12
+  * HWM 2007
+  * HWM 2014
   * IGRF 11
-  * IRI 2016
+  * IGRF 12
   * IRI 2012
+  * IRI 2016
   * MSIS 2000
 
 pyglow also provides access to the the following geophysical indices:
@@ -31,6 +34,7 @@ pyglow also provides access to the the following geophysical indices:
 
 1. `gfortran` (`$ sudo apt-get install gfortran`)
 2. `f2py` (`$ pip install numpy --upgrade`)
+3. Python packages listed in `requirements.txt` (`$ pip install -r requirements.txt`)
 
 # Installation
 
@@ -39,14 +43,14 @@ pyglow also provides access to the the following geophysical indices:
 First, checkout the repository:
 
 ```
-    $ git clone git://github.com/timduly4/pyglow.git pyglow
+$ git clone git://github.com/timduly4/pyglow.git pyglow
 ```
 
-Change directories into the repository folder, compile the f2py bindings, then install:
+Change directories into the repository folder, compile the f2py bindings, then install the python package:
 ```
-    $ cd pyglow/
-    $ make -C src/pyglow/models source
-    $ python setup.py install --user
+$ cd pyglow/
+$ make -C src/pyglow/models source
+$ python setup.py install --user
 ```
 
 ### Individual installation steps:
@@ -55,14 +59,14 @@ If you have troubles, follow the individual installation steps:
 
 (1) Download the package:
 ```
-    $ git clone git://github.com/timduly4/pyglow.git
-    $ cd pyglow/
+$ git clone git://github.com/timduly4/pyglow.git
+$ cd pyglow/
 ```
 
 (2) Download the climatological models and wrap them with f2py:
 ```
-    $ cd ./src/pyglow/models/
-    $ make all
+$ cd ./src/pyglow/models/
+$ make all
 ```
   * If successful, there should be a `*.so` file in each of the `./models/dl_models/<model>/` directories:
 
@@ -80,18 +84,11 @@ If you have troubles, follow the individual installation steps:
 
 (3) Install the python package
 ```
-    $ cd ../../../   # get back to root directory
-    $ python setup.py install --user --prefix=
+$ cd ../../../   # get back to root directory
+$ python setup.py install --user
 ```
   * On a mac, the folder `pyglow` and `*.so` files from `./models/dl_models/<model>/` should be in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
-  * If you are denied permission, I recommend adding `--user` flag in command
-
-(4) Download the geophysical indices
-
-```
-	$ cd ~/
-	$ python -c "import pyglow; pyglow.update_indices()"
-```
+  * The `--user` flag installs the package locally (i.e., you do not need `sudo` access)
 
 # Unit tests
 
@@ -99,7 +96,7 @@ See unit tests in `./test`.  For example, run the unittest suite with:
 
 `$ python -m unittest test.test_suite_pyglow`
 
-(However, be sure that the f2py modules have been compiled via `$ make -C src/pyglow/models source`, first.)
+(Be sure that the f2py modules have been compiled via `$ make -C src/pyglow/models source`, first.)
 
 # Examples
 
@@ -107,11 +104,15 @@ See example scripts located in `./examples` for example calls to `pyglow`.
 
 # Docker
 
-We've included a Dockerfile for `pyglow`.  To build the image, run:
+We've included a Dockerfile for `pyglow`.  To build the image:
 
 `$ docker build -t pyglow .`
 
-This will compile, install, and run unit tests within the Docker container.
+This will compile and install pyglow within the Docker container.
+
+Run the unit tests within the container via:
+
+`$ docker run pyglow`
 
 # Hints
 
