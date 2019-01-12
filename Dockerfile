@@ -30,3 +30,6 @@ WORKDIR /pyglow
 # Compile & install:
 RUN make -C src/pyglow/models source
 RUN python setup.py install --user
+
+# Run unit tests:
+RUN python -m unittest test.test_suite_pyglow
