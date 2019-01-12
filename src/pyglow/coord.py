@@ -2,7 +2,7 @@ from __future__ import division
 from __future__ import print_function
 
 from past.utils import old_div
-from scipy import cos, sin, arctan, sqrt, pi, arctan2
+from numpy import cos, sin, arctan, sqrt, pi, arctan2
 import numpy as np
 
 """ GPS Constants"""
