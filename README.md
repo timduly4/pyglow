@@ -1,4 +1,6 @@
-![alt text](https://raw.github.com/timduly4/pyglow/master/logo.png | width=100)
+# ![alt text](https://raw.github.com/timduly4/pyglow/master/logo.png "pyglow" | width=100)
+![](https://raw.github.com/timduly4/pyglow/master/logo.png "pyglow" =250x)
+
 [_(airglow viewed aboard the ISS)_](http://en.wikipedia.org/wiki/File:Cupola_above_the_darkened_Earth.jpg)
 
 [![Build Status](https://semaphoreci.com/api/v1/timduly4/pyglow-2/branches/docker-mods/badge.svg)](https://semaphoreci.com/timduly4/pyglow-2)
