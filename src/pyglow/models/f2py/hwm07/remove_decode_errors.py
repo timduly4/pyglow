@@ -1,7 +1,8 @@
 import glob
+import sys
 
-forfiles = glob.glob('*.f90')
-
-for f in forfiles:
-    content = open(f, 'r').read()
-    open(f, 'w').write(unicode(content, errors='ignore'))
+if sys.version_info[0] >= 3:
+    forfiles = glob.glob('*.f90')
+    for f in forfiles:
+        content = open(f, 'r', errors='replace').read()
+        open(f, 'w').write(content)
