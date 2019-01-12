@@ -111,7 +111,7 @@ We've included a Dockerfile for `pyglow`.  To build the image, run:
 
 `$ docker build -t pyglow .`
 
-This will compile, install, and run unit tests within the Docker environment.
+This will compile, install, and run unit tests within the Docker container.
 
 # Hints
 
