@@ -105,6 +105,14 @@ See unit tests in `./test`.  For example, run the unittest suite with:
 
 See example scripts located in `./examples` for example calls to `pyglow`.
 
+# Docker
+
+We've included a Dockerfile for `pyglow`.  To build the image, run:
+
+`$ docker build -t pyglow .`
+
+This will compile, install, and run unit tests within the Docker environment.
+
 # Hints
 
 ### General
