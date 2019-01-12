@@ -1,4 +1,4 @@
-<img src="./logo.png" width="200" height="200" />
+<img src="./logo.png" width="200"/>
 
 [_(airglow viewed aboard the ISS)_](http://en.wikipedia.org/wiki/File:Cupola_above_the_darkened_Earth.jpg)
 
