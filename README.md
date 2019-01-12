@@ -1,6 +1,6 @@
 [![Build Status](https://semaphoreci.com/api/v1/timduly4/pyglow-2/branches/docker-mods/badge.svg)](https://semaphoreci.com/timduly4/pyglow-2)
 
-<img src="./logo.png" width="400" class="center">
+<img src="./logo.png" width="400">
 
 [_(airglow viewed aboard the ISS)_](http://en.wikipedia.org/wiki/File:Cupola_above_the_darkened_Earth.jpg)
 
