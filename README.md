@@ -1,4 +1,4 @@
-[![Build Status](https://semaphoreci.com/api/v1/timduly4/pyglow-2/branches/docker-mods/badge.svg)](https://semaphoreci.com/timduly4/pyglow-2)
+[![Build Status](https://semaphoreci.com/api/v1/timduly4/pyglow-2/branches/master/badge.svg)](https://semaphoreci.com/timduly4/pyglow-2)
 
 <img src="./logo.png" width="400">
 
