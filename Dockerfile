@@ -14,8 +14,7 @@ RUN apk update && apk add \
   gcc \
   g++ \
   gfortran \
-  perl \
-  lapack-dev
+  perl
 
 # Install pyglow Python dependencies:
 COPY requirements.txt /
