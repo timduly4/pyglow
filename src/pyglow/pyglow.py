@@ -51,6 +51,8 @@ class Point(object):
                          indices to the Point
         """
 
+        f()
+
         nan = float('nan')
 
         # Record input:
