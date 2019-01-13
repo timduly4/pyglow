@@ -1,4 +1,5 @@
-[![Build Status](https://semaphoreci.com/api/v1/timduly4/pyglow/branches/master/badge.svg)](https://semaphoreci.com/timduly4/pyglow)
+Semaphore CI: [![Build Status](https://semaphoreci.com/api/v1/timduly4/pyglow/branches/master/badge.svg)](https://semaphoreci.com/timduly4/pyglow)
+Travis CI: [![Build Status](https://travis-ci.com/timduly4/pyglow.svg?branch=master)](https://travis-ci.com/timduly4/pyglow)
 
 <img src="./logo.png" width="400">
 
