@@ -30,8 +30,5 @@ WORKDIR /pyglow
 RUN make -C src/pyglow/models source
 RUN python setup.py install --user
 
-# Create Geophysical indices data structure:
-RUN python -c "import pyglow"
-
 # Run unit tests:
 CMD python -m unittest test.test_suite_pyglow
