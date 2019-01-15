@@ -37,7 +37,7 @@ mod:
 source:
 	make patch_iridreg;
 	make patch_iriflip;
-	sed -i 's/cm-3//g' iriflip_modified.for
+	sed -i'' -e 's/cm-3//g' iriflip_modified.for
 	make sig;
 	make patch_sig;
 
