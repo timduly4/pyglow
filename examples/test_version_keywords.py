@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """ Testing out the different 'version' keywords """
 
 from datetime import datetime

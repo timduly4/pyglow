@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ Profile 7774 and 6300-nm emissions. 2016-09-17 """
 import matplotlib.pyplot as plt

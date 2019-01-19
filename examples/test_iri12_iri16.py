@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+
+#!/usr/bin/env python3
 """ Profile plot to compare IRI 2012 and IRI 2016. """
 import matplotlib.pyplot as plt
 from datetime import datetime

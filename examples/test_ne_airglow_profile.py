@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """ Example Python script using pyglow and its climatological models to plot
 profile of airglow emission and electron density """
 

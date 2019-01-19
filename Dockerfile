@@ -18,7 +18,7 @@ RUN apk update && apk add \
 
 # Install pyglow Python dependencies:
 COPY requirements.txt /
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Copy source code into container:
 COPY src/ /pyglow/src/
@@ -28,7 +28,7 @@ WORKDIR /pyglow
 
 # Compile & install:
 RUN make -C src/pyglow/models source
-RUN python setup.py install --user
+RUN python3 setup.py install --user
 
 # Run unit tests:
-CMD python -m unittest test.test_suite_pyglow
+CMD python3 -m unittest test.test_suite_pyglow
