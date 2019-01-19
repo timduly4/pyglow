@@ -52,7 +52,7 @@ Change directories into the repository folder, compile the f2py bindings, then i
 ```
 $ cd pyglow/
 $ make -C src/pyglow/models source
-$ python setup.py install --user
+$ python3 setup.py install --user
 ```
 
 ### Individual installation steps:
@@ -84,19 +84,19 @@ $ make all
     ./dl_models/msis/msis00py.so
     ```
 
-(3) Install the python package
+(3) Install the Python package
 ```
 $ cd ../../../   # get back to root directory
-$ python setup.py install --user
+$ python3 setup.py install --user
 ```
-  * On a mac, the folder `pyglow` and `*.so` files from `./models/dl_models/<model>/` should be in `/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
+  * On a mac, the folder `pyglow` and `*.so` files from `./models/dl_models/<model>/` should be in `/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages`
   * The `--user` flag installs the package locally (i.e., you do not need `sudo` access)
 
 # Unit tests
 
 See unit tests in `./test`.  For example, run the unittest suite with:
 
-`$ python -m unittest test.test_suite_pyglow`
+`$ python3 -m unittest test.test_suite_pyglow`
 
 (Be sure that the f2py modules have been compiled via `$ make -C src/pyglow/models source`, first.)
 
@@ -127,14 +127,14 @@ You'll need to download the geophysical indices as they become available.  The `
 
 ```
 # Grabs indices between 2016 and 2018:
-$ python -c "import pyglow; pyglow.update_indices(2016, 2018)"
+$ python3 -c "import pyglow; pyglow.update_indices(2016, 2018)"
 ```
 
 Note: you only need to run this function when you would like to update the indices.
 
 You can check if you have geophysical indices between dates with:
 ```
-$ python -c "import pyglow;  pyglow.check_stored_indices('2015-01-01', '2019-01-01')"
+$ python3 -c "import pyglow;  pyglow.check_stored_indices('2015-01-01', '2019-01-01')"
 
 Checking: input date range:
   2015-01-01
@@ -145,12 +145,12 @@ Checking: input date range:
 
 # Uninstallation
 
-The install directory for pyglow can be outputted via `python -c "import pyglow; print(pyglow.__file__)"`.  For example:
+The install directory for pyglow can be outputted via `python3 -c "import pyglow; print(pyglow.__file__)"`.  For example:
 ```
-~ $ python -c "import pyglow; print(pyglow.__file__)"
-/Users/duly/Library/Python/2.7/lib/python/site-packages/pyglow/__init__.pyc
+~ $ python3 -c "import pyglow; print(pyglow.__file__)"
+/Users/duly/Library/Python/3.7/lib/python/site-packages/pyglow/__init__.pyc
 ```
 This tells you the installation location, and then you can remove the package with:
 ```
-~ $ rm -rf /Users/duly/Library/Python/2.7/lib/python/site-packages/pyglow
+~ $ rm -rf /Users/duly/Library/Python/3.7/lib/python/site-packages/pyglow
 ```

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
 Profile 7774 and 6300-nm emissions.
@@ -53,5 +53,3 @@ plt.title(
 plt.legend(loc=1, fontsize=10)
 plt.draw()
 plt.show()
-
-

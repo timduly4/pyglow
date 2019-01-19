@@ -22,7 +22,7 @@ patch_iridreg:
 	patch iridreg.for -i iridreg.patch -o iridreg_modified.for
 
 patch_iriflip:
-	python delete_iriflip_comments.py
+	python3 delete_iriflip_comments.py
 
 sig:
 	f2py -m $(mod) -h sig_file.pyf $(fortran_files) only: $(only) : | tee out1
@@ -47,7 +47,7 @@ compile: source
 install:
 	cp $(mod).so ../model_atmosphere/modules/
 
-#   [1]  I had a huge bug where iri was not repeating itself on python calls. I found
+#   [1]  I had a huge bug where iri was not repeating itself on Python calls. I found
 # this github https://github.com/sdelarquier/iri and the compiler options
 #   	f2py --overwrite-signature irisub.for -m ${MODULE} -h iri.pyf
 #   	gfortran -w -O2 -fbacktrace -fno-automatic -fPIC -c *.for

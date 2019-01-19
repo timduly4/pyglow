@@ -293,7 +293,7 @@ class Point(object):
         ------
         9/9/13 -- implemented into pyglow
                   based on Jonathan J. Makela's MATLAB
-                  and subsequent python code
+                  and subsequent Python code
         9/13/16 -- added 7774 calculation
         """
 

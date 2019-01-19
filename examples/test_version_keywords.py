@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
 Testing out the different 'version' keywords
@@ -37,5 +37,3 @@ try:
     pt.run_iri(version=2020) # should fail
 except ValueError as e:
     print("Caught an exception: `{}`".format(e))
-
-

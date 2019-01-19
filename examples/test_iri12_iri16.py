@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Profile plot to compare IRI 2012 and IRI 2016.
 '''
@@ -30,7 +30,7 @@ for alt in alts:
     ne_2012.append(pt.ne)
 
 # Plot
-plt.figure(1); 
+plt.figure(1);
 plt.clf()
 plt.semilogx(ne_2016, alts, 'bo-', label='IRI Model Year: 2016')
 plt.semilogx(ne_2012, alts, 'r.--', label='IRI Model Year: 2012')
@@ -42,9 +42,3 @@ plt.title('%s UT, lat=%3.1f$^\circ$, lon=%3.1f$^\circ$' %\
 plt.legend(loc=0)
 plt.draw()
 plt.show()
-
-
-
-
-
-

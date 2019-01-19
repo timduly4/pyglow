@@ -17,7 +17,7 @@ all: source
 	cd ./dl_models/hwm14/; make compile; rsync hwm14py*so hwm14py.so
 
 download:
-	python get_models.py
+	python3 get_models.py
 
 source: clean download
 	cp ./f2py/igrf11/* ./dl_models/igrf11/
