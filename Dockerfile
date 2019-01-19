@@ -31,4 +31,4 @@ RUN make -C src/pyglow/models source
 RUN python3 setup.py install --user
 
 # Run unit tests:
-CMD python3 -m unittest test.test_suite_pyglow
+CMD pytest test/
