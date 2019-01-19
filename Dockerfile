@@ -33,5 +33,5 @@ RUN python3 setup.py install --user
 # Run unit tests:
 CMD coverage run --source src -m pytest test/
 
-# Provide coverage report
-CMD coverage report
+# # Provide coverage report
+# CMD coverage report
