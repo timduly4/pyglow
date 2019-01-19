@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
+""" Testing out the different 'version' keywords """
 
-'''
-Testing out the different 'version' keywords
-'''
-from datetime import datetime, timedelta
+from datetime import datetime
 from pyglow import Point
 
 dn = datetime(2010, 3, 23, 15, 30)
@@ -34,6 +32,6 @@ pt.run_iri(version=2016)
 pt.run_iri(version=2012)
 
 try:
-    pt.run_iri(version=2020) # should fail
+    pt.run_iri(version=2020)
 except ValueError as e:
     print("Caught an exception: `{}`".format(e))

@@ -33,8 +33,8 @@ print("")
 
 # Using user-defined F10.7:
 pt = Point(dn, lat, lon, alt, user_ind=True)
-pt.f107 = 200 # We need to define our F10.7, now
-pt.f107a = 200 # We need to define our F10.7a, now
+pt.f107 = 200  # We need to define our F10.7, now
+pt.f107a = 200  # We need to define our F10.7a, now
 pt.run_iri()
 print("Using user defined F10.7:")
 print("f10.7 = {:3.2f}".format(pt.f107))
@@ -44,8 +44,8 @@ print("")
 
 # Using user-defined F10.7:
 pt = Point(dn, lat, lon, alt, user_ind=True)
-pt.f107 = 125.6 # We need to define our F10.7, now
-pt.f107a = 160.55 # We need to define our F10.7a, now
+pt.f107 = 125.6  # We need to define our F10.7, now
+pt.f107a = 160.55  # We need to define our F10.7a, now
 pt.run_iri()
 print("Using user defined F10.7:")
 print("f10.7 = {:3.2f}".format(pt.f107))
