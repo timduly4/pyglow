@@ -2,3 +2,4 @@ future
 numpy
 python-dateutil
 pytest
+coverage

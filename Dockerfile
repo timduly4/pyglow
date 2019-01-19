@@ -31,4 +31,7 @@ RUN make -C src/pyglow/models source
 RUN python3 setup.py install --user
 
 # Run unit tests:
-CMD pytest test/
+CMD coverage run --source src -m pytest test/
+
+# Provide coverage report
+CMD coverage report
