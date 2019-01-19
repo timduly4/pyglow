@@ -48,7 +48,7 @@ First, checkout the repository:
 $ git clone git://github.com/timduly4/pyglow.git pyglow
 ```
 
-Change directories into the repository folder, compile the f2py bindings, then install the python package:
+Change directories into the repository folder, compile the f2py bindings, then install the Python package:
 ```
 $ cd pyglow/
 $ make -C src/pyglow/models source

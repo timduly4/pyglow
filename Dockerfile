@@ -18,7 +18,7 @@ RUN apk update && apk add \
 
 # Install pyglow Python dependencies:
 COPY requirements.txt /
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Copy source code into container:
 COPY src/ /pyglow/src/
