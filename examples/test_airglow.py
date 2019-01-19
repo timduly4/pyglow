@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
-'''
-Profile 7774 and 6300-nm emissions.
-2016-09-17
-'''
+""" Profile 7774 and 6300-nm emissions. 2016-09-17 """
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
+from datetime import datetime
 import numpy as np
 
 import pyglow
@@ -28,7 +25,7 @@ for alt in alts:
     ag7774.append(pt.ag7774)
 
 # Plot:
-plt.figure(1, figsize=(8,8));
+plt.figure(1, figsize=(8, 8))
 plt.clf()
 plt.plot(
     ag6300,
@@ -46,12 +43,13 @@ plt.grid()
 plt.xlabel('Volume Emission Rate (VER) [ph/cm$^3$/s]')
 plt.ylabel('Altitude [km]')
 plt.title(
-    'Testing: Point.run_airglow() \n' \
-            '{} UT, Lat = {:3.1f}$^\circ$, Lon = {:3.1f}$^\circ$'.\
-            format(dn.strftime('%Y-%m-%d %H:%M:%S'), lat, lon)
+    'Testing: Point.run_airglow() \n'
+    r'{} UT, Lat = {:3.1f}$^\circ$, Lon = {:3.1f}$^\circ$'.format(
+        dn.strftime('%Y-%m-%d %H:%M:%S'),
+        lat,
+        lon,
+    )
 )
 plt.legend(loc=1, fontsize=10)
 plt.draw()
 plt.show()
-
-
