@@ -107,7 +107,7 @@ class IRI(object):
         jf[4] = 0  # 5  foF2 - URSI
         jf[5] = 0  # 6  Ni - RBV-10 & TTS-03
         jf[20] = 0  # 21 ion drift not computed
-        jf[22] = 0  # 23 Te_topside (TBT-2011)
+        jf[22] = 1  # 23, Te_topside (TBT-2012) (Issue #99 mentions that this should be reversed)
         jf[27] = 0  # 28 spreadF prob not computed
         jf[28] = 0  # 29 (29,30) => NeQuick
         jf[29] = 0  # 30
