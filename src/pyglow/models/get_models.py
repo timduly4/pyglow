@@ -207,7 +207,7 @@ for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
 # IRI16, multiple files
 model_folder = 'iri16'
 model_urls = [
-    'http://irimodel.org/IRI-2016/00_iri2016.tar',
+    'http://irimodel.org/IRI-2016/00_iri.tar',
     'http://irimodel.org/COMMON_FILES/00_ccir-ursi.tar',
 ]
 for model_url in model_urls:
