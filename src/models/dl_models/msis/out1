@@ -1,0 +1,44 @@
+Reading fortran codes...
+	Reading file 'nrlmsise00_sub_patched.for' (format:fix,strict)
+Post-processing...
+	Block: msis00py
+{}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "iyd".
+{}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "sec".
+{}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "alt".
+{}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "glat".
+{}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "glong".
+{}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "stl".
+{}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "f107a".
+{}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "f107".
+{'attrspec': ['dimension(7)']}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "ap".
+{}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "mass".
+{'attrspec': ['dimension(9)']}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "d".
+{'attrspec': ['dimension(2)']}
+In: :msis00py:nrlmsise00_sub_patched.for:gtd7
+vars2fortran: No typespec for argument "t".
+			Block: gtd7
+			Block: gtd7bk
+Post-processing (stage 2)...
+Saving signatures to file "./sig_file.pyf"

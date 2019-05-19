@@ -1,0 +1,22 @@
+Reading fortran codes...
+	Reading file 'hwm14.f90' (format:free)
+Post-processing...
+	Block: hwm14py
+			Block: hwm
+			Block: hwm14
+			Block: alf
+			Block: qwm
+			Block: dwm
+In: :hwm14py:hwm14.f90:dwm
+get_parameters: got "EOL while scanning string literal (<string>, line 1)" on "'dwm07b"
+			Block: gd2qdc
+Post-processing (stage 2)...
+	Block: hwm14py
+		Block: unknown_interface
+			Block: hwm
+			Block: hwm14
+			Block: alf
+			Block: qwm
+			Block: dwm
+			Block: gd2qdc
+Saving signatures to file "./sig_file.pyf"

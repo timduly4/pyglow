@@ -1,0 +1,17 @@
+Reading fortran codes...
+	Reading file 'hwm07e_modified.f90' (format:free)
+	Reading file 'apexcord.f90' (format:free)
+Post-processing...
+	Block: hwm07py
+			Block: newmodel
+			Block: hwmqt
+			Block: vshengine
+			Block: apexcord
+Post-processing (stage 2)...
+	Block: hwm07py
+		Block: unknown_interface
+			Block: newmodel
+			Block: hwmqt
+			Block: vshengine
+			Block: apexcord
+Saving signatures to file "./sig_file.pyf"

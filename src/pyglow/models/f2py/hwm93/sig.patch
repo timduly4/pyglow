@@ -1,4 +1,0 @@
-16c16
-<             real dimension(2) :: w
----
->             real dimension(2), intent(out) :: w

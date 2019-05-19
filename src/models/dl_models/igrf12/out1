@@ -1,0 +1,37 @@
+Reading fortran codes...
+	Reading file 'igrf12_modified.f' (format:fix,strict)
+Post-processing...
+	Block: igrf12py
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "isv".
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "date".
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "itype".
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "alt".
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "colat".
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "elong".
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "x".
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "y".
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "z".
+{}
+In: :igrf12py:igrf12_modified.f:igrf12syn
+vars2fortran: No typespec for argument "f".
+			Block: igrf12syn
+Post-processing (stage 2)...
+Saving signatures to file "./sig_file.pyf"

@@ -21,13 +21,13 @@ COPY requirements.txt /
 RUN pip3 install -r requirements.txt
 
 # Copy source code into container:
-COPY src/ /pyglow/src/
+COPY src/ /src/
 COPY test/ /pyglow/test/
 COPY setup.py /pyglow
 WORKDIR /pyglow
 
 # Compile & install:
-RUN make -C src/pyglow/models source
+RUN make -C src/models source
 RUN python3 setup.py install --user
 
 # Run unit tests:

@@ -1,0 +1,6 @@
+109,110c109,110
+<             real dimension(20,1000) :: outf
+<             real dimension(100) :: oarr
+---
+>             real dimension(20,1000), intent(out) :: outf
+>             real dimension(100), intent(inplace) :: oarr

@@ -1,0 +1,214 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module iri16py ! in 
+    interface  ! in :iri16py
+        block data gtd7bk ! in :iri16py:cira.for
+            real, optional,dimension(50) :: pt1=9.86573e-01
+            real, optional,dimension(50) :: pt2=6.61278e-03
+            real, optional,dimension(50) :: pt3=4.19000e-04
+            real, optional,dimension(50) :: pa1=1.09979e+00
+            real, optional,dimension(50) :: pa2=-8.09813e-03
+            real, optional,dimension(50) :: pa3=-5.18780e-03
+            real, optional,dimension(50) :: pb1=1.02315e+00
+            real, optional,dimension(50) :: pb2=-5.40373e-03
+            real, optional,dimension(50) :: pb3=-7.26485e-04
+            real, optional,dimension(50) :: pc1=1.16112e+00
+            real, optional,dimension(50) :: pc2=0.00000e+00
+            real, optional,dimension(50) :: pc3=0.00000e+00
+            real, optional,dimension(50) :: pd1=9.44846e-01
+            real, optional,dimension(50) :: pd2=5.10250e-03
+            real, optional,dimension(50) :: pd3=0.00000e+00
+            real, optional,dimension(50) :: pe1=1.35580e+00
+            real, optional,dimension(50) :: pe2=8.17187e-03
+            real, optional,dimension(50) :: pe3=0.00000e+00
+            real, optional,dimension(50) :: pf1=1.04761e+00
+            real, optional,dimension(50) :: pf2=1.89320e-02
+            real, optional,dimension(50) :: pf3=-1.38821e-02
+            real, optional,dimension(50) :: pg1=1.26376e+00
+            real, optional,dimension(50) :: pg2=-2.30501e-02
+            real, optional,dimension(50) :: pg3=-3.94077e-03
+            real, optional,dimension(50) :: ph1=7.09557e+01
+            real, optional,dimension(50) :: ph2=-8.41918e-03
+            real, optional,dimension(50) :: ph3=-1.05162e-02
+            real, optional,dimension(50) :: pi1=6.04050e-02
+            real, optional,dimension(50) :: pi2=0.00000e+00
+            real, optional,dimension(50) :: pi3=0.00000e+00
+            real, optional,dimension(50) :: pj1=9.56827e-01
+            real, optional,dimension(50) :: pj2=0.00000e+00
+            real, optional,dimension(50) :: pj3=0.00000e+00
+            real, optional,dimension(50) :: pk1=1.09930e+00
+            real, optional,dimension(50) :: pl1=1.00858e+00
+            real, optional,dimension(50) :: pl2=5.57917e-03
+            real, optional,dimension(50) :: pm1=9.39664e-01
+            real, optional,dimension(50) :: pm2=3.56082e-03
+            real, optional,dimension(50) :: pn1=9.85982e-01
+            real, optional,dimension(50) :: pn2=-4.04337e-03
+            real, optional,dimension(50) :: po1=1.00320e+00
+            real, optional,dimension(50) :: po2=0.00000e+00
+            real, optional,dimension(50) :: pp1=9.81637e-01
+            real, optional,dimension(50) :: pp2=0.00000e+00
+            real, optional,dimension(50) :: pq1=1.00422e+00
+            real, optional,dimension(50) :: pq2=0.00000e+00
+            real, optional,dimension(50) :: pr1=1.01890e+00
+            real, optional,dimension(50) :: pr2=0.00000e+00
+            real, optional,dimension(50) :: ps1=9.75801e-01
+            real, optional,dimension(50) :: ps2=0.00000e+00
+            real, optional,dimension(50) :: pu1=9.60722e-01
+            real, optional,dimension(50) :: pu2=0.00000e+00
+            real, optional,dimension(50) :: pv1=1.03123e+00
+            real, optional,dimension(50) :: pv2=0.00000e+00
+            real, optional,dimension(50) :: pw1=1.00828e+00
+            real, optional,dimension(50) :: pw2=0.00000e+00
+            real, optional,dimension(50) :: px1=1.57293e+00
+            real, optional,dimension(50) :: px2=0.00000e+00
+            real, optional,dimension(50) :: py1=8.60028e-01
+            real, optional,dimension(50) :: py2=0.00000e+00
+            real, optional,dimension(50) :: pz1=1.06029e+00
+            real, optional,dimension(50) :: pz2=0.00000e+00
+            real, optional,dimension(50) :: paa1=1.00000e+00
+            real, optional,dimension(50) :: paa2=0.00000e+00
+            real, optional,dimension(10) :: ptm=1.04130e+03
+            real, optional,dimension(10,8) :: pdm=2.45600e+07
+            real, optional,dimension(10) :: pavgm=2.61000e+02
+            character, optional,dimension(3,4),intent(c) :: isdate='01-f'
+            character, optional,dimension(2,4),intent(c) :: istime='15:4'
+            character, optional,dimension(2,4),intent(c) :: name='msis'
+            integer, optional :: imr=0
+            common /parm7/ pt1,pt2,pt3,pa1,pa2,pa3,pb1,pb2,pb3,pc1,pc2,pc3,pd1,pd2,pd3,pe1,pe2,pe3,pf1,pf2,pf3,pg1,pg2,pg3,ph1,ph2,ph3,pi1,pi2,pi3,pj1,pj2,pj3,pk1,pl1,pl2,pm1,pm2,pn1,pn2,po1,po2,pp1,pp2,pq1,pq2,pr1,pr2,ps1,ps2,pu1,pu2,pv1,pv2,pw1,pw2,px1,px2,py1,py2,pz1,pz2,paa1,paa2
+            common /lower7/ ptm,pdm
+            common /mavg7/ pavgm
+            common /datim7/ isdate,istime,name
+            common /metsel/ imr
+        end block data gtd7bk
+        block data  ! in :iri16py:iridreg_modified.for
+            real dimension(81,5,12,12,3) :: eden
+            real dimension(81) :: tabhe
+            real dimension(5) :: tabla
+            real dimension(12) :: tabmo
+            real dimension(12) :: tabza
+            real dimension(3) :: tabfl
+            integer, parameter,optional :: nhgt=81
+            integer, parameter,optional :: nlat=5
+            integer, parameter,optional :: nmon=12
+            integer, parameter,optional :: nzen=12
+            integer, parameter,optional :: nf10=3
+            common /fircom/ eden,tabhe,tabla,tabmo,tabza,tabfl
+        end block data 
+        subroutine read_ig_rz ! in :iri16py:irifun.for
+            real dimension(806) :: aig
+            real dimension(806) :: arz
+            integer :: iymst
+            integer :: iymend
+            common /igrz/ aig,arz,iymst,iymend
+        end subroutine read_ig_rz
+        subroutine readapf107 ! in :iri16py:irifun.for
+            integer dimension(23000,9) :: aap
+            real dimension(23000,3) :: af107
+            integer :: n
+            common /apfa/ aap,af107,n
+        end subroutine readapf107
+        subroutine iri_sub(jf,jmag,alati,along,iyyyy,mmdd,dhour,heibeg,heiend,heistp,outf,oarr) ! in :iri16py:irisub.for
+            logical dimension(50) :: jf
+            integer :: jmag
+            real :: alati
+            real :: along
+            integer :: iyyyy
+            integer :: mmdd
+            real :: dhour
+            real :: heibeg
+            real :: heiend
+            real :: heistp
+            real dimension(20,1000), intent(out) :: outf
+            real dimension(100), intent(inplace) :: oarr
+            real :: umr
+            real :: pi
+            real :: humr
+            real :: dumr
+            real :: argmax
+            real :: era
+            real :: aquad
+            real :: bquad
+            real :: dimo
+            real :: hmf2
+            real :: nmf2s
+            real :: hmf1
+            logical :: f1reg
+            real :: b0
+            real :: b1
+            real :: c1
+            real :: hz
+            real :: t
+            real :: hst
+            real :: hme
+            real :: nmes
+            real :: hef
+            logical :: enight
+            real dimension(4) :: e
+            real :: hmd
+            real :: nmd
+            real :: hdx
+            real :: d1
+            real :: xkk
+            real :: fp30
+            real :: fp3u
+            real :: fp1
+            real :: fp2
+            real :: hs
+            real :: tnhs
+            real dimension(4) :: xsm
+            real dimension(5) :: mm
+            real dimension(4) :: dti
+            integer :: mxsm
+            real dimension(7) :: ahh
+            real :: ate1
+            real dimension(6) :: stte
+            real dimension(5) :: dte
+            real :: beta
+            real :: eta
+            real :: delta
+            real :: zeta
+            real :: flon
+            real :: ryear
+            real :: b2top
+            real :: tc3
+            integer :: itopn
+            real :: alg10
+            real :: hcor1
+            integer :: konsol
+            logical :: mess
+            real dimension(25) :: sw
+            integer :: isw
+            real dimension(25) :: swc
+            real :: y05
+            real :: h05top
+            real :: qf
+            real :: xnetop
+            real :: xm3000
+            real :: hhalf
+            real :: tau
+            common /const/ umr,pi
+            common /const1/ humr,dumr
+            common /argexp/ argmax
+            common /igrf1/ era,aquad,bquad,dimo
+            common /block1/ hmf2,nmf2s,hmf1,f1reg
+            common /block2/ b0,b1,c1
+            common /block3/ hz,t,hst
+            common /block4/ hme,nmes,hef
+            common /block5/ enight,e
+            common /block6/ hmd,nmd,hdx
+            common /block7/ d1,xkk,fp30,fp3u,fp1,fp2
+            common /block8/ hs,tnhs,xsm,mm,dti,mxsm
+            common /blote/ ahh,ate1,stte,dte
+            common /blo10/ beta,eta,delta,zeta
+            common /findrlat/ flon,ryear
+            common /blo11/ b2top,tc3,itopn,alg10,hcor1
+            common /iounit/ konsol,mess
+            common /csw/ sw,isw,swc
+            common /qtop/ y05,h05top,qf,xnetop,xm3000,hhalf,tau
+        end subroutine iri_sub
+    end interface 
+end python module iri16py
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/

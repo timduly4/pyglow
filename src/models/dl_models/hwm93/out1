@@ -1,0 +1,39 @@
+Reading fortran codes...
+	Reading file 'hwm93_modified.f' (format:fix,strict)
+Post-processing...
+	Block: hwm93py
+{}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "iyd".
+{}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "sec".
+{}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "alt".
+{}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "glat".
+{}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "glong".
+{}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "stl".
+{}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "f107a".
+{}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "f107".
+{'attrspec': ['dimension(1)']}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "ap".
+{'attrspec': ['dimension(2)']}
+In: :hwm93py:hwm93_modified.f:gws5
+vars2fortran: No typespec for argument "w".
+			Block: gws5
+			Block: initw5
+			Block: gwsbk5
+Post-processing (stage 2)...
+Saving signatures to file "./sig_file.pyf"

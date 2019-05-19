@@ -1,0 +1,195 @@
+60,63c60,63
+<     if (ap(2) .ge. 0.0) then
+<       call dwm07b_hwm_interface(iyd,sec,alt,glat,glon,ap,dw)
+<       w = qw + dw
+<     else
+---
+> !    if (ap(2) .ge. 0.0) then
+> !      call dwm07b_hwm_interface(iyd,sec,alt,glat,glon,ap,dw)
+> !      w = qw + dw
+> !    else
+65c65
+<     endif
+---
+> !    endif
+159c159
+<     
+---
+>         
+206,207c206
+<     real(8),intent(inout)           :: fl(0:maxl,2)
+<     
+---
+>     real(8),intent(inout)           :: fl(0:maxl,2) 
+210,212c209,210
+<     real(8),intent(inout),target    :: ebz(nbf,0:p)
+<     real(8),intent(inout),target    :: ebm(nbf,0:p)
+< 
+---
+>     real(8),intent(inout)           :: ebz(nbf,0:p)
+>     real(8),intent(inout)           :: ebm(nbf,0:p)
+215d212
+<    
+219,221c216,217
+< 
+<     real(8),pointer           :: bz(:)
+<     real(8),pointer           :: bm(:)
+---
+>     !real(8)                   :: bz(:)
+>     !real(8)                   :: bm(:)
+325,326c321,322
+<         bz => ebz(:,b)
+<         bm => ebm(:,b)
+---
+> !       bz(:) = ebz(:,b)
+> !       bm(:) = ebm(:,b)
+345,348c341,344
+<                 bz(c)   = -0.5d0*vbar(n,0)  ! Cr
+<                 bz(c+1) =  0.0d0            ! Br
+<                 bm(c)   =  0.0d0            ! Cr
+<                 bm(c+1) =  0.5d0*vbar(n,0)  ! Br
+---
+>                 ebz(c,b)   = -0.5d0*vbar(n,0)  ! Cr
+>                 ebz(c+1,b) =  0.0d0            ! Br
+>                 ebm(c,b)   =  0.0d0            ! Cr
+>                 ebm(c+1,b) =  0.5d0*vbar(n,0)  ! Br
+362,369c358,365
+<                       bz(c) = -AA   ! Cr
+<                     bz(c+1) =  BB   ! Ci
+<                     bz(c+2) =  CC   ! Br
+<                     bz(c+3) =  DD   ! Bi
+<                       bm(c) =  CC   ! Cr
+<                     bm(c+1) =  DD   ! Ci
+<                     bm(c+2) =  AA   ! Br
+<                     bm(c+3) = -BB   ! Bi
+---
+>                       ebz(c,b) = -AA   ! Cr
+>                     ebz(c+1,b) =  BB   ! Ci
+>                     ebz(c+2,b) =  CC   ! Br
+>                     ebz(c+3,b) =  DD   ! Bi
+>                       ebm(c,b) =  CC   ! Cr
+>                     ebm(c+1,b) =  DD   ! Ci
+>                     ebm(c+2,b) =  AA   ! Br
+>                     ebm(c+3,b) = -BB   ! Bi
+392,395c388,391
+<                     bz(c) =   -vb*cm    ! Cr * (cm) * -vb
+<                     bz(c+1) =  vb*sm    ! Ci * (sm) *  vb
+<                     bz(c+2) = -wb*sm    ! Br * (sm) * -wb
+<                     bz(c+3) = -wb*cm    ! Bi * (cm) * -wb
+---
+>                     ebz(c,b) =   -vb*cm    ! Cr * (cm) * -vb
+>                     ebz(c+1,b) =  vb*sm    ! Ci * (sm) *  vb
+>                     ebz(c+2,b) = -wb*sm    ! Br * (sm) * -wb
+>                     ebz(c+3,b) = -wb*cm    ! Bi * (cm) * -wb
+397,400c393,396
+<                     bm(c) =   -wb*sm    ! Cr * (sm) * -wb
+<                     bm(c+1) = -wb*cm    ! Ci * (sm) * -wb
+<                     bm(c+2) =  vb*cm    ! Br * (cm) *  vb
+<                     bm(c+3) = -vb*sm    ! Bi * (sm) * -vb
+---
+>                     ebm(c,b) =   -wb*sm    ! Cr * (sm) * -wb
+>                     ebm(c+1,b) = -wb*cm    ! Ci * (sm) * -wb
+>                     ebm(c+2,b) =  vb*cm    ! Br * (cm) *  vb
+>                     ebm(c+3,b) = -vb*sm    ! Bi * (sm) * -vb
+415,422c411,418
+<                      bz(c) =   -vb*cm*cs    ! Crc * (cmcs) * -vb
+<                      bz(c+1) =  vb*sm*cs    ! Cic * (smcs) *  vb
+<                      bz(c+2) = -wb*sm*cs    ! Brc * (smcs) * -wb
+<                      bz(c+3) = -wb*cm*cs    ! Bic * (cmcs) * -wb
+<                      bz(c+4) = -vb*cm*ss    ! Crs * (cmss) * -vb
+<                      bz(c+5) =  vb*sm*ss    ! Cis * (smss) *  vb
+<                      bz(c+6) = -wb*sm*ss    ! Brs * (smss) * -wb
+<                      bz(c+7) = -wb*cm*ss    ! Bis * (cmss) * -wb
+---
+>                      ebz(c,b) =   -vb*cm*cs    ! Crc * (cmcs) * -vb
+>                      ebz(c+1,b) =  vb*sm*cs    ! Cic * (smcs) *  vb
+>                      ebz(c+2,b) = -wb*sm*cs    ! Brc * (smcs) * -wb
+>                      ebz(c+3,b) = -wb*cm*cs    ! Bic * (cmcs) * -wb
+>                      ebz(c+4,b) = -vb*cm*ss    ! Crs * (cmss) * -vb
+>                      ebz(c+5,b) =  vb*sm*ss    ! Cis * (smss) *  vb
+>                      ebz(c+6,b) = -wb*sm*ss    ! Brs * (smss) * -wb
+>                      ebz(c+7,b) = -wb*cm*ss    ! Bis * (cmss) * -wb
+424,431c420,427
+<                      bm(c) =   -wb*sm*cs    ! Crc * (smcs) * -wb
+<                      bm(c+1) = -wb*cm*cs    ! Cic * (smcs) * -wb
+<                      bm(c+2) =  vb*cm*cs    ! Brc * (cmcs) *  vb
+<                      bm(c+3) = -vb*sm*cs    ! Bic * (smcs) * -vb
+<                      bm(c+4) = -wb*sm*ss    ! Crs * (smss) * -wb
+<                      bm(c+5) = -wb*cm*ss    ! Cis * (smss) * -wb
+<                      bm(c+6) =  vb*cm*ss    ! Brs * (cmss) *  vb
+<                      bm(c+7) = -vb*sm*ss    ! Bis * (smss) * -vb
+---
+>                      ebm(c,b) =   -wb*sm*cs    ! Crc * (smcs) * -wb
+>                      ebm(c+1,b) = -wb*cm*cs    ! Cic * (smcs) * -wb
+>                      ebm(c+2,b) =  vb*cm*cs    ! Brc * (cmcs) *  vb
+>                      ebm(c+3,b) = -vb*sm*cs    ! Bic * (smcs) * -vb
+>                      ebm(c+4,b) = -wb*sm*ss    ! Crs * (smss) * -wb
+>                      ebm(c+5,b) = -wb*cm*ss    ! Cis * (smss) * -wb
+>                      ebm(c+6,b) =  vb*cm*ss    ! Brs * (cmss) *  vb
+>                      ebm(c+7,b) = -vb*sm*ss    ! Bis * (smss) * -vb
+458,461c454,457
+<                     bz(c) =   -vb*cl    ! Cr * (cl) * -vb
+<                     bz(c+1) =  vb*sl    ! Ci * (sl) *  vb
+<                     bz(c+2) = -wb*sl    ! Br * (sl) * -wb
+<                     bz(c+3) = -wb*cl    ! Bi * (cl) * -wb
+---
+>                     ebz(c,b) =   -vb*cl    ! Cr * (cl) * -vb
+>                     ebz(c+1,b) =  vb*sl    ! Ci * (sl) *  vb
+>                     ebz(c+2,b) = -wb*sl    ! Br * (sl) * -wb
+>                     ebz(c+3,b) = -wb*cl    ! Bi * (cl) * -wb
+463,466c459,462
+<                     bm(c) =   -wb*sl    ! Cr * (sl) * -wb
+<                     bm(c+1) = -wb*cl    ! Ci * (sl) * -wb
+<                     bm(c+2) =  vb*cl    ! Br * (cl) *  vb
+<                     bm(c+3) = -vb*sl    ! Bi * (sl) * -vb
+---
+>                     ebm(c,b) =   -wb*sl    ! Cr * (sl) * -wb
+>                     ebm(c+1,b) = -wb*cl    ! Ci * (sl) * -wb
+>                     ebm(c+2,b) =  vb*cl    ! Br * (cl) *  vb
+>                     ebm(c+3,b) = -vb*sl    ! Bi * (sl) * -vb
+482,485c478,481
+<                      bz(c) =   -vb*cl*cs	! Crc * (clcs) * -vb
+<                      bz(c+1) =  vb*sl*cs    ! Cic * (slcs) *  vb
+<                      bz(c+2) = -wb*sl*cs    ! Brc * (slcs) * -wb
+<                      bz(c+3) = -wb*cl*cs    ! Bic * (clcs) * -wb
+---
+>                      ebz(c,b) =   -vb*cl*cs	! Crc * (clcs) * -vb
+>                      ebz(c+1,b) =  vb*sl*cs    ! Cic * (slcs) *  vb
+>                      ebz(c+2,b) = -wb*sl*cs    ! Brc * (slcs) * -wb
+>                      ebz(c+3,b) = -wb*cl*cs    ! Bic * (clcs) * -wb
+487,490c483,486
+<                      bz(c+4) = -vb*cl*ss    ! Crs * (clss) * -vb
+<                      bz(c+5) =  vb*sl*ss    ! Cis * (slss) *  vb
+<                      bz(c+6) = -wb*sl*ss    ! Brs * (slss) * -wb
+<                      bz(c+7) = -wb*cl*ss    ! Bis * (clss) * -wb
+---
+>                      ebz(c+4,b) = -vb*cl*ss    ! Crs * (clss) * -vb
+>                      ebz(c+5,b) =  vb*sl*ss    ! Cis * (slss) *  vb
+>                      ebz(c+6,b) = -wb*sl*ss    ! Brs * (slss) * -wb
+>                      ebz(c+7,b) = -wb*cl*ss    ! Bis * (clss) * -wb
+492,500c488,496
+<                      bm(c) =   -wb*sl*cs    ! Crc * (slcs) * -wb
+<                      bm(c+1) = -wb*cl*cs    ! Cic * (slcs) * -wb
+<                      bm(c+2) =  vb*cl*cs    ! Brc * (clcs) *  vb
+<                      bm(c+3) = -vb*sl*cs    ! Bic * (slcs) * -vb
+< 
+<                      bm(c+4) = -wb*sl*ss    ! Crs * (slss) * -wb
+<                      bm(c+5) = -wb*cl*ss    ! Cis * (slss) * -wb
+<                      bm(c+6) =  vb*cl*ss    ! Brs * (clss) *  vb
+<                      bm(c+7) = -vb*sl*ss    ! Bis * (slss) * -vb
+---
+>                      ebm(c,b) =   -wb*sl*cs    ! Crc * (slcs) * -wb
+>                      ebm(c+1,b) = -wb*cl*cs    ! Cic * (slcs) * -wb
+>                      ebm(c+2,b) =  vb*cl*cs    ! Brc * (clcs) *  vb
+>                      ebm(c+3,b) = -vb*sl*cs    ! Bic * (slcs) * -vb
+> 
+>                      ebm(c+4,b) = -wb*sl*ss    ! Crs * (slss) * -wb
+>                      ebm(c+5,b) = -wb*cl*ss    ! Cis * (slss) * -wb
+>                      ebm(c+6,b) =  vb*cl*ss    ! Brs * (clss) *  vb
+>                      ebm(c+7,b) = -vb*sl*ss    ! Bis * (slss) * -vb
+522,523c518,519
+<         if (component(0)) u = u + zwght(b)*dot_product(bz(1:c),mparm(1:c,d))
+<         if (component(1)) v = v + zwght(b)*dot_product(bm(1:c),mparm(1:c,d))
+---
+>         if (component(0)) u = u + zwght(b)*dot_product(ebz(1:c,b),mparm(1:c,d))
+>         if (component(1)) v = v + zwght(b)*dot_product(ebm(1:c,b),mparm(1:c,d))

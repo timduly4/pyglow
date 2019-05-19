@@ -1,0 +1,9 @@
+
+FOR95 = g95
+FFLAGS = -cpp
+
+check:
+	$(FOR95) $(FFLAGS) checkhwm07.f90 hwm07e.f90 dwm07b.f90 apexcord.f90 -o checkhwm
+
+clean:
+	rm *.mod checkhwm

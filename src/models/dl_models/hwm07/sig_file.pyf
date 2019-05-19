@@ -1,0 +1,107 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module hwm07py ! in 
+    interface  ! in :hwm07py
+        module newmodel ! in :hwm07py:hwm07e_modified.f90
+            integer :: nbf
+            integer :: maxs
+            integer :: maxm
+            integer :: maxl
+            integer :: maxn
+            integer :: p
+            integer :: nlev
+            integer :: nnode
+            real(kind=8) :: alttns
+            real(kind=8) :: altsym
+            real(kind=8) :: altiso
+            integer, allocatable,dimension(:) :: nb
+            integer, allocatable,dimension(:,:) :: order
+            real(kind=8), allocatable,dimension(:) :: vnode
+            real(kind=8), allocatable,dimension(:,:) :: mparm
+            real(kind=8), allocatable,dimension(:,:) :: gfs
+            real(kind=8), allocatable,dimension(:,:) :: gfm
+            real(kind=8), allocatable,dimension(:,:) :: gfl
+            real(kind=8), allocatable,dimension(:,:) :: gvbar
+            real(kind=8), allocatable,dimension(:,:) :: gwbar
+            real(kind=8), allocatable,dimension(:,:) :: gbz
+            real(kind=8), allocatable,dimension(:,:) :: gbm
+            real(kind=8), allocatable,dimension(:) :: gzwght
+            integer :: glev
+            integer :: maxo
+            integer, optional :: cseason=0
+            integer, optional :: cwave=0
+            integer, optional :: ctide=0
+            logical, optional,dimension(5) :: content=.true.
+            logical, optional,dimension(2) :: component=.true.
+            logical, optional :: modelinit=.true.
+            logical, optional :: reset=.true.
+            character(len=128), optional :: defaultdata='hwm071308e.dat'
+        end module newmodel
+        subroutine hwmqt(iyd,sec,alt,glat,glon,stl,f107a,f107,ap,w) ! in :hwm07py:hwm07e_modified.f90
+            use newmodel
+            integer intent(in) :: iyd
+            real(kind=4) intent(in) :: sec
+            real(kind=4) intent(in) :: alt
+            real(kind=4) intent(in) :: glat
+            real(kind=4) intent(in) :: glon
+            real(kind=4) intent(in) :: stl
+            real(kind=4) intent(in) :: f107a
+            real(kind=4) intent(in) :: f107
+            real(kind=4) dimension(2),intent(in) :: ap
+            real(kind=4) dimension(2),intent(out) :: w
+        end subroutine hwmqt
+        module vshengine ! in :hwm07py:hwm07e_modified.f90
+            integer, parameter,optional :: mmax=11
+            integer, parameter,optional :: nmax=11
+            real(kind=8) dimension(12,12) :: p0
+            real(kind=8) dimension(12,12) :: p1
+            real(kind=8) dimension(12,12) :: sf
+            real(kind=8) dimension(12,12) :: a
+            real(kind=8) dimension(12,12) :: b
+            real(kind=8) dimension(12,12) :: c
+            real(kind=8) dimension(12,12) :: d
+        end module vshengine
+        module apexcord ! in :hwm07py:apexcord.f90
+            real(kind=4), parameter,optional :: xmiss=-32767.0
+            real(kind=4), parameter,optional :: glatlim=89.9
+            real(kind=4), parameter,optional :: precise=7.6e-11
+            real(kind=4), parameter,optional :: datdmx=1.0
+            real(kind=4), parameter,optional :: datimx=2.5
+            integer(kind=4), parameter,optional :: irlf=4
+            integer(kind=4), optional :: kgma=0
+            real(kind=4) :: glalmn
+            real(kind=4) :: glalmx
+            integer(kind=4) :: nla
+            integer(kind=4) :: nlo
+            integer(kind=4) :: nal
+            integer(kind=4) :: lbx
+            integer(kind=4) :: lby
+            integer(kind=4) :: lbz
+            integer(kind=4) :: lbv
+            integer(kind=4) :: lla
+            integer(kind=4) :: llo
+            integer(kind=4) :: lal
+            integer(kind=4) :: lwk
+            real(kind=4), allocatable,dimension(:) :: wk
+            real(kind=4) :: colat
+            real(kind=4) :: elon
+            real(kind=4) :: vp
+            real(kind=4) :: ctp
+            real(kind=4) :: stp
+            real(kind=4) :: rtod
+            real(kind=4) :: dtor
+            real(kind=4) :: re
+            real(kind=4) :: req
+            real(kind=4) :: msgu
+            real(kind=4) :: pola
+            integer(kind=4), optional :: io=1
+            integer(kind=4), optional :: jo=1
+            integer(kind=4), optional :: ko=1
+            logical, optional :: loaddata=.true.
+        end module apexcord
+    end interface 
+end python module hwm07py
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/
