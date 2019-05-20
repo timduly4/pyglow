@@ -21,9 +21,9 @@ COPY requirements.txt /
 RUN pip3 install -r requirements.txt
 
 # Copy source code into container:
-COPY src/ /src/
+COPY src/ /pyglow/src/
 COPY test/ /pyglow/test/
-COPY setup.py /pyglow
+COPY setup.py /pyglow/
 WORKDIR /pyglow
 
 # Compile & install:
