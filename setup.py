@@ -13,15 +13,11 @@ AE_FILES = sorted(glob.glob('src/ae/*'))
 
 
 def reencode(dosfile, target='utf-8'):
-    """
-    Remove invalid unicode characters that appear in the comments
-    """
+    """ Remove invalid unicode characters that appear in the comments """
     with open(dosfile, 'r', encoding='cp1251', errors='ignore') as f:
         content = f.read()
     with open(dosfile, 'w', encoding=target) as f:
         f.write(content)
-
-    return
 
 
 # IGRF 11:

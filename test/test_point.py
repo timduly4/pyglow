@@ -4,8 +4,8 @@ from datetime import datetime
 import math
 import unittest
 
-from src import pyglow
-print("[{}] pyglow file: {}".format(pyglow.__version__, pyglow.__file__))
+from src import point
+print("[{}] pyglow file: {}".format(point.__version__, point.__file__))
 
 
 class TestPoint(unittest.TestCase):
@@ -16,9 +16,9 @@ class TestPoint(unittest.TestCase):
         lat = 40
         lon = -88
         alt = 250
-        self.pt = pyglow.Point(dn, lat, lon, alt)
+        self.pt = point.Point(dn, lat, lon, alt)
 
-        self.pt_user_ind = pyglow.Point(dn, lat, lon, alt, user_ind=True)
+        self.pt_user_ind = point.Point(dn, lat, lon, alt, user_ind=True)
         self.pt_user_ind.f107 = 100
         self.pt_user_ind.f107a = 100
 
@@ -29,7 +29,7 @@ class TestPoint(unittest.TestCase):
         """ Version associated with pyglow """
 
         # Make sure we have a version associated with pyglow:
-        version = pyglow.__version__
+        version = point.__version__
         "pyglow: v{}".format(version)
 
         self.assertTrue(version)
