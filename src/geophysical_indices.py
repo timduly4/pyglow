@@ -1,3 +1,4 @@
+from datetime import datetime
 import numpy as np
 
 from .get_kpap import get_kpap
@@ -8,10 +9,7 @@ nan = float('nan')
 
 class Indice(object):
 
-    def __init__(self, dn):
-        """
-        :param dn: datetime of indice data
-        """
+    def __init__(self, dn: datetime):
 
         # Store datetime associated with indice:
         self.dn = dn
@@ -30,9 +28,7 @@ class Indice(object):
         self.apmsis = [nan, ] * 7
 
     def run(self):
-        """
-        Calculates the geophysical indices
-        """
+        """ Calculates the geophysical indices """
 
         # Geophysical indices:
         kp, ap, f107, f107a, f107p, kp_daily, ap_daily, dst, ae = \
@@ -52,10 +48,8 @@ class Indice(object):
         # AP values for MSIS:
         self.apmsis = get_apmsis(self.dn)
 
-    def all_nan(self):
-        """
-        Returns a boolean indicating if all indices are NaN
-        """
+    def all_nan(self) -> bool:
+        """ Returns a boolean indicating if all indices are NaN """
 
         all_nan = True
         all_nan &= np.isnan(self.kp)
