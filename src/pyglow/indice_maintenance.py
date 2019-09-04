@@ -2,7 +2,7 @@ import contextlib
 import dateutil.parser
 from datetime import timedelta
 import os
-import urllib
+import urllib.request
 import shutil
 
 from .constants import DIR_FILE, VERSION
