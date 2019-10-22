@@ -112,11 +112,31 @@ msis = {
     'filename': FN_MSIS,
 }
 
+# files need to download or not:
+is_downloaded = False
+
 # Download each model:
 for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
 
+    is_downloaded = False
+
+    # local file length:
+    local_length = 0
+    # remote file length:
+    remote_length = 0
+
     # Parse model name:
     model_name = model['name']
+
+    # data file name:
+    fn = "./dl_models/{}/{}".format(
+        model['folder'],
+        model['filename'],
+    )
+
+    # avoid repeating to download:
+    if os.path.isfile(fn):
+        local_length = os.stat(fn).st_size
 
     # Download the tar or zip file:
     print(
@@ -136,6 +156,12 @@ for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
 
         modelfile_error = False
 
+        # avoid repeating to download:
+        remote_length = int(modelfile.getheader('Content-Length'))
+        if local_length == remote_length:
+            print("{} was already downloaded.".format(fn))
+            is_downloaded = True
+
     except (urllib.error.HTTPError, urllib.error.URLError, ValueError) as e:
 
         # Try backups:
@@ -150,27 +176,32 @@ for model in [igrf11, igrf12, hwm07, hwm93, iri12, msis]:
                         url_backup,
                         timeout=TIMEOUT,
                     )
+
                     modelfile_error = False
+
+                    # avoid repeating to download:
+                    remote_length = int(modelfile.getheader('Content-Length'))
+
                 except urllib.error.HTTPError as e:
                     pass
                 if not modelfile_error:
                     break
+            if local_length == remote_length:
+                print("{} was already downloaded.".format(fn))
+                is_downloaded = True
         else:
             raise e
 
     # Ensure that we downloaded the model:
     if modelfile_error:
         raise ValueError("Unable to download: {}".format(model['name']))
-
-    # Write data file:
-    fn = "./dl_models/{}/{}".format(
-        model['folder'],
-        model['filename'],
-    )
-    output = open(fn, 'wb')
-    output.write(modelfile.read())
-    output.close()
-    print("Wrote: {}".format(fn))
+    
+    if not is_downloaded:
+        # Write data file:
+        output = open(fn, 'wb')
+        output.write(modelfile.read())
+        output.close()
+        print("Wrote: {}".format(fn))
 
     # Tar file?
     if model['tar']:
@@ -212,12 +243,43 @@ model_urls = [
 ]
 for model_url in model_urls:
 
-    # Download tar file:
+    is_downloaded = False
+
+    # local file length:
+    local_length = 0
+    # remote file length:
+    remote_length = 0
+
     tar_file = model_url.split('/')[-1]
+    # data file name:
+    fn = "./dl_models/{}/{}".format(model_folder, tar_file)
+
+    # avoid repeating to download:
+    if os.path.isfile(fn):
+        local_length = os.stat(fn).st_size
+    
+    # Download the tar or zip file:
+    print(
+        "Downloading files for {} at {}".format(
+            tar_file,
+            model_url,
+        )
+    )
+
+    # Open url for downloading tar file:
     model_file = urllib.request.urlopen(model_url)
-    output = open("./dl_models/{}/{}".format(model_folder, tar_file), 'wb')
-    output.write(model_file.read())
-    output.close()
+
+    # avoid repeating to download:
+    remote_length = int(model_file.getheader('Content-Length'))
+    if local_length == remote_length:
+        print("{} was already downloaded.".format(fn))
+        is_downloaded = True
+
+    if not is_downloaded:
+        # Download tar file:
+        output = open(fn, 'wb')
+        output.write(model_file.read())
+        output.close()
 
     # Untar:
     cmd = 'tar -xvf ./dl_models/{model_folder}/{tar_file} '\
@@ -231,17 +293,35 @@ for model_url in model_urls:
 # Download indice files:
 for indice_url in INDICE_URLS:
 
+    is_downloaded = False
+
+    # local file length:
+    local_length = 0
+    # remote file length:
+    remote_length = 0
+
     # Local filename:
     dat_file = indice_url.split('/')[-1]
+
+    # Download filename:
+    fn = "./dl_models/{}/{}".format(model_folder, dat_file)
+        
+    # avoid repeating to download:
+    if os.path.isfile(fn):
+        local_length = os.stat(fn).st_size
 
     # Make URL request:
     model_file = urllib.request.urlopen(indice_url)
 
-    # Download filename:
-    fn = "./dl_models/{}/{}".format(model_folder, dat_file)
-
-    # Write file to disk:
-    print("Downloading: {} to {}".format(indice_url, fn))
-    output = open(fn, 'wb')
-    output.write(model_file.read())
-    output.close()
+    # avoid repeating to download:
+    remote_length = int(model_file.getheader('Content-Length'))
+    if local_length == remote_length:
+        print("{} was already downloaded.".format(fn))
+        is_downloaded = True
+    
+    if not is_downloaded:
+        # Write file to disk:
+        print("Downloading: {} to {}".format(indice_url, fn))
+        output = open(fn, 'wb')
+        output.write(model_file.read())
+        output.close()
