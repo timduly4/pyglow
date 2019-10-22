@@ -55,6 +55,34 @@ $ make -C src/pyglow/models source
 $ python3 setup.py install --user
 ```
 
+### Trouble in downloading model files:
+
+If you have problems downloading files from the official websites,  follow the next steps:
+
+(1) Create the local http server:
+
+```
+$ cd static/
+$ python3 -m http.server 8080
+```
+
+(2) Edit the file `src/pyglow/models/Makefile`, replace the appropriate line with the following code:
+
+```
+download:
+  python get_models_offline.py
+```
+
+(3) Compile the f2py bindings, then install the Python package:
+
+```
+$ cd pyglow/
+$ make -C src/pyglow/models source
+$ python3 setup.py install --user
+```
+
+Note: The model files may not be latest.
+
 ### Individual installation steps:
 
 If you have troubles, follow the individual installation steps:
