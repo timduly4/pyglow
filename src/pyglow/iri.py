@@ -60,6 +60,7 @@ class IRI(object):
         compute_Ni=True,
         f107=None,
         f107a=None,
+	f1_layer=True,
     ):
         """
         Run IRI model at point time/location and update the object state
@@ -81,6 +82,7 @@ class IRI(object):
         :param compute_Ni: Switch to compute Ni
         :param f107: User specified F107
         :param f107a: User specified F107A
+	:param f1_layer: If True (default) include F1-layer (JF switches 19,20 = True)
         """
 
         if version == 2016:
@@ -156,6 +158,11 @@ class IRI(object):
 
             # Reference:
             # https://github.com/timduly4/pyglow/issues/34#issuecomment-340645358
+        
+        if not f1_layer:
+            # Set jf(19) and jf(20) to False (in Fortran index)
+            jf[18] = 0
+            jf[19] = 0
 
         # Get current directory:
         my_pwd = os.getcwd()
