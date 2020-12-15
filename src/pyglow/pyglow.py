@@ -164,6 +164,7 @@ class Point(object):
         compute_Ne=True,
         compute_Te_Ti=True,
         compute_Ni=True,
+        f1_layer=True,
     ):
         """
         Executes IRI and assigns results to instance.
@@ -174,6 +175,7 @@ class Point(object):
         :param compute_Ne: Switch to compute Ne
         :param compute_Te_Ti: Switch to compute Te and Ti
         :param compute_Ni: Switch to compute Ni
+	:param f1_layer: If True (default) include F1-layer (JF switches 19,20 = True)
         """
 
         # Check if user supplies indices:
@@ -199,6 +201,7 @@ class Point(object):
             compute_Ni=compute_Ni,
             f107=f107,
             f107a=f107a,
+            f1_layer=f1_layer,
         )
 
         # Assign output of IRI:
