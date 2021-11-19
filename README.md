@@ -124,7 +124,7 @@ $ python3 setup.py install --user
 
 See unit tests in `./test`.  For example, run the unittest suite with:
 
-`$ python3 -m unittest test.test_suite_pyglow`
+`$ pytest test/`
 
 (Be sure that the f2py modules have been compiled via `$ make -C src/pyglow/models source`, first.)
 

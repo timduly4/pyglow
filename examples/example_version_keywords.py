@@ -11,10 +11,6 @@ alt = 250.
 
 pt = Point(dn, lat, lon, alt)
 
-pt._run_hwm93()
-pt._run_hwm07()
-pt._run_hwm14()
-
 pt.run_hwm(version=1993)
 pt.run_hwm(version=2007)
 pt.run_hwm(version=2014)
