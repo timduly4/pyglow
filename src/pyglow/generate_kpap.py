@@ -11,6 +11,7 @@ import os
 from numpy import nanmean
 import sys
 import glob
+import pandas as pd
 
 
 """
@@ -183,55 +184,47 @@ def generate_kpap():
     dst = {}
     ae = {}
 
-    for y in range(1932, END_YEAR):
-        fn = PYGLOW_PATH + "/kpap/%4i" % y
-        if os.path.isfile(fn):  # If the file has been downloaded
-            f = open(fn)
-            for x in f.readlines():
-                # parse the line for the year, only last 2 digits:
-                year = int(x[0:2])
+    kpap = pd.read_csv(PYGLOW_PATH +'/kpap/Kp_ap_Ap_SN_F107_since_1932.txt',
+                       delim_whitespace=True, comment='#', header=None)
+    for i in range(len(kpap)):
+        vals = kpap.loc[i]
+        year = int(vals[0])
+        month = int(vals[1])
+        day = int(vals[2])
+        kp[datetime(year, month, day, 0)] = vals[7]
+        kp[datetime(year, month, day, 3)] = vals[8]
+        kp[datetime(year, month, day, 6)] = vals[9]
+        kp[datetime(year, month, day, 9)] = vals[10]
+        kp[datetime(year, month, day, 12)] = vals[11]
+        kp[datetime(year, month, day, 15)] = vals[12]
+        kp[datetime(year, month, day, 18)] = vals[13]
+        kp[datetime(year, month, day, 21)] = vals[14]
 
-                if year < 30:  # need to change this is 2030....
-                    year = year + 2000
-                else:
-                    year = year + 1900
+        ap[datetime(year, month, day, 0)] = vals[15]
+        ap[datetime(year, month, day, 3)] = vals[16]
+        ap[datetime(year, month, day, 6)] = vals[17]
+        ap[datetime(year, month, day, 9)] = vals[18]
+        ap[datetime(year, month, day, 12)] = vals[19]
+        ap[datetime(year, month, day, 15)] = vals[20]
+        ap[datetime(year, month, day, 18)] = vals[21]
+        ap[datetime(year, month, day, 21)] = vals[22]
 
-                month = int(x[2:4])  # parse the line for month
-                day = int(x[4:6])  # ... and the days
+        daily_kp[datetime(year, month, day)] = np.sum(vals[7:15])
+        daily_ap[datetime(year, month, day)] = np.mean(vals[15:23])
 
-                # Parse the values for kp, ap, daily_kp, and daily_ap:
-                kp[datetime(year, month, day, 0)] = int(x[12:14])/10.
-                kp[datetime(year, month, day, 3)] = int(x[14:16])/10.
-                kp[datetime(year, month, day, 6)] = int(x[16:18])/10.
-                kp[datetime(year, month, day, 9)] = int(x[18:20])/10.
-                kp[datetime(year, month, day, 12)] = int(x[20:22])/10.
-                kp[datetime(year, month, day, 15)] = int(x[22:24])/10.
-                kp[datetime(year, month, day, 18)] = int(x[24:26])/10.
-                kp[datetime(year, month, day, 21)] = int(x[26:28])/10.
+        try:
+            temp = float(vals[26])  # f107
+        except ValueError:
+            temp = float('NaN')  # If the string is empty, just use NaN
 
-                ap[datetime(year, month, day, 0)] = int(x[31:34])
-                ap[datetime(year, month, day, 3)] = int(x[34:37])
-                ap[datetime(year, month, day, 6)] = int(x[37:40])
-                ap[datetime(year, month, day, 9)] = int(x[40:43])
-                ap[datetime(year, month, day, 12)] = int(x[43:46])
-                ap[datetime(year, month, day, 15)] = int(x[46:49])
-                ap[datetime(year, month, day, 18)] = int(x[49:52])
-                ap[datetime(year, month, day, 21)] = int(x[52:55])
+        if temp == 0.:  # Replace 0's of f107 with NaN
+            temp = float('NaN')
 
-                daily_kp[datetime(year, month, day)] = int(x[28:31])
-                daily_ap[datetime(year, month, day)] = int(x[55:58])
+        if temp == -1:  # Replace -1's of f107 with NaN
+            temp = float('NaN')
 
-                try:
-                    temp = float(x[65:70])  # f107
-                except ValueError:
-                    temp = float('NaN')  # If the string is empty, just use NaN
-
-                if temp == 0.:  # Replace 0's of f107 with NaN
-                    temp = float('NaN')
-
-                f107[datetime(year, month, day)] = temp
-
-            f.close()
+        f107[datetime(year, month, day)] = temp
+    del kpap
 
     # Caculate f107a:
     for dn, value in f107.items():
