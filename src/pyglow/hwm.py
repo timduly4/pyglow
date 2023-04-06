@@ -15,7 +15,7 @@ class HWM(object):
         self.u = nan
         self.v = nan
         self.hwm_version = None
-
+        self.hwm_dwm = None
         # Data path:
         self.data_path_stub = DIR_FILE
         self.testing_data_stub = False
@@ -24,18 +24,27 @@ class HWM(object):
             self.data_path_stub = "src/pyglow/models/dl_models"
             self.testing_data_stub = True
 
-    def run(self, location_time, version,
-            f107=None, f107a=None, ap=None, ap_daily=None):
+    def run(self, location_time, version, dwm = 'off',
+            f107=None, f107a=None, ap=None, ap_daily=None, ap1 = None):
         """
         Wrapper to call various HWM models
 
         :param location_time: Instance of LocationTime
         :param version: Version of HWM to run
+        :param dwm: How to do DWM -> 'on','off',interpolated
         :param f107: f107 indice (used for 93, 07)
         :param f107a: f107a indice (used for 93, 07)
         :param ap: ap indice (used for 07, 14)
         :param ap_daily: ap_daily indice (used for 93)
         """
+        if dwm == 'off':
+            ap = -1
+        elif dwm == 'on':
+            ap = ap
+        elif dwm == 'smooth':
+            ap = ap1
+
+        self.hwm_dwm = dwm
 
         # HWM93:
         if version == 1993:
