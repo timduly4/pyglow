@@ -220,18 +220,19 @@ class Point(object):
 
         return self
 
-    def run_hwm(self, version=2014, dwm = 'off'):
+    def run_hwm(self, version=2014, dwm = 'on'):
         """
         Executes HWM and assigns results to instance.
 
         Call examples:
+        - run_hwm(version=2014, dwm='on')  # Default setting: Standard DWM
+                                           # this can cause discontinuities
+                                           # in the wind due to the usage of
+                                           # the 3-hour ap to drive DWM.
 
         - run_hwm(version=2014, dwm='off') # Default, with ap=-1
 
-        - run_hwm(version=2014, dwm='on')  # Standard DWM -- this can cause
-                                           # discontinuities in the wind due
-                                           # to the usage of the 3-hour ap to
-                                           # drive DWM.
+
 
         - run_hwm(version=2014, dwm='smooth')   # This is our modified DWM:
                                                 # It interpolates the 3-hour

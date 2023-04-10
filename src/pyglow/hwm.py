@@ -24,7 +24,7 @@ class HWM(object):
             self.data_path_stub = "src/pyglow/models/dl_models"
             self.testing_data_stub = True
 
-    def run(self, location_time, version, dwm = 'off',
+    def run(self, location_time, version, dwm = 'on',
             f107=None, f107a=None, ap=None, ap_daily=None, ap1 = None):
         """
         Wrapper to call various HWM models

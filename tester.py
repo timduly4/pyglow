@@ -37,7 +37,7 @@ for lat in np.arange(45,75.1, 5):
     FFF107a = []
 
     apn = 0
-    for dwm in ['off', 'on', 'smooth']:
+    for dwm in [None, 'off','smooth']:
         UUU, VVV = [], []
         TIME = []
         for hour in np.arange(0, 24):
@@ -61,14 +61,19 @@ for lat in np.arange(45,75.1, 5):
         if dwm == 'off':
             linestyle = '--'
             linewidth = 0.5
-        elif dwm == 'on':
+        elif (dwm == 'on') or (dwm == None):
             linestyle = '-'
             linewidth = 0.5
         else:
             linestyle = '-'
             linewidth = 1.0
-        ax[0, 0].plot(TIME, UUU, color='blue', linestyle=linestyle, linewidth=linewidth, label=dwm.capitalize())
-        ax[0, 1].plot(TIME, VVV, color='red', linestyle=linestyle, linewidth=linewidth, label=dwm.capitalize())
+
+        if dwm == None:
+            label = 'None'
+        else:
+            label = dwm.capitalize()
+        ax[0, 0].plot(TIME, UUU, color='blue', linestyle=linestyle, linewidth=linewidth, label=label)
+        ax[0, 1].plot(TIME, VVV, color='red', linestyle=linestyle, linewidth=linewidth, label=label)
 
         apn = apn + 1
     ax[1, 0].plot(TIME, AP, color='black', linestyle='-', label='Ap')
