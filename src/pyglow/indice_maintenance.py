@@ -9,34 +9,19 @@ from .constants import DIR_FILE, VERSION
 from .geophysical_indices import Indice
 
 
-def _update_kpap(year):
+def _update_kpap():
     '''
     Update the Kp and Ap indices used in pyglow. The files will be downloaded
-    from noaa to your pyglow installation directory.
-
-    :param year: Year to download
+    from GFZ to your pyglow installation directory.
     '''
 
     # Pyglow directory:
     pyglow_dir = os.path.join(DIR_FILE, "kpap/")
+    
+    src = "https://kp.gfz-potsdam.de/app/files/Kp_ap_Ap_SN_F107_since_1932.txt"
+    dest = pyglow_dir + "/Kp_ap_Ap_SN_F107_since_1932.txt"
 
-    src = 'ftp://ftp.ngdc.noaa.gov/'\
-          + 'STP/GEOMAGNETIC_DATA/INDICES/KP_AP/%4i' % (year,)
-
-    des = pyglow_dir + "%4i" % (year,)
-    print("\nDownloading\n{src}\nto\n{des}".format(src=src, des=des))
-    try:
-        with contextlib.closing(urllib.request.urlopen(src)) as r:
-            with open(des, 'wb') as f:
-                shutil.copyfileobj(r, f)
-    except IOError as e:
-        print(
-            "Failed downloading data for year {}."
-            "File does not exist ({})".format(
-                year,
-                str(e),
-            ),
-        )
+    urllib.request.urlretrieve(src, dest)
 
     return
 
@@ -195,9 +180,9 @@ def update_indices(year0, year1=None):
     else:
         years = [year0]
 
+    _update_kpap()
     # Update each of the indices for each year:
     for year in years:
-        _update_kpap(year)
         _update_dst(year)
         _update_ae(year)
 
