@@ -54,6 +54,14 @@ $ cd pyglow/
 $ make -C src/pyglow/models source
 $ python3 setup.py install --user
 ```
+### Troubleshooting
+
+As of Apr 2023, pyglow is far behind on maintenance. A fresh installation is difficult. In case it helps, here are the steps I used to successfully install it:
+- use Python3.8 (pyglow is incompatible with Python3.10)
+- pip install ipykernel jupyter numpy==1.20 scipy matplotlib future charset_normalizer pandas==1.3
+
+A solution to Issue #139 is sorely needed.
+
 
 ### Trouble in downloading model files:
 
