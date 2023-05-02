@@ -2,19 +2,21 @@
 !!!  Horizontal Wind Model 14
 !!!
 !!!  AUTHORS
-!!!    Douglas P. Drob (0 to ~450+ km, quite-time)
-!!!     and John Emmert (disturbance winds, DWM Emmert et al., (2008))
+!!!    Douglas Drob  (0 to ~450+ km, quite-time)
+!!!    John Emmert   (disturbance winds, DWM Emmert et al., (2008))
 !!!    Geospace Science and Technology Branch
 !!!    Space Science Division
 !!!    Naval Research Laboratory
 !!!    4555 Overlook Ave.
 !!!    Washington, DC 20375
 !!!
-!!! Point of Contact
+!!!  Point of Contact
 !!!   douglas.drob@nrl.navy.mil
 !!!
 !!!   DATE
 !!!    July 8, 2014
+!!!
+!!!
 !!!
 !!!================================================================================
 !!! Input arguments:
@@ -235,7 +237,7 @@ module qwm
     logical                    :: content(5) = .true.          ! Season/Waves/Tides
     logical                    :: component(0:1) = .true.      ! Compute zonal/meridional
 
-    character(128)             :: qwmdefault = 'hwm14-beta.bin'
+    character(128)             :: qwmdefault = 'hwm123114.bin'
     logical                    :: qwminit = .true.
 
     real(8)                    :: wavefactor(4) = 1.0
@@ -265,7 +267,7 @@ module dwm
     real(8), parameter         :: dtor=pi/180.d0
 
     logical                    :: dwminit = .true.
-    character(128), parameter  :: dwmdefault = 'dwm07b_104i.dat'
+    character(128), parameter  :: dwmdefault = 'dwm07b104i.dat'
 
 end module dwm
 
@@ -1436,7 +1438,7 @@ subroutine findandopen(datafile,unitid)
         inquire(file=trim(datafile),exist=havefile)
         if (havefile) open(unit=unitid,file=trim(datafile),status='old',form='unformatted')
         if (.not. havefile) then
-            call GET_ENVIRONMENT_VARIABLE('HWMPATH',hwmpath)
+            call get_environment_variable('HWMPATH',hwmpath)
             inquire(file=trim(hwmpath)//'/'//trim(datafile),exist=havefile)
             if (havefile) open(unit=unitid, &
                 file=trim(hwmpath)//'/'//trim(datafile),status='old',form='unformatted')
@@ -1450,7 +1452,7 @@ subroutine findandopen(datafile,unitid)
         inquire(file=trim(datafile),exist=havefile)
         if (havefile) open(unit=unitid,file=trim(datafile),status='old',access='stream')
         if (.not. havefile) then
-            call GET_ENVIRONMENT_VARIABLE('HWMPATH',hwmpath)
+            call get_environment_variable('HWMPATH',hwmpath)
             inquire(file=trim(hwmpath)//'/'//trim(datafile),exist=havefile)
             if (havefile) open(unit=unitid, &
                 file=trim(hwmpath)//'/'//trim(datafile),status='old',access='stream')

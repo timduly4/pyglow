@@ -195,8 +195,8 @@ setup(
             'pyglow/hwm14_data/',
             [
                 'src/pyglow/models/dl_models/hwm14/gd2qd.dat',
-                'src/pyglow/models/dl_models/hwm14/dwm07b_104i.dat',
-                'src/pyglow/models/dl_models/hwm14/hwm14-beta.bin',
+                'src/pyglow/models/dl_models/hwm14/dwm07b104i.dat',
+                'src/pyglow/models/dl_models/hwm14/hwm123114.bin',
                 'src/pyglow/models/dl_models/hwm14/hwm14.f90',
             ],
         ),

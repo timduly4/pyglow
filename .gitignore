@@ -2,6 +2,16 @@
 mtime_table.pkl
 geophysical_indices.npy
 build/
-src/pyglow/models/dl_models/
+src/pyglow/models/dl_models/iri16/
+src/pyglow/models/dl_models/iri12/
+src/pyglow/models/dl_models/hwm93/
+src/pyglow/models/dl_models/hwm07/
+#src/pyglow/models/dl_models/hwm14/ commented bc HWM14 is shipped with pyglow, not downloaded
+src/pyglow/models/dl_models/igrf11/
+src/pyglow/models/dl_models/igrf12/
+src/pyglow/models/dl_models/msis/
 src/pyglow/.DS_Store
 src/pyglow/kpap/.DS_Store
+.DS_Store
+src/pyglow/models/dl_models/hwm14/out1
+*.pyf
