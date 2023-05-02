@@ -24,6 +24,7 @@ class Indice(object):
         self.ap_daily = nan
         self.dst = nan
         self.ae = nan
+        self.ap1 = nan
 
         # AP values for MSIS:
         self.apmsis = [nan, ] * 7
@@ -34,7 +35,7 @@ class Indice(object):
         """
 
         # Geophysical indices:
-        kp, ap, f107, f107a, f107p, kp_daily, ap_daily, dst, ae = \
+        kp, ap, f107, f107a, f107p, kp_daily, ap_daily, dst, ae, ap1 = \
             get_kpap(self.dn)
 
         # Assign to member variables:
@@ -47,6 +48,7 @@ class Indice(object):
         self.ap_daily = ap_daily
         self.dst = dst
         self.ae = ae
+        self.ap1 = ap1
 
         # AP values for MSIS:
         self.apmsis = get_apmsis(self.dn)

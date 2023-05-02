@@ -1,4 +1,5 @@
 *.pyc
+*.DS_Store
 mtime_table.pkl
 geophysical_indices.npy
 build/
