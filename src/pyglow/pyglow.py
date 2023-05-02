@@ -102,6 +102,7 @@ class Point(object):
         self.ap_daily = self.indice.ap_daily
         self.dst = self.indice.dst
         self.ae = self.indice.ae
+        self.ap1 = self.indice.ap1
         self.apmsis = self.indice.apmsis
 
         # For msis:
@@ -115,6 +116,7 @@ class Point(object):
         self.u = self.hwm.u
         self.v = self.hwm.v
         self.hwm_version = self.hwm.hwm_version
+        self.hwm_dwm = self.hwm.hwm_dwm
 
         # For igrf:
         self.igrf = IGRF()
@@ -218,9 +220,24 @@ class Point(object):
 
         return self
 
-    def run_hwm(self, version=2014):
+    def run_hwm(self, version=2014, dwm = 'on'):
         """
         Executes HWM and assigns results to instance.
+
+        Call examples:
+        - run_hwm(version=2014, dwm='on')  # Default setting: Standard DWM
+                                           # this can cause discontinuities
+                                           # in the wind due to the usage of
+                                           # the 3-hour ap to drive DWM.
+
+        - run_hwm(version=2014, dwm='off') # Default, with ap=-1
+
+
+
+        - run_hwm(version=2014, dwm='smooth')   # This is our modified DWM:
+                                                # It interpolates the 3-hour
+                                                # ap index into a smooth curve
+                                                # using a cubic interpolation.
 
         :param version: Version of HWM to run
         """
@@ -229,16 +246,19 @@ class Point(object):
         self.hwm.run(
             self.location_time,
             version,
+            dwm,
             f107=self.f107,
             f107a=self.f107a,
             ap=self.ap,
             ap_daily=self.ap_daily,
+            ap1=self.ap1
         )
 
         # Assign output:
         self.u = self.hwm.u
         self.v = self.hwm.v
         self.hwm_version = self.hwm.hwm_version
+        self.hwm_dwm = self.hwm.hwm_dwm
 
         return self
 
