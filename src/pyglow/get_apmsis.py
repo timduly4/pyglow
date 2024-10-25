@@ -40,7 +40,7 @@ def get_apmsis(dn):
         7/21/12 Created, Timothy Duly (duly2@illinois.edu)
 
     """
-    out = float('nan')*np.zeros(8)
+    out = float('nan')*np.zeros(7) # chnaged from zeros(8), run_msis() complained 
 
     # (1) DAILY AP
     _, ap, _, _, _, _, daily_ap, _, _, ap1 = get_kpap(dn)
@@ -95,5 +95,5 @@ def get_apmsis(dn):
 
     # (8) CUBIC INTERPOLATED AP INDEX AT THE TIME dn
 
-    out[7] = ap1
+    # out[7] = ap1 ## run_msis() complained about dimension had to remove this 
     return out
